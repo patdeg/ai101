@@ -1,41 +1,102 @@
 #!/usr/bin/env python3
 """
-Example 3: Vision - Analyzing Images
-The AI can "see" and analyze images using base64 encoding
+Example 3: Vision - AI Image Analysis with Base64 Encoding
+
+WHAT THIS DEMONSTRATES:
+    - How to enable AI to "see" and analyze images
+    - Reading binary image files in Python
+    - Base64 encoding for embedding images in JSON
+    - Multi-modal content (text + image) in a single request
+    - Automatic image format detection
+
+WHAT YOU'LL LEARN:
+    - Binary file handling with 'rb' mode
+    - Base64 encoding/decoding for images
+    - MIME type detection from file extensions
+    - Data URL format for embedded images
+    - Multi-content message structure
+    - Error handling with try/except
+
+PREREQUISITES:
+    - Python 3.6 or higher
+    - GROQ_API_KEY environment variable set
+    - A test image file (test_image.jpg)
+    - Vision-capable AI model
+
+EXPECTED OUTPUT:
+    - Image file information (path, size, encoding size)
+    - Detailed AI analysis of the image content
+    - Token usage statistics
+
+Run with: python3 03_vision.py
+Create test image: curl -o test_image.jpg https://picsum.photos/400/300
 """
 
-import http.client
-import json
-import os
-import base64
+import http.client  # For HTTPS API requests
+import json         # For JSON encoding/decoding
+import os           # For environment variables
+import base64       # For encoding binary image data to text
 
-# Check for API key
+# ==============================================================================
+# Step 1: Load and validate API credentials
+# ==============================================================================
+
+# Retrieve API key from environment variable
 api_key = os.environ.get('GROQ_API_KEY')
+
+# Validate API key exists
 if not api_key:
     print("Error: GROQ_API_KEY not set")
     exit(1)
 
-# Path to your image file
-image_path = './test_image.jpg'
+# ==============================================================================
+# Step 2: Specify the image file path
+# ==============================================================================
 
-# Read and encode the image
+# Path to your image file (using shared test image from root directory)
+image_path = '../test_image.jpg'
+
+# ==============================================================================
+# Step 3: Read and encode the image file
+# ==============================================================================
+
+# Before sending images to the API, we must:
+# 1. Read the image as binary data
+# 2. Encode it to base64 (converts binary to text)
+# 3. Create a data URL with the base64 string
+
+# Try to read and encode the image (with error handling)
 try:
+    # Open file in binary read mode ('rb') - images are binary data, not text
     with open(image_path, 'rb') as image_file:
+        # Read the entire image file into memory as bytes
         image_data = image_file.read()
+
+        # Before sending to API, encode binary data to base64 string
+        # base64.b64encode() returns bytes, so we decode to get a string
         image_base64 = base64.b64encode(image_data).decode('utf-8')
 
+    # Display image loading information
     print(f"Image loaded: {image_path}")
     print(f"Image size: {len(image_data) / 1024:.2f} KB")
     print(f"Base64 size: {len(image_base64) / 1024:.2f} KB")
     print("(Base64 is ~33% larger than original)\n")
 
 except FileNotFoundError:
+    # Handle case where image file doesn't exist
     print(f"Error: Image file '{image_path}' not found")
     print("\nTo create a test image, run:")
     print("  curl -o test_image.jpg https://picsum.photos/400/300")
     exit(1)
 
-# Detect image format from file extension
+# ==============================================================================
+# Step 4: Detect image MIME type from file extension
+# ==============================================================================
+
+# Before creating the data URL, we need to specify the correct MIME type
+# This tells the API what kind of image we're sending
+
+# Check file extension to determine MIME type
 if image_path.lower().endswith('.png'):
     mime_type = 'image/png'
 elif image_path.lower().endswith(('.jpg', '.jpeg')):
@@ -45,52 +106,104 @@ elif image_path.lower().endswith('.gif'):
 elif image_path.lower().endswith('.webp'):
     mime_type = 'image/webp'
 else:
-    mime_type = 'image/jpeg'  # default
+    mime_type = 'image/jpeg'  # Default to JPEG if unknown
 
-# Build the data URL
+# ==============================================================================
+# Step 5: Build the data URL with base64-encoded image
+# ==============================================================================
+
+# Create data URL format: data:[mime-type];base64,[base64-data]
+# This is how we embed the image directly in JSON
 image_url = f"data:{mime_type};base64,{image_base64}"
 
-# Create the request
+# ==============================================================================
+# Step 6: Create the request payload with multi-modal content
+# ==============================================================================
+
+# Before building the payload, understand the content array structure:
+# - Each user message can contain multiple content items
+# - Content items can be text OR images
+# - The AI processes them together
+
+# Create the request with BOTH text and image content
 payload = {
     "model": "meta-llama/llama-4-scout-17b-16e-instruct",
     "messages": [
         {
             "role": "user",
+            # IMPORTANT: content is now an ARRAY of content items, not a string
             "content": [
                 {
+                    # First content item: text instruction
                     "type": "text",
                     "text": "What is in this image? Describe it in detail."
                 },
                 {
+                    # Second content item: the image itself
                     "type": "image_url",
                     "image_url": {
-                        "url": image_url
+                        "url": image_url  # Our base64-encoded data URL
                     }
                 }
             ]
         }
     ],
-    "temperature": 0.3,
-    "max_tokens": 500
+    "temperature": 0.3,  # Low temperature for factual, detailed descriptions
+    "max_tokens": 500    # Allow longer response for detailed image description
 }
 
+# ==============================================================================
+# Step 7: Establish HTTPS connection to the API
+# ==============================================================================
+
+# Create secure connection to Groq API
 conn = http.client.HTTPSConnection("api.groq.com")
+
+# ==============================================================================
+# Step 8: Prepare authentication headers
+# ==============================================================================
+
+# Set up required headers
 headers = {
     'Content-Type': 'application/json',
     'Authorization': f'Bearer {api_key}'
 }
 
+# ==============================================================================
+# Step 9: Send the POST request with image data
+# ==============================================================================
+
+# Make the API request (this may take longer due to image processing)
 conn.request("POST", "/openai/v1/chat/completions", json.dumps(payload), headers)
+
+# ==============================================================================
+# Step 10: Receive and parse the response
+# ==============================================================================
+
+# Get the response from the server
 response = conn.getresponse()
+
+# Parse the JSON response
 response_data = json.loads(response.read().decode('utf-8'))
+
+# ==============================================================================
+# Step 11: Clean up the connection
+# ==============================================================================
+
+# Close the connection
 conn.close()
 
-# Display results
+# ==============================================================================
+# Step 12: Display the AI's image analysis
+# ==============================================================================
+
+# Display the AI's visual analysis of the image
 print("AI Vision Analysis:")
 print("=" * 50)
 print(response_data['choices'][0]['message']['content'])
 print("=" * 50)
 
+# Show token usage (note: images consume more tokens than text)
 print(f"\nToken Usage: {response_data['usage']['total_tokens']} tokens")
 
 # Python file handling concepts:

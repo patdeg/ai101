@@ -68,21 +68,47 @@ type Usage struct {
 	TotalTokens      int `json:"total_tokens"`
 }
 
+// MAIN FUNCTION OVERVIEW:
+// =======================
+// What this example demonstrates:
+//   - Sending images to multimodal AI models
+//   - Base64 encoding for binary data transmission
+//   - Building multimodal messages (text + images)
+//   - Reading files and detecting MIME types in Go
+//
+// What you'll learn:
+//   - How to read and encode image files
+//   - How to construct data URLs for images
+//   - How to create content arrays with mixed types
+//   - How AI models can analyze visual content
+//
+// Expected output:
+//   - Image file information (size, encoding)
+//   - Detailed AI description of the image content
+//   - Token usage (images use more tokens than text!)
+//
 func main() {
-	// Check for API key
+	// Step 1: Get API key from environment variable
+	// Authentication is required for all API calls
 	apiKey := os.Getenv("GROQ_API_KEY")
+
+	// Verify API key exists
 	if apiKey == "" {
 		fmt.Println("Error: GROQ_API_KEY environment variable not set")
 		fmt.Println("Run: export GROQ_API_KEY='your_key_here'")
 		os.Exit(1)
 	}
 
-	// Path to image file
-	imagePath := "./test_image.jpg"
+	// Step 2: Define path to image file
+	// Using the shared test image from the root directory
+	imagePath := "../test_image.jpg"
 
-	// Read the image file
-	// os.ReadFile reads entire file into memory as []byte
+	// Step 3: Read the image file from disk
+	// os.ReadFile reads the entire file into memory as a byte slice ([]byte)
+	// This is convenient for small files like images
 	imageData, err := os.ReadFile(imagePath)
+
+	// Check if file was read successfully
 	if err != nil {
 		fmt.Printf("Error: Image file '%s' not found\n", imagePath)
 		fmt.Println("\nTo create a test image, run:")
@@ -90,116 +116,156 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Encode image to base64
-	// base64.StdEncoding.EncodeToString converts []byte to base64 string
+	// Step 4: Encode image to base64
+	// Base64 converts binary data (image bytes) to text format
+	// This is necessary because JSON can't contain raw binary data
+	// base64.StdEncoding.EncodeToString converts []byte to a base64 string
 	imageBase64 := base64.StdEncoding.EncodeToString(imageData)
 
-	// Display image info
+	// Display information about the image and encoding
+	// This helps understand the size overhead of base64 encoding
 	fmt.Printf("Image loaded: %s\n", imagePath)
-	fmt.Printf("Image size: %.2f KB\n", float64(len(imageData))/1024)
-	fmt.Printf("Base64 size: %.2f KB\n", float64(len(imageBase64))/1024)
+	fmt.Printf("Image size: %.2f KB\n", float64(len(imageData))/1024)       // Original size
+	fmt.Printf("Base64 size: %.2f KB\n", float64(len(imageBase64))/1024)   // Encoded size
 	fmt.Println("(Base64 is ~33% larger than original)\n")
 
-	// Detect MIME type from file extension
-	// strings.ToLower converts to lowercase
-	// filepath.Ext gets file extension (e.g., ".jpg")
+	// Step 5: Detect MIME type from file extension
+	// MIME type tells the API what kind of image this is
+	// filepath.Ext extracts the file extension (e.g., ".jpg")
+	// strings.ToLower ensures we can match regardless of case (.JPG vs .jpg)
 	ext := strings.ToLower(filepath.Ext(imagePath))
 	var mimeType string
+
+	// Match extension to MIME type using a switch statement
 	switch ext {
 	case ".png":
 		mimeType = "image/png"
-	case ".jpg", ".jpeg":
+	case ".jpg", ".jpeg": // Multiple cases can share the same action
 		mimeType = "image/jpeg"
 	case ".gif":
 		mimeType = "image/gif"
 	case ".webp":
 		mimeType = "image/webp"
 	default:
-		mimeType = "image/jpeg" // default
+		mimeType = "image/jpeg" // Fallback if extension is unknown
 	}
 
-	// Build data URL
-	// Format: data:image/jpeg;base64,<base64_string>
+	// Step 6: Build data URL
+	// Data URL format: data:<mime-type>;base64,<base64-encoded-data>
+	// This embeds the entire image directly in the request
+	// fmt.Sprintf works like printf but returns a string instead of printing
 	imageURL := fmt.Sprintf("data:%s;base64,%s", mimeType, imageBase64)
 
-	// Create the request with multimodal content
-	// Content is an array containing both text and image
+	// Step 7: Create the request with multimodal content
+	// The Content field is now an ARRAY of ContentItem structs
+	// This allows us to mix text and images in a single message
 	request := VisionRequest{
 		Model: "meta-llama/llama-4-scout-17b-16e-instruct",
 		Messages: []VisionMessage{
 			{
-				Role: "user",
-				Content: []ContentItem{
+				Role: "user", // This is still a user message
+				Content: []ContentItem{ // But content is now an array!
 					{
+						// First content item: text prompt
 						Type: "text",
 						Text: "What is in this image? Describe it in detail.",
 					},
 					{
+						// Second content item: the image
 						Type: "image_url",
-						ImageURL: &ImageURL{
-							URL: imageURL,
+						ImageURL: &ImageURL{ // Pointer to ImageURL struct
+							URL: imageURL, // Our data URL with base64 image
 						},
 					},
 				},
 			},
 		},
-		Temperature: 0.3,
-		MaxTokens:   500,
+		Temperature: 0.3, // Low temperature for factual, detailed descriptions
+		MaxTokens:   500, // Images need more tokens for detailed descriptions
 	}
 
-	// Convert struct to JSON
+	// Step 8: Convert struct to JSON
+	// Marshal serializes our complex nested structure to JSON
 	jsonData, err := json.Marshal(request)
+
+	// Check for marshaling errors
 	if err != nil {
 		fmt.Printf("Error creating JSON: %v\n", err)
 		os.Exit(1)
 	}
 
-	// Create HTTP request
+	// Step 9: Create HTTP request
+	// Build POST request with our JSON payload
 	req, err := http.NewRequest(
-		"POST",
-		"https://api.groq.com/openai/v1/chat/completions",
-		bytes.NewBuffer(jsonData),
+		"POST",                                            // HTTP method
+		"https://api.groq.com/openai/v1/chat/completions", // Same endpoint as text-only requests
+		bytes.NewBuffer(jsonData),                         // Request body with image data
 	)
+
+	// Check if request creation succeeded
 	if err != nil {
 		fmt.Printf("Error creating request: %v\n", err)
 		os.Exit(1)
 	}
 
-	// Set headers
+	// Step 10: Set HTTP headers
+	// Standard headers for JSON API requests
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+apiKey)
 
-	// Send the request
+	// Step 11: Send the HTTP request
+	// Execute the request using an HTTP client
 	client := &http.Client{}
 	resp, err := client.Do(req)
+
+	// Check if the request was sent successfully
 	if err != nil {
 		fmt.Printf("Error sending request: %v\n", err)
 		os.Exit(1)
 	}
+
+	// Schedule response cleanup when function exits
 	defer resp.Body.Close()
 
-	// Read the response
+	// Step 12: Read the response body
+	// Read all bytes from the HTTP response
 	body, err := io.ReadAll(resp.Body)
+
+	// Check if reading succeeded
 	if err != nil {
 		fmt.Printf("Error reading response: %v\n", err)
 		os.Exit(1)
 	}
 
-	// Parse the JSON response
+	// Step 13: Parse the JSON response
+	// Declare variable to hold the parsed response
 	var response ChatResponse
+
+	// Deserialize JSON into our struct
 	err = json.Unmarshal(body, &response)
+
+	// Check if JSON parsing succeeded
 	if err != nil {
 		fmt.Printf("Error parsing JSON: %v\n", err)
 		fmt.Printf("Raw response: %s\n", string(body))
 		os.Exit(1)
 	}
 
-	// Display results
+	// Step 14: Display results
+	// Show the AI's analysis of the image
+
+	// Print decorative separator
 	fmt.Println("AI Vision Analysis:")
-	fmt.Println(strings.Repeat("=", 50))
+	fmt.Println(strings.Repeat("=", 50)) // Creates a line of 50 equals signs
+
+	// Display the AI's description of the image
 	fmt.Println(response.Choices[0].Message.Content)
+
+	// Print another separator for clarity
 	fmt.Println(strings.Repeat("=", 50))
 
+	// Display token usage
+	// Note: Images consume more tokens than equivalent text!
 	fmt.Printf("\nToken Usage: %d tokens\n", response.Usage.TotalTokens)
 }
 

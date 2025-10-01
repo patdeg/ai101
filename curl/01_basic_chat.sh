@@ -1,25 +1,49 @@
 #!/bin/bash
 
-# Example 1: Basic Chat
-# This sends a simple question to the AI model and gets a response.
+################################################################################
+# EXAMPLE 1: BASIC CHAT
+################################################################################
+#
+# What this demonstrates:
+#   - How to make your first API call to an AI model
+#   - Sending a simple question and receiving a response
+#   - Basic structure of the chat completions API
+#
+# What you'll learn:
+#   - How to structure a chat API request
+#   - What headers are required for authentication
+#   - How to control response behavior with parameters
+#
+# Prerequisites:
+#   - GROQ_API_KEY environment variable must be set
+#   - curl command installed (usually pre-installed on Linux/Mac)
+#
+# Expected output:
+#   - JSON response containing the AI's answer
+#   - The answer will be in response.choices[0].message.content
+#
+################################################################################
 
-# The API endpoint - this is where we send our request
+# Store the API endpoint URL in a variable for easy reference
+# This is Groq's chat completions endpoint (OpenAI-compatible)
 API_URL="https://api.groq.com/openai/v1/chat/completions"
 
-# Make the API call using curl
+# Now we'll make the API call using curl
+# curl is a command-line tool for sending HTTP requests
+# We're using POST method (default when using -d) to send our question
 curl "$API_URL" \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $GROQ_API_KEY" \
+  -H "Content-Type: application/json" \           # Tell the server we're sending JSON data
+  -H "Authorization: Bearer $GROQ_API_KEY" \      # Authenticate with your API key
   -d '{
     "model": "meta-llama/llama-4-scout-17b-16e-instruct",
     "messages": [
       {
-        "role": "user",
+        "role": "user",                           # We are the user asking a question
         "content": "What is the capital of Switzerland?"
       }
     ],
-    "temperature": 0.7,
-    "max_tokens": 100
+    "temperature": 0.7,                           # Creativity level (0=focused, 2=creative)
+    "max_tokens": 100                             # Limit response length to about 75 words
   }'
 
 # What each part means:

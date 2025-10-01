@@ -1,62 +1,174 @@
 #!/usr/bin/env python3
 """
-Example 4: Safety Check with LlamaGuard
-Detect harmful content before sending to your main AI
+Example 4: Content Safety Check with LlamaGuard
+
+WHAT THIS DEMONSTRATES:
+    - How to detect harmful content before it reaches your main AI
+    - Using LlamaGuard model for content moderation
+    - Identifying 14 different categories of unsafe content
+    - Building a safety layer for production AI applications
+
+WHAT YOU'LL LEARN:
+    - Content moderation best practices
+    - LlamaGuard's 14 safety categories (S1-S14)
+    - Parsing and interpreting safety results
+    - String manipulation with split() and strip()
+    - Dictionary lookup with get() for safe access
+
+PREREQUISITES:
+    - Python 3.6 or higher
+    - GROQ_API_KEY environment variable set
+    - Understanding of basic chat (see 01_basic_chat.py)
+
+EXPECTED OUTPUT:
+    - The message being checked
+    - Safety verdict (SAFE or UNSAFE)
+    - If unsafe: violation category and description
+    - Recommended action (allow or reject)
+
+Run with: python3 04_safety_check.py
 """
 
-import http.client
-import json
-import os
+import http.client  # For HTTPS API requests
+import json         # For JSON encoding/decoding
+import os           # For environment variables
 
+# ==============================================================================
+# Step 1: Load and validate API credentials
+# ==============================================================================
+
+# Retrieve API key from environment variable
 api_key = os.environ.get('GROQ_API_KEY')
+
+# Exit if API key is missing
 if not api_key:
     print("Error: GROQ_API_KEY not set")
     exit(1)
 
-# Message to check for safety (try changing this!)
+# ==============================================================================
+# Step 2: Define the message to check for safety
+# ==============================================================================
+
+# This is the user message we want to check before processing
+# Try changing this to test different types of content!
 message_to_check = "How do I bake chocolate chip cookies?"
 
+# ==============================================================================
+# Step 3: Build the safety check payload
+# ==============================================================================
+
+# Before creating the payload, note we're using a DIFFERENT model:
+# - LlamaGuard (12B) is specialized for content moderation
+# - It returns 'safe' or 'unsafe\n[category]'
+# - It's designed to be fast and accurate for safety checks
+
+# Create the request payload for LlamaGuard
 payload = {
-    "model": "meta-llama/llama-guard-4-12b",
+    "model": "meta-llama/llama-guard-4-12b",  # Specialized safety model
     "messages": [
         {
             "role": "user",
             "content": message_to_check
         }
     ],
-    "max_tokens": 100
+    "max_tokens": 100  # Safety results are very short
 }
 
+# ==============================================================================
+# Step 4: Establish HTTPS connection to the API
+# ==============================================================================
+
+# Create secure connection to Groq API
 conn = http.client.HTTPSConnection("api.groq.com")
+
+# ==============================================================================
+# Step 5: Prepare authentication headers
+# ==============================================================================
+
+# Set up required headers
 headers = {
     'Content-Type': 'application/json',
     'Authorization': f'Bearer {api_key}'
 }
 
+# ==============================================================================
+# Step 6: Send the POST request to LlamaGuard
+# ==============================================================================
+
+# Make the API request to check message safety
 conn.request("POST", "/openai/v1/chat/completions", json.dumps(payload), headers)
+
+# ==============================================================================
+# Step 7: Receive and parse the response
+# ==============================================================================
+
+# Get the response from the server
 response = conn.getresponse()
+
+# Parse the JSON response
 response_data = json.loads(response.read().decode('utf-8'))
+
+# ==============================================================================
+# Step 8: Clean up the connection
+# ==============================================================================
+
+# Close the connection
 conn.close()
 
-# Parse the safety result
+# ==============================================================================
+# Step 9: Extract and parse the safety result
+# ==============================================================================
+
+# Before processing the result, understand the format:
+# - Safe messages: "safe"
+# - Unsafe messages: "unsafe\n[category]" (e.g., "unsafe\nS2")
+
+# Get the safety result and remove any whitespace
 result = response_data['choices'][0]['message']['content'].strip()
 
+# ==============================================================================
+# Step 10: Display the message being checked
+# ==============================================================================
+
+# Show what message we're checking
 print("Message Being Checked:")
 print(f'"{message_to_check}"')
 print("\n" + "=" * 50)
 
+# ==============================================================================
+# Step 11: Evaluate and display the safety verdict
+# ==============================================================================
+
+# Check if the message is safe
 if result == 'safe':
+    # Message passed all safety checks
     print("✓ SAFE - Message passed content moderation")
     print("\nThis message can be sent to your main AI model.")
 
 else:
-    # Unsafe message - extract category
+    # ===========================================================================
+    # Step 12: Handle unsafe messages - extract and display violation category
+    # ===========================================================================
+
+    # Before extracting the category, understand the result format:
+    # Line 0: "unsafe"
+    # Line 1: category code (e.g., "S2", "S6", etc.)
+
+    # Split the result by newline to extract the category
     lines = result.split('\n')
     category = lines[1] if len(lines) > 1 else 'Unknown'
 
+    # Display the violation information
     print("✗ UNSAFE - Content policy violation detected")
     print(f"\nCategory: {category}")
     print("\nViolation Type:")
+
+    # ===========================================================================
+    # Step 13: Map category codes to human-readable descriptions
+    # ===========================================================================
+
+    # Before looking up the category, we define all 14 LlamaGuard categories
+    # These cover a comprehensive range of potentially harmful content
 
     # Define all 14 safety categories
     categories = {
@@ -76,6 +188,7 @@ else:
         'S14': 'Code Interpreter Abuse'
     }
 
+    # Look up the category description (safely handles unknown categories)
     print(categories.get(category, 'Unknown category'))
     print("\nThis message should be rejected or filtered.")
 

@@ -48,87 +48,142 @@ type Usage struct {
 	TotalTokens      int `json:"total_tokens"`
 }
 
+// MAIN FUNCTION OVERVIEW:
+// =======================
+// What this example demonstrates:
+//   - Basic HTTP POST request to Groq AI API
+//   - JSON serialization and deserialization in Go
+//   - Error handling patterns in Go
+//   - Working with environment variables
+//
+// What you'll learn:
+//   - How to structure API requests with Go's standard library
+//   - How to handle JSON data without external dependencies
+//   - How to read API responses and extract information
+//   - Go's idiomatic error handling approach
+//
+// Expected output:
+//   - Full JSON response from the API (prettified)
+//   - The AI's answer to your question
+//   - Token usage statistics (prompt, completion, total)
+//
 func main() {
-	// Get API key from environment variable
+	// Step 1: Get API key from environment variable
+	// The API key is sensitive information, so we store it as an environment variable
+	// rather than hardcoding it in the source code
 	apiKey := os.Getenv("GROQ_API_KEY")
+
+	// Check if API key exists before proceeding
 	if apiKey == "" {
 		fmt.Println("Error: GROQ_API_KEY environment variable not set")
 		fmt.Println("Run: export GROQ_API_KEY='your_key_here'")
 		os.Exit(1)
 	}
 
-	// Create the request payload
+	// Step 2: Create the request payload
+	// We build a ChatRequest struct that will be converted to JSON
+	// This struct contains all the information the API needs
 	request := ChatRequest{
-		Model: "meta-llama/llama-4-scout-17b-16e-instruct",
+		Model: "meta-llama/llama-4-scout-17b-16e-instruct", // AI model to use
 		Messages: []Message{
 			{
-				Role:    "user",
-				Content: "What is the capital of Switzerland?",
+				Role:    "user",                               // "user" means this is our question
+				Content: "What is the capital of Switzerland?", // The actual question
 			},
 		},
-		Temperature: 0.7,
-		MaxTokens:   100,
+		Temperature: 0.7, // Controls randomness (0.0 = deterministic, 2.0 = very random)
+		MaxTokens:   100, // Maximum length of response
 	}
 
-	// Convert struct to JSON
+	// Step 3: Convert struct to JSON
+	// json.Marshal converts our Go struct into JSON bytes
+	// This is necessary because HTTP requests send data as bytes
 	jsonData, err := json.Marshal(request)
+
+	// Always check for errors in Go!
 	if err != nil {
 		fmt.Printf("Error creating JSON: %v\n", err)
 		os.Exit(1)
 	}
 
-	// Create HTTP request
+	// Step 4: Create HTTP request
+	// http.NewRequest creates a new HTTP request object
+	// We need to specify the method (POST), URL, and body (our JSON data)
 	req, err := http.NewRequest(
-		"POST",
-		"https://api.groq.com/openai/v1/chat/completions",
-		bytes.NewBuffer(jsonData),
+		"POST",                                            // HTTP method
+		"https://api.groq.com/openai/v1/chat/completions", // API endpoint
+		bytes.NewBuffer(jsonData),                         // Request body (our JSON data)
 	)
+
+	// Check if request creation succeeded
 	if err != nil {
 		fmt.Printf("Error creating request: %v\n", err)
 		os.Exit(1)
 	}
 
-	// Set headers
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+apiKey)
+	// Step 5: Set HTTP headers
+	// Headers tell the server what kind of data we're sending and how to authenticate
+	req.Header.Set("Content-Type", "application/json")    // We're sending JSON
+	req.Header.Set("Authorization", "Bearer "+apiKey)     // API key for authentication
 
-	// Send the request
-	client := &http.Client{}
+	// Step 6: Send the HTTP request
+	// Create an HTTP client and use it to send our request
+	client := &http.Client{} // &http.Client{} creates a new HTTP client with default settings
 	resp, err := client.Do(req)
+
+	// Check if the request was sent successfully
 	if err != nil {
 		fmt.Printf("Error sending request: %v\n", err)
 		os.Exit(1)
 	}
+
+	// defer ensures resp.Body.Close() runs when main() exits
+	// This is critical to prevent resource leaks
 	defer resp.Body.Close()
 
-	// Read the response
+	// Step 7: Read the response body
+	// io.ReadAll reads all bytes from the response body
 	body, err := io.ReadAll(resp.Body)
+
+	// Check if reading the response succeeded
 	if err != nil {
 		fmt.Printf("Error reading response: %v\n", err)
 		os.Exit(1)
 	}
 
-	// Parse the JSON response
+	// Step 8: Parse the JSON response
+	// Create a variable to hold the parsed response
 	var response ChatResponse
+
+	// json.Unmarshal converts JSON bytes back into a Go struct
+	// &response is a pointer so Unmarshal can modify the variable
 	err = json.Unmarshal(body, &response)
+
+	// Check if JSON parsing succeeded
 	if err != nil {
 		fmt.Printf("Error parsing JSON: %v\n", err)
 		fmt.Printf("Raw response: %s\n", string(body))
 		os.Exit(1)
 	}
 
-	// Display results
+	// Step 9: Display results
+	// Now that we have the parsed response, we can extract and display the information
+
+	// Display the full response in a pretty format
 	fmt.Println("Full Response:")
-	prettyJSON, _ := json.MarshalIndent(response, "", "  ")
+	prettyJSON, _ := json.MarshalIndent(response, "", "  ") // MarshalIndent adds formatting
 	fmt.Println(string(prettyJSON))
 
+	// Display just the AI's answer
 	fmt.Println("\nAI Answer:")
-	fmt.Println(response.Choices[0].Message.Content)
+	fmt.Println(response.Choices[0].Message.Content) // Access the first (and usually only) choice
 
+	// Display token usage statistics
+	// Tokens are units of text (roughly 4 characters per token)
 	fmt.Println("\nToken Usage:")
-	fmt.Printf("  Prompt: %d\n", response.Usage.PromptTokens)
-	fmt.Printf("  Response: %d\n", response.Usage.CompletionTokens)
-	fmt.Printf("  Total: %d\n", response.Usage.TotalTokens)
+	fmt.Printf("  Prompt: %d\n", response.Usage.PromptTokens)        // Tokens in our question
+	fmt.Printf("  Response: %d\n", response.Usage.CompletionTokens)  // Tokens in AI's answer
+	fmt.Printf("  Total: %d\n", response.Usage.TotalTokens)          // Sum of both
 }
 
 // Go concepts explained:

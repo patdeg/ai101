@@ -1,8 +1,16 @@
 /*
  * 03_vision.ino - Vision API Example with Base64 Encoding for ESP32/ESP8266
  *
- * This Arduino sketch demonstrates how to use vision models to analyze images.
- * The image is embedded as a base64-encoded string (a small 1x1 red pixel as demo).
+ * WHAT THIS EXAMPLE DEMONSTRATES:
+ * This Arduino sketch shows how to use vision-capable AI models to analyze images.
+ * The AI can "see" and describe what's in an image, just like a human!
+ *
+ * WHAT YOU'LL LEARN:
+ * - How to send images to AI vision models
+ * - What base64 encoding is and why we need it
+ * - How to handle Arduino's memory limitations with images
+ * - The difference between regular chat models and vision models
+ * - How to structure requests with both text and image content
  *
  * IMPORTANT: Vision models require images in base64 format. Due to Arduino's
  * limited RAM (ESP32 has ~520KB, ESP8266 has ~80KB), this example uses a tiny
@@ -10,20 +18,30 @@
  * 1. Store larger images on SPIFFS/SD card
  * 2. Read and encode them in chunks
  * 3. Use external memory if needed
+ * 4. Consider using ESP32-CAM for built-in camera support
  *
  * HARDWARE REQUIRED:
  * - ESP32 or ESP8266 board (these have built-in WiFi)
+ *   Examples: ESP32 DevKit, NodeMCU, Wemos D1 Mini
+ *   For camera projects: ESP32-CAM
  *
  * LIBRARIES REQUIRED (install via Arduino Library Manager):
  * - ArduinoJson by Benoit Blanchon
  * - WiFiClientSecure (built-in for ESP32/ESP8266)
- * - base64 by Arturo Guadalupi (for base64 encoding if reading from SPIFFS)
+ * - base64 by Arturo Guadalupi (optional, for base64 encoding from SPIFFS)
  *
  * HOW TO USE:
  * 1. Update WIFI_SSID and WIFI_PASSWORD
  * 2. Update GROQ_API_KEY
  * 3. Upload to ESP32/ESP8266
  * 4. Open Serial Monitor at 115200 baud
+ *
+ * EXPECTED SERIAL MONITOR OUTPUT:
+ * You should see:
+ * - WiFi connection status
+ * - Free heap memory (to monitor RAM usage)
+ * - The AI's description of the image (should identify it as red/colored)
+ * - Tips for working with images on Arduino
  *
  * NOTE: Groq currently supports vision models like llama-3.2-11b-vision-preview
  */
@@ -68,16 +86,22 @@ const char* DEMO_IMAGE_BASE64 =
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==";
 
 // ============================================================================
-// ARDUINO SETUP FUNCTION
+// ARDUINO SETUP FUNCTION - Runs once when board starts
 // ============================================================================
 void setup() {
+  // Step 0: Initialize serial communication for debugging
+  // -------------------------------------------------------
+  // Start serial at 115200 baud for viewing output in Serial Monitor
   Serial.begin(115200);
+  // Brief delay to allow serial connection to stabilize
   delay(1000);
 
   Serial.println("\n\n=== Groq API Vision Example ===");
   Serial.println("Analyzing an image using vision models\n");
 
   // Print memory info (ESP32 only)
+  // This helps us monitor RAM usage, which is critical when working with images
+  // Images in base64 format can be large and consume significant memory
   #if defined(ESP32)
     Serial.print("Free heap: ");
     Serial.print(ESP.getFreeHeap());
@@ -85,8 +109,9 @@ void setup() {
   #endif
 
   // ------------------------------------------------------------------------
-  // STEP 1: Connect to WiFi
+  // STEP 1: Connect to WiFi network
   // ------------------------------------------------------------------------
+  // WiFi must be connected before we can send requests to the vision API
   Serial.print("Connecting to WiFi: ");
   Serial.println(WIFI_SSID);
 
@@ -129,7 +154,7 @@ void setup() {
   Serial.println("Connected to Groq API!");
 
   // ------------------------------------------------------------------------
-  // STEP 3: Prepare JSON request with IMAGE content
+  // STEP 3: Build JSON request with IMAGE content
   // ------------------------------------------------------------------------
   // Vision models accept messages with content as an array containing:
   // 1. Text parts: {"type": "text", "text": "..."}
@@ -138,39 +163,49 @@ void setup() {
   // The image URL can be:
   // - A base64 data URI: "data:image/png;base64,iVBORw0KG..."
   // - An HTTP(S) URL: "https://example.com/image.jpg"
+  //
+  // We use base64 because it embeds the entire image in the JSON request
 
   // We need a larger document for vision requests (images are big in base64)
+  // DynamicJsonDocument allocates on heap - better for large, variable-size data
+  // 8192 bytes (8KB) should handle our small demo image plus overhead
   DynamicJsonDocument requestDoc(8192);
 
-  // Use a vision-capable model
+  // Use a vision-capable model (NOT all models support vision!)
+  // Regular chat models will fail if you send them images
   requestDoc["model"] = "llama-3.2-11b-vision-preview";
 
+  // Create the messages array
   JsonArray messages = requestDoc.createNestedArray("messages");
 
   // Create user message with mixed content (text + image)
+  // Unlike regular chat, the content field is an ARRAY of parts
   JsonObject userMessage = messages.createNestedObject();
   userMessage["role"] = "user";
 
-  // Content is an array of content parts
+  // Content is an array of content parts (can mix text and images)
   JsonArray content = userMessage.createNestedArray("content");
 
-  // Part 1: Text prompt
+  // Part 1: Text prompt - our question about the image
+  // This tells the AI what we want to know about the image
   JsonObject textPart = content.createNestedObject();
   textPart["type"] = "text";
   textPart["text"] = "What color is this image? Describe what you see in detail.";
 
-  // Part 2: Image
+  // Part 2: Image data in base64 format
+  // The AI will analyze this image to answer our question
   JsonObject imagePart = content.createNestedObject();
   imagePart["type"] = "image_url";
 
+  // Nest the actual image URL/data inside an "image_url" object
   JsonObject imageUrl = imagePart.createNestedObject("image_url");
-  imageUrl["url"] = DEMO_IMAGE_BASE64;
+  imageUrl["url"] = DEMO_IMAGE_BASE64;  // Our base64-encoded 1x1 red pixel
 
   // Optional parameters
-  requestDoc["temperature"] = 0.5;
-  requestDoc["max_tokens"] = 300;
+  requestDoc["temperature"] = 0.5;  // Lower = more deterministic descriptions
+  requestDoc["max_tokens"] = 300;   // Vision models may need more tokens for descriptions
 
-  // Serialize to string
+  // Convert the JSON document to a string for transmission
   String requestBody;
   serializeJson(requestDoc, requestBody);
 

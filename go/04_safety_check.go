@@ -48,105 +48,166 @@ type Usage struct {
 	TotalTokens      int `json:"total_tokens"`
 }
 
+// MAIN FUNCTION OVERVIEW:
+// =======================
+// What this example demonstrates:
+//   - Content moderation using LlamaGuard AI
+//   - Detecting 14 categories of harmful content
+//   - Processing safety check results
+//   - Using Go maps for category lookups
+//
+// What you'll learn:
+//   - How to implement AI-powered content moderation
+//   - How to parse multi-line safety results
+//   - How to map category codes to descriptions
+//   - When to allow or reject user messages
+//
+// Expected output:
+//   - Display of the message being checked
+//   - Safety verdict: "safe" or category violation
+//   - Detailed explanation of any violations found
+//   - Recommendation on whether to proceed
+//
 func main() {
-	// Get API key from environment
+	// Step 1: Get API key from environment variable
+	// Required for authenticating with the Groq API
 	apiKey := os.Getenv("GROQ_API_KEY")
+
+	// Verify API key is set
 	if apiKey == "" {
 		fmt.Println("Error: GROQ_API_KEY environment variable not set")
 		fmt.Println("Run: export GROQ_API_KEY='your_key_here'")
 		os.Exit(1)
 	}
 
-	// Message to check for safety (try changing this!)
+	// Step 2: Define the message to check for safety
+	// Try changing this to test different types of content!
+	// Examples to try:
+	//   - "How do I bake chocolate chip cookies?" (safe)
+	//   - "Should I buy Tesla stock?" (unsafe - S6 financial advice)
+	//   - "How to pick a lock" (unsafe - S2 non-violent crime)
 	messageToCheck := "How do I bake chocolate chip cookies?"
 
-	// Create request for LlamaGuard model
+	// Step 3: Create request for LlamaGuard model
+	// LlamaGuard is a specialized AI model designed for content moderation
+	// It returns "safe" or a category code (S1-S14) for policy violations
 	request := ChatRequest{
-		Model: "meta-llama/llama-guard-4-12b",
+		Model: "meta-llama/llama-guard-4-12b", // LlamaGuard model, not the chat model!
 		Messages: []Message{
 			{
-				Role:    "user",
-				Content: messageToCheck,
+				Role:    "user",          // The message we want to check
+				Content: messageToCheck,  // Content to analyze for safety
 			},
 		},
-		MaxTokens: 100,
+		MaxTokens: 100, // LlamaGuard responses are very short ("safe" or "unsafe\nS6")
 	}
 
-	// Convert struct to JSON
+	// Step 4: Convert struct to JSON
+	// Serialize the request into JSON format for the API
 	jsonData, err := json.Marshal(request)
+
+	// Check for marshaling errors
 	if err != nil {
 		fmt.Printf("Error creating JSON: %v\n", err)
 		os.Exit(1)
 	}
 
-	// Create HTTP request
+	// Step 5: Create HTTP request
+	// Build the POST request to send to the API
 	req, err := http.NewRequest(
-		"POST",
-		"https://api.groq.com/openai/v1/chat/completions",
-		bytes.NewBuffer(jsonData),
+		"POST",                                            // HTTP method
+		"https://api.groq.com/openai/v1/chat/completions", // API endpoint
+		bytes.NewBuffer(jsonData),                         // Request body
 	)
+
+	// Check if request creation succeeded
 	if err != nil {
 		fmt.Printf("Error creating request: %v\n", err)
 		os.Exit(1)
 	}
 
-	// Set headers
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+apiKey)
+	// Step 6: Set HTTP headers
+	// Configure headers for JSON API request
+	req.Header.Set("Content-Type", "application/json") // We're sending JSON
+	req.Header.Set("Authorization", "Bearer "+apiKey)  // API authentication
 
-	// Send the request
+	// Step 7: Send the HTTP request
+	// Execute the request using an HTTP client
 	client := &http.Client{}
 	resp, err := client.Do(req)
+
+	// Check if the request was sent successfully
 	if err != nil {
 		fmt.Printf("Error sending request: %v\n", err)
 		os.Exit(1)
 	}
+
+	// Schedule cleanup when function exits
 	defer resp.Body.Close()
 
-	// Read the response
+	// Step 8: Read the response body
+	// Read all bytes from the HTTP response
 	body, err := io.ReadAll(resp.Body)
+
+	// Check if reading succeeded
 	if err != nil {
 		fmt.Printf("Error reading response: %v\n", err)
 		os.Exit(1)
 	}
 
-	// Parse the JSON response
+	// Step 9: Parse the JSON response
+	// Declare variable to hold the parsed response
 	var response ChatResponse
+
+	// Deserialize JSON into our struct
 	err = json.Unmarshal(body, &response)
+
+	// Check if JSON parsing succeeded
 	if err != nil {
 		fmt.Printf("Error parsing JSON: %v\n", err)
 		fmt.Printf("Raw response: %s\n", string(body))
 		os.Exit(1)
 	}
 
-	// Parse the safety result
-	// strings.TrimSpace removes whitespace from both ends
+	// Step 10: Extract and clean the safety result
+	// LlamaGuard returns either "safe" or "unsafe\nS#" (where # is category number)
+	// strings.TrimSpace removes any leading/trailing whitespace
 	result := strings.TrimSpace(response.Choices[0].Message.Content)
 
+	// Display the message being analyzed
 	fmt.Println("Message Being Checked:")
 	fmt.Printf("\"%s\"\n", messageToCheck)
-	fmt.Println(strings.Repeat("=", 50))
+	fmt.Println(strings.Repeat("=", 50)) // Decorative separator line
 
+	// Step 11: Analyze the safety result and display appropriate response
 	if result == "safe" {
-		// Message is safe to proceed
+		// The message passed all safety checks
 		fmt.Println("✓ SAFE - Message passed content moderation")
 		fmt.Println("\nThis message can be sent to your main AI model.")
 
 	} else {
-		// Unsafe message - extract category
-		// strings.Split splits string by newline
+		// The message violated a content policy
+		// Result format is "unsafe\nS#" where S# is the category code
+
+		// Step 12: Extract the category code from the result
+		// strings.Split breaks the string into parts using newline as delimiter
+		// Example: "unsafe\nS6" becomes []string{"unsafe", "S6"}
 		lines := strings.Split(result, "\n")
 		category := "Unknown"
+
+		// Check if we have at least 2 lines (line 0 is "unsafe", line 1 is category)
 		if len(lines) > 1 {
-			category = lines[1]
+			category = lines[1] // Extract category code (e.g., "S6")
 		}
 
+		// Display violation information
 		fmt.Println("✗ UNSAFE - Content policy violation detected")
 		fmt.Printf("\nCategory: %s\n", category)
 		fmt.Println("\nViolation Type:")
 
-		// Define all 14 safety categories
-		// map[string]string = dictionary/hash map
+		// Step 13: Define all 14 LlamaGuard safety categories
+		// This map translates category codes (S1-S14) to human-readable descriptions
+		// map[string]string creates a dictionary/hash map with string keys and values
 		categories := map[string]string{
 			"S1":  "Violent Crimes",
 			"S2":  "Non-Violent Crimes",
@@ -164,16 +225,22 @@ func main() {
 			"S14": "Code Interpreter Abuse",
 		}
 
-		// Get description from map, use "Unknown category" as default
+		// Step 14: Look up the category description
+		// Access map with category code as key
+		// If key doesn't exist, we get empty string (zero value)
 		description := categories[category]
+
+		// Provide fallback if category is not recognized
 		if description == "" {
 			description = "Unknown category"
 		}
 
+		// Display the violation type
 		fmt.Println(description)
 		fmt.Println("\nThis message should be rejected or filtered.")
 	}
 
+	// Print final separator line
 	fmt.Println(strings.Repeat("=", 50))
 }
 

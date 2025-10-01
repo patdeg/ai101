@@ -29,6 +29,7 @@ ai101/
 ├── nodejs/        # Node.js examples
 ├── python/        # Python examples
 ├── go/            # Go examples
+├── arduino/       # Arduino/ESP32 examples
 └── README.md      # This file
 ```
 
@@ -61,6 +62,7 @@ Pick your language and jump in:
 - **Know JavaScript?** Check out `nodejs/`
 - **Python fan?** Head to `python/`
 - **Systems programmer?** Try `go/`
+- **Building IoT devices?** Explore `arduino/` for ESP32/ESP8266
 
 Each folder has a README with setup instructions and detailed code explanations.
 

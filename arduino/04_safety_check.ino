@@ -1,21 +1,34 @@
 /*
  * 04_safety_check.ino - LlamaGuard Safety Check Example for ESP32/ESP8266
  *
- * This Arduino sketch demonstrates how to use LlamaGuard models to check
- * content for safety violations. LlamaGuard can detect:
+ * WHAT THIS EXAMPLE DEMONSTRATES:
+ * This Arduino sketch shows how to use LlamaGuard, a specialized AI model that
+ * detects unsafe or harmful content. Think of it as a content moderator that can
+ * protect your IoT application from malicious or inappropriate inputs.
+ *
+ * WHAT YOU'LL LEARN:
+ * - How to use LlamaGuard to check content safety
+ * - The 13 safety categories that LlamaGuard monitors
+ * - How to implement a fail-safe content moderation system
+ * - When to check user input vs AI responses
+ * - Real-world use cases for IoT content moderation
+ *
+ * LLAMAGUARD CAN DETECT:
  * - Violence and hate speech
- * - Sexual content
+ * - Sexual content and exploitation
  * - Criminal planning
- * - Guns and illegal weapons
- * - Regulated or controlled substances
- * - Self-harm
- * - And other harmful content categories
+ * - Weapons and dangerous substances
+ * - Privacy violations
+ * - Self-harm content
+ * - And 7 other harmful content categories (13 total)
  *
  * USE CASE: Before sending user input to a chatbot or processing responses,
- * you can use LlamaGuard to filter out unsafe content.
+ * you can use LlamaGuard to filter out unsafe content. This is especially
+ * important for public-facing IoT devices or chatbots accessible to children.
  *
  * HARDWARE REQUIRED:
  * - ESP32 or ESP8266 board (these have built-in WiFi)
+ *   Examples: ESP32 DevKit, NodeMCU, Wemos D1 Mini
  *
  * LIBRARIES REQUIRED:
  * - ArduinoJson by Benoit Blanchon
@@ -26,6 +39,13 @@
  * 2. Update GROQ_API_KEY
  * 3. Upload to ESP32/ESP8266
  * 4. Open Serial Monitor at 115200 baud
+ *
+ * EXPECTED SERIAL MONITOR OUTPUT:
+ * You should see:
+ * - WiFi connection status
+ * - Safety checks on various test inputs
+ * - "SAFE" or "UNSAFE" verdicts with category codes
+ * - Educational information about the 13 safety categories
  */
 
 // Include WiFi library
@@ -54,13 +74,20 @@ const char* API_PATH = "/openai/v1/chat/completions";
 // HELPER FUNCTION: Check content safety using LlamaGuard
 // ============================================================================
 // This function sends content to LlamaGuard and returns whether it's safe
+// LlamaGuard is a specialized AI model trained to detect harmful content
+//
 // Returns: true if safe, false if unsafe
 // Parameters:
 //   - contentToCheck: The text content to analyze
 //   - role: Either "user" or "assistant" (who said the content)
+//
+// FAIL-SAFE DESIGN: If the check fails for any reason (network error, timeout,
+// parsing error), we return false (unsafe) to be cautious.
 bool checkContentSafety(const char* contentToCheck, const char* role) {
+  // Create a new HTTPS client for this safety check
   WiFiClientSecure client;
 
+  // Skip SSL certificate validation for simplicity
   #if defined(ESP32)
     client.setInsecure();
   #elif defined(ESP8266)
@@ -74,22 +101,27 @@ bool checkContentSafety(const char* contentToCheck, const char* role) {
   Serial.print(contentToCheck);
   Serial.println("\"");
 
+  // Establish connection to Groq API
   if (!client.connect(GROQ_HOST, HTTPS_PORT)) {
     Serial.println("ERROR: Failed to connect to Groq API for safety check");
     return false; // Fail-safe: treat as unsafe if we can't check
   }
 
   // -------------------------------------------------------------------------
-  // Prepare LlamaGuard request
+  // Build LlamaGuard request
   // -------------------------------------------------------------------------
-  // LlamaGuard uses a special format:
-  // - The model is "llama-guard-3-8b"
-  // - Content is formatted as a conversation between User and Agent
-  // - Response will be "safe" or "unsafe" with category codes
+  // LlamaGuard uses a special format different from regular chat models:
+  // - The model is "llama-guard-3-8b" (specifically trained for safety)
+  // - Content is formatted with special tokens [INST] and [/INST]
+  // - Response will be "safe" or "unsafe\nS<number>" with category codes
 
+  // Allocate memory for the request JSON
   StaticJsonDocument<1024> requestDoc;
+
+  // Use the LlamaGuard model (NOT a regular chat model!)
   requestDoc["model"] = "llama-guard-3-8b";
 
+  // Create the messages array
   JsonArray messages = requestDoc.createNestedArray("messages");
 
   // Create a single user message with the formatted content to check
@@ -97,20 +129,26 @@ bool checkContentSafety(const char* contentToCheck, const char* role) {
   userMessage["role"] = "user";
 
   // Format the content according to LlamaGuard's expected format
+  // LlamaGuard expects special tokens to identify the content source
   // Format: "<|begin_of_text|>[INST] <role>: <content> [/INST]"
+  // The role can be "user" (input from user) or "agent" (AI response)
   String formattedContent = String("<|begin_of_text|>[INST] ") +
                             role + ": " + contentToCheck +
                             " [/INST]";
   userMessage["content"] = formattedContent;
 
-  // LlamaGuard works best with low temperature (more deterministic)
+  // LlamaGuard works best with low temperature for deterministic results
+  // We want consistent safety verdicts, not creative variations
   requestDoc["temperature"] = 0.0;
+
+  // 100 tokens is enough for the verdict ("safe" or "unsafe\nS1, S2...")
   requestDoc["max_tokens"] = 100;
 
+  // Convert JSON to string
   String requestBody;
   serializeJson(requestDoc, requestBody);
 
-  // Send HTTP request
+  // Build and send HTTP POST request
   String request = String("POST ") + API_PATH + " HTTP/1.1\r\n";
   request += String("Host: ") + GROQ_HOST + "\r\n";
   request += "Content-Type: application/json\r\n";
@@ -120,6 +158,7 @@ bool checkContentSafety(const char* contentToCheck, const char* role) {
   request += "\r\n";
   request += requestBody;
 
+  // Send the request to the server
   client.print(request);
 
   // Wait for response

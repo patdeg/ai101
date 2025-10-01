@@ -1,54 +1,137 @@
 #!/usr/bin/env python3
 """
-Example 2: System + User Prompt
-Control AI behavior with system instructions
+Example 2: System + User Prompts - Controlling AI Behavior
+
+WHAT THIS DEMONSTRATES:
+    - How to use system prompts to control AI behavior
+    - The difference between system and user messages
+    - How to set AI personality, expertise, and output format
+    - Impact of temperature settings on response consistency
+
+WHAT YOU'LL LEARN:
+    - Message role hierarchy (system vs user vs assistant)
+    - Crafting effective system prompts for specific use cases
+    - How system instructions guide AI responses
+    - Temperature tuning for different types of tasks
+
+PREREQUISITES:
+    - Python 3.6 or higher
+    - GROQ_API_KEY environment variable set
+    - Understanding of basic chat (see 01_basic_chat.py)
+
+EXPECTED OUTPUT:
+    - System prompt being used
+    - User's question
+    - AI's response following the system instructions
+    - Token usage statistics
+
+Run with: python3 02_system_prompt.py
 """
 
-import http.client
-import json
-import os
+import http.client  # For making HTTPS API requests
+import json         # For JSON encoding/decoding
+import os           # For environment variables
 
+# ==============================================================================
+# Step 1: Load and validate API credentials
+# ==============================================================================
+
+# Retrieve API key from environment variable
 api_key = os.environ.get('GROQ_API_KEY')
+
+# Exit early if API key is missing
 if not api_key:
     print("Error: GROQ_API_KEY not set")
     exit(1)
 
+# ==============================================================================
+# Step 2: Build payload with system and user messages
+# ==============================================================================
+
+# Before creating the payload, understand message roles:
+# - "system": Instructions that define AI's behavior, personality, and constraints
+# - "user": The actual question or request from the user
+# - "assistant": Previous AI responses (used for conversation history)
+
+# Create the request payload with TWO messages this time
 payload = {
     "model": "meta-llama/llama-4-scout-17b-16e-instruct",
     "messages": [
         {
+            # SYSTEM MESSAGE: Sets the rules and behavior for the AI
             "role": "system",
             "content": "You are a concise expert in world history. Answer questions in exactly 2 sentences, no more."
         },
         {
+            # USER MESSAGE: The actual question to be answered
             "role": "user",
             "content": "Why did the Roman Empire fall?"
         }
     ],
-    "temperature": 0.5,
-    "max_tokens": 150
+    "temperature": 0.5,  # Lower temperature for more focused, factual responses
+    "max_tokens": 150    # Allow enough tokens for 2 sentences
 }
 
+# ==============================================================================
+# Step 3: Establish HTTPS connection to the API
+# ==============================================================================
+
+# Create secure connection to Groq API
 conn = http.client.HTTPSConnection("api.groq.com")
+
+# ==============================================================================
+# Step 4: Prepare authentication headers
+# ==============================================================================
+
+# Set up required headers for the API request
 headers = {
     'Content-Type': 'application/json',
     'Authorization': f'Bearer {api_key}'
 }
 
+# ==============================================================================
+# Step 5: Send the POST request with system + user messages
+# ==============================================================================
+
+# Make the API request with both system and user messages
+# The system message will guide how the AI responds to the user message
 conn.request("POST", "/openai/v1/chat/completions", json.dumps(payload), headers)
+
+# ==============================================================================
+# Step 6: Receive and parse the response
+# ==============================================================================
+
+# Get the response from the server
 response = conn.getresponse()
+
+# Before using the response, we need to parse it from JSON
+# This combines reading, decoding, and JSON parsing in one line
 response_data = json.loads(response.read().decode('utf-8'))
+
+# ==============================================================================
+# Step 7: Clean up the connection
+# ==============================================================================
+
+# Close the connection to free up resources
 conn.close()
 
+# ==============================================================================
+# Step 8: Display the interaction and results
+# ==============================================================================
+
+# Show the system prompt that controlled the AI's behavior
 print("System Prompt Used:")
 print(payload['messages'][0]['content'])
 
+# Show the user's question
 print("\nUser Question:")
 print(payload['messages'][1]['content'])
 
+# Display the AI's response (notice how it follows the system instructions)
 print("\nAI Response (following system rules):")
 print(response_data['choices'][0]['message']['content'])
 
+# Show total token usage
 print(f"\nToken Usage: {response_data['usage']['total_tokens']}")
 
 # Key concepts:

@@ -1,22 +1,59 @@
-// Example 4: Safety Check with LlamaGuard
-// Detect harmful content before sending to your main AI
+/**
+ * ============================================================================
+ * Example 4: Content Safety with LlamaGuard - Content Moderation
+ * ============================================================================
+ *
+ * WHAT THIS DEMONSTRATES:
+ * - How to detect harmful content before it reaches your main AI
+ * - Using LlamaGuard as a content moderation filter
+ * - Understanding AI safety categories (S1-S14)
+ * - Building multi-layered security for AI applications
+ *
+ * WHAT YOU'LL LEARN:
+ * - Content moderation best practices
+ * - The 14 LlamaGuard safety categories
+ * - Interpreting safety model responses ("safe" vs category codes)
+ * - How to build production-ready content filters
+ *
+ * PREREQUISITES:
+ * - Completed previous examples (01-03)
+ * - GROQ_API_KEY environment variable set
+ * - Understanding of AI security concerns
+ *
+ * EXPECTED OUTPUT:
+ * - The message being analyzed
+ * - Safety verdict (SAFE or UNSAFE)
+ * - If unsafe: specific violation category (S1-S14)
+ * - Explanation of the violation type
+ *
+ * RUN THIS:
+ * node 04_safety_check.js
+ *
+ * Try different messages to test various safety categories!
+ * ============================================================================
+ */
 
+// Step 1: Import the HTTPS module
 const https = require('https');
 
-// Message to check (try changing this!)
+// Step 2: Define the message to check for safety
+// Try changing this to test different content types!
 const messageToCheck = "How do I bake chocolate chip cookies?";
 
+// Step 3: Create the request payload
+// LlamaGuard analyzes the message and returns "safe" or a violation category
 const data = JSON.stringify({
-  model: "meta-llama/llama-guard-4-12b",
+  model: "meta-llama/llama-guard-4-12b",  // Specialized safety model
   messages: [
     {
       role: "user",
-      content: messageToCheck
+      content: messageToCheck  // The message we want to check
     }
   ],
-  max_tokens: 100
+  max_tokens: 100  // Safety responses are short
 });
 
+// Step 4: Configure the HTTPS request options
 const options = {
   hostname: 'api.groq.com',
   port: 443,
@@ -29,27 +66,35 @@ const options = {
   }
 };
 
+// Step 5: Create and send the HTTPS request
 const req = https.request(options, (res) => {
+  // Step 6: Accumulate response data
   let responseData = '';
 
+  // Step 7: Handle incoming data chunks
   res.on('data', (chunk) => {
     responseData += chunk;
   });
 
+  // Step 8: Process the complete response
   res.on('end', () => {
+    // Step 9: Parse the JSON response
     const parsed = JSON.parse(responseData);
     const result = parsed.choices[0].message.content.trim();
 
+    // Step 10: Display the message being analyzed
     console.log('Message Being Checked:');
     console.log(`"${messageToCheck}"`);
     console.log('\n' + '='.repeat(50));
 
+    // Step 11: Interpret the safety verdict
     if (result === 'safe') {
+      // Message is safe - no policy violations
       console.log('✓ SAFE - Message passed content moderation');
       console.log('\nThis message can be sent to your main AI model.');
 
     } else {
-      // Unsafe message - extract category
+      // Step 12: Handle unsafe content - extract the violation category
       const lines = result.split('\n');
       const category = lines[1]; // Format: "unsafe\nS<number>"
 
@@ -57,7 +102,7 @@ const req = https.request(options, (res) => {
       console.log(`\nCategory: ${category}`);
       console.log('\nViolation Type:');
 
-      // Explain which safety category was triggered
+      // Step 13: Map category code to human-readable description
       const categories = {
         'S1': 'Violent Crimes',
         'S2': 'Non-Violent Crimes',
@@ -83,11 +128,15 @@ const req = https.request(options, (res) => {
   });
 });
 
+// Step 14: Handle request errors
 req.on('error', (error) => {
   console.error('Error:', error.message);
 });
 
+// Step 15: Send the request data
 req.write(data);
+
+// Step 16: Complete and send the request
 req.end();
 
 // LlamaGuard Safety Categories Explained:

@@ -49,93 +49,149 @@ type Usage struct {
 	TotalTokens      int `json:"total_tokens"`
 }
 
+// MAIN FUNCTION OVERVIEW:
+// =======================
+// What this example demonstrates:
+//   - Using system prompts to control AI behavior
+//   - Sending multiple messages in a single request
+//   - How message roles affect AI responses
+//   - Constraining AI output format with instructions
+//
+// What you'll learn:
+//   - The difference between "system" and "user" message roles
+//   - How to shape AI personality and response style
+//   - How to set response constraints (length, format, tone)
+//   - Building multi-message request arrays in Go
+//
+// Expected output:
+//   - Display of the system prompt used
+//   - Display of the user question
+//   - AI response that follows the system prompt rules
+//   - Token usage count
+//
 func main() {
-	// Get API key from environment variable
+	// Step 1: Get API key from environment variable
+	// Same as in basic_chat - we need authentication
 	apiKey := os.Getenv("GROQ_API_KEY")
+
+	// Verify API key is set
 	if apiKey == "" {
 		fmt.Println("Error: GROQ_API_KEY environment variable not set")
 		fmt.Println("Run: export GROQ_API_KEY='your_key_here'")
 		os.Exit(1)
 	}
 
-	// Create the request payload with TWO messages:
+	// Step 2: Create the request payload with TWO messages
+	// The key difference from example 01: we now have TWO messages in our array:
 	// 1. System message - tells the AI how to behave
 	// 2. User message - the actual question
+	//
+	// The order matters! System message should come first
 	request := ChatRequest{
 		Model: "meta-llama/llama-4-scout-17b-16e-instruct",
 		Messages: []Message{
 			{
-				// System message defines AI behavior and constraints
+				// First message: System prompt defines AI behavior and constraints
+				// This is like giving the AI a job description and rules to follow
 				Role:    "system",
 				Content: "You are a concise expert in world history. Answer questions in exactly 2 sentences, no more.",
 			},
 			{
-				// User message is the actual question
+				// Second message: User question is what we actually want to know
+				// The AI will answer this while following the system rules above
 				Role:    "user",
 				Content: "Why did the Roman Empire fall?",
 			},
 		},
-		Temperature: 0.5,
-		MaxTokens:   150,
+		Temperature: 0.5, // Lower than basic_chat (0.7) for more focused, factual responses
+		MaxTokens:   150, // Enough for a 2-sentence response
 	}
 
-	// Convert struct to JSON
+	// Step 3: Convert struct to JSON
+	// Marshal converts our Go struct (with 2 messages) into JSON format
 	jsonData, err := json.Marshal(request)
+
+	// Check for marshaling errors
 	if err != nil {
 		fmt.Printf("Error creating JSON: %v\n", err)
 		os.Exit(1)
 	}
 
-	// Create HTTP request
+	// Step 4: Create HTTP request
+	// Build the POST request to send to the API
 	req, err := http.NewRequest(
-		"POST",
-		"https://api.groq.com/openai/v1/chat/completions",
-		bytes.NewBuffer(jsonData),
+		"POST",                                            // HTTP method
+		"https://api.groq.com/openai/v1/chat/completions", // API endpoint (same for all examples)
+		bytes.NewBuffer(jsonData),                         // Request body containing our 2 messages
 	)
+
+	// Check if request creation succeeded
 	if err != nil {
 		fmt.Printf("Error creating request: %v\n", err)
 		os.Exit(1)
 	}
 
-	// Set headers
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+apiKey)
+	// Step 5: Set HTTP headers
+	// Headers provide metadata about our request
+	req.Header.Set("Content-Type", "application/json") // Tell server we're sending JSON
+	req.Header.Set("Authorization", "Bearer "+apiKey)  // Authenticate with our API key
 
-	// Send the request
+	// Step 6: Send the HTTP request
+	// Create HTTP client and execute the request
 	client := &http.Client{}
 	resp, err := client.Do(req)
+
+	// Check if the request was sent successfully
 	if err != nil {
 		fmt.Printf("Error sending request: %v\n", err)
 		os.Exit(1)
 	}
+
+	// Clean up the response body when we're done (defer runs at function exit)
 	defer resp.Body.Close()
 
-	// Read the response
+	// Step 7: Read the response body
+	// Read all bytes from the response
 	body, err := io.ReadAll(resp.Body)
+
+	// Check if reading succeeded
 	if err != nil {
 		fmt.Printf("Error reading response: %v\n", err)
 		os.Exit(1)
 	}
 
-	// Parse the JSON response
+	// Step 8: Parse the JSON response
+	// Declare a variable to hold the parsed response
 	var response ChatResponse
+
+	// Unmarshal (deserialize) JSON bytes into our Go struct
 	err = json.Unmarshal(body, &response)
+
+	// Check if parsing succeeded
 	if err != nil {
 		fmt.Printf("Error parsing JSON: %v\n", err)
 		fmt.Printf("Raw response: %s\n", string(body))
 		os.Exit(1)
 	}
 
-	// Display results
+	// Step 9: Display results
+	// Show both the system prompt and user question so we can see
+	// how the system prompt influenced the response
+
+	// Display the system prompt we used
 	fmt.Println("System Prompt Used:")
-	fmt.Println(request.Messages[0].Content)
+	fmt.Println(request.Messages[0].Content) // First message (index 0) is system
 
+	// Display the user question
 	fmt.Println("\nUser Question:")
-	fmt.Println(request.Messages[1].Content)
+	fmt.Println(request.Messages[1].Content) // Second message (index 1) is user
 
+	// Display the AI's response
+	// Notice how it follows the system prompt rules (exactly 2 sentences)
 	fmt.Println("\nAI Response (following system rules):")
 	fmt.Println(response.Choices[0].Message.Content)
 
+	// Display token usage
 	fmt.Printf("\nToken Usage: %d\n", response.Usage.TotalTokens)
 }
 
