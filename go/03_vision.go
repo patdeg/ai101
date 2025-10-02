@@ -19,53 +19,107 @@ import (
 // Request structures for vision API
 // Content can be either text OR an array for multimodal messages
 type VisionRequest struct {
-	Model       string          `json:"model"`
-	Messages    []VisionMessage `json:"messages"`
-	Temperature float64         `json:"temperature,omitempty"`
-	MaxTokens   int             `json:"max_tokens,omitempty"`
+	// Model is the vision-capable AI model to use
+	// Example: "meta-llama/llama-4-scout-17b-16e-instruct" (supports images)
+	Model string `json:"model"`
+
+	// Messages is the conversation with multimodal content (text + images)
+	Messages []VisionMessage `json:"messages"`
+
+	// Temperature controls randomness (0.0 to 2.0)
+	// Lower values (0.3) recommended for factual image descriptions
+	Temperature float64 `json:"temperature,omitempty"`
+
+	// MaxTokens limits response length
+	// Vision responses often need more tokens (500+) for detailed descriptions
+	MaxTokens int `json:"max_tokens,omitempty"`
 }
 
 type VisionMessage struct {
-	Role    string        `json:"role"`
-	Content []ContentItem `json:"content"` // Array of content items (text + images)
+	// Role identifies the message sender
+	// Typically "user" for vision requests
+	Role string `json:"role"`
+
+	// Content is an array that can mix text and images
+	// Order: typically [text prompt, image], but order doesn't affect understanding
+	Content []ContentItem `json:"content"`
 }
 
-// ContentItem can be text or image
+// ContentItem represents one piece of multimodal content (text or image)
 type ContentItem struct {
-	Type     string    `json:"type"`               // "text" or "image_url"
-	Text     string    `json:"text,omitempty"`     // For type="text"
-	ImageURL *ImageURL `json:"image_url,omitempty"` // For type="image_url"
+	// Type identifies the content type
+	// Values: "text" (for questions/prompts) or "image_url" (for images)
+	Type string `json:"type"`
+
+	// Text is the prompt/question when Type is "text"
+	// Example: "What's in this image?", "Describe this photo in detail"
+	Text string `json:"text,omitempty"`
+
+	// ImageURL contains the image data when Type is "image_url"
+	// Pointer allows omission when not needed (for text-only items)
+	ImageURL *ImageURL `json:"image_url,omitempty"`
 }
 
 type ImageURL struct {
-	URL string `json:"url"` // Data URL with base64-encoded image
+	// URL is a data URL containing base64-encoded image
+	// Format: "data:image/jpeg;base64,/9j/4AAQSkZJRg..." (JPEG example)
+	// Format: "data:image/png;base64,iVBORw0KGgo..." (PNG example)
+	// Max size: 4MB after base64 encoding
+	URL string `json:"url"`
 }
 
 // Response structures - same as basic chat
 type ChatResponse struct {
-	ID      string   `json:"id"`
-	Object  string   `json:"object"`
-	Created int64    `json:"created"`
-	Model   string   `json:"model"`
+	// ID uniquely identifies this vision analysis request
+	ID string `json:"id"`
+
+	// Object type is always "chat.completion" for vision requests too
+	Object string `json:"object"`
+
+	// Created timestamp (Unix seconds)
+	Created int64 `json:"created"`
+
+	// Model is the actual model used
+	Model string `json:"model"`
+
+	// Choices contains the AI's image analysis
 	Choices []Choice `json:"choices"`
-	Usage   Usage    `json:"usage"`
+
+	// Usage shows token consumption (images use many tokens!)
+	// A typical 640x480 image = 500-2000 tokens depending on detail
+	Usage Usage `json:"usage"`
 }
 
 type Choice struct {
-	Index        int            `json:"index"`
-	Message      SimpleMessage  `json:"message"`
-	FinishReason string         `json:"finish_reason"`
+	// Index of this choice (0-based)
+	Index int `json:"index"`
+
+	// Message contains the AI's description of the image
+	Message SimpleMessage `json:"message"`
+
+	// FinishReason indicates completion status
+	// "stop" = natural completion, "length" = hit max_tokens limit
+	FinishReason string `json:"finish_reason"`
 }
 
 type SimpleMessage struct {
-	Role    string `json:"role"`
+	// Role is always "assistant" in responses
+	Role string `json:"role"`
+
+	// Content is the AI's text description of the image
 	Content string `json:"content"`
 }
 
 type Usage struct {
-	PromptTokens     int `json:"prompt_tokens"`
+	// PromptTokens includes both text prompt AND image tokens
+	// Image contributes 500-2000 tokens depending on size/resolution
+	PromptTokens int `json:"prompt_tokens"`
+
+	// CompletionTokens is the length of the description
 	CompletionTokens int `json:"completion_tokens"`
-	TotalTokens      int `json:"total_tokens"`
+
+	// TotalTokens is prompt (text + image) + completion
+	TotalTokens int `json:"total_tokens"`
 }
 
 // MAIN FUNCTION OVERVIEW:

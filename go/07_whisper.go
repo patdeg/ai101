@@ -17,7 +17,14 @@ import (
 
 // Response structure for Whisper API
 type TranscriptionResponse struct {
-	Text     string  `json:"text"`
+	// Text is the complete transcription of the audio file
+	// Includes punctuation, capitalization, and formatting
+	// Supports 99+ languages with automatic detection
+	Text string `json:"text"`
+
+	// Duration is the audio length in seconds
+	// Used to calculate cost: (Duration / 3600) × $0.04 per hour
+	// Example: 60 seconds = 0.0167 hours = $0.00067
 	Duration float64 `json:"duration"`
 }
 

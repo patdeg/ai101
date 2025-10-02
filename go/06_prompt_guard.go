@@ -17,36 +17,71 @@ import (
 
 // Request structures
 type ChatRequest struct {
-	Model     string    `json:"model"`
-	Messages  []Message `json:"messages"`
-	MaxTokens int       `json:"max_tokens,omitempty"`
+	// Model specifies which security model to use
+	// "meta-llama/llama-prompt-guard-2-86m" - tiny, fast attack detector (86M params)
+	Model string `json:"model"`
+
+	// Messages contains the user input to scan for attacks
+	// Typically just one message with role="user"
+	Messages []Message `json:"messages"`
+
+	// MaxTokens can be small (10-50) since responses are just probability scores
+	MaxTokens int `json:"max_tokens,omitempty"`
 }
 
 type Message struct {
-	Role    string `json:"role"`
+	// Role is usually "user" for inputs to check
+	Role string `json:"role"`
+
+	// Content is the user's message to scan for:
+	// - Jailbreak attempts (trying to bypass AI safety rules)
+	// - Injection attacks (trying to manipulate AI behavior)
 	Content string `json:"content"`
 }
 
 // Response structures
 type ChatResponse struct {
-	ID      string   `json:"id"`
-	Object  string   `json:"object"`
-	Created int64    `json:"created"`
-	Model   string   `json:"model"`
+	// ID uniquely identifies this security scan
+	ID string `json:"id"`
+
+	// Object type is "chat.completion"
+	Object string `json:"object"`
+
+	// Created timestamp
+	Created int64 `json:"created"`
+
+	// Model confirms which security scanner was used
+	Model string `json:"model"`
+
+	// Choices contains the attack probability score
 	Choices []Choice `json:"choices"`
-	Usage   Usage    `json:"usage"`
+
+	// Usage shows tokens (Prompt Guard is very cheap - 86M tiny model!)
+	Usage Usage `json:"usage"`
 }
 
 type Choice struct {
-	Index        int     `json:"index"`
-	Message      Message `json:"message"`
-	FinishReason string  `json:"finish_reason"`
+	// Index of this choice (always 0)
+	Index int `json:"index"`
+
+	// Message contains the probability score in content
+	// Format: floating point number as string (e.g., "0.95" or "0.02")
+	// Range: 0.0 (definitely benign) to 1.0 (definitely attack)
+	Message Message `json:"message"`
+
+	// FinishReason is typically "stop"
+	FinishReason string `json:"finish_reason"`
 }
 
 type Usage struct {
-	PromptTokens     int `json:"prompt_tokens"`
+	// PromptTokens is the input text being scanned
+	PromptTokens int `json:"prompt_tokens"`
+
+	// CompletionTokens is tiny (just a number like "0.95")
 	CompletionTokens int `json:"completion_tokens"`
-	TotalTokens      int `json:"total_tokens"`
+
+	// TotalTokens is very small - Prompt Guard is extremely fast and cheap
+	TotalTokens int `json:"total_tokens"`
 }
 
 // MAIN FUNCTION OVERVIEW:

@@ -15,37 +15,82 @@ import (
 
 // Request structures - define the JSON we send to the API
 type ChatRequest struct {
-	Model       string    `json:"model"`
-	Messages    []Message `json:"messages"`
-	Temperature float64   `json:"temperature,omitempty"`
-	MaxTokens   int       `json:"max_tokens,omitempty"`
+	// Model is the AI model identifier to use for the completion
+	// Example: "meta-llama/llama-4-scout-17b-16e-instruct"
+	Model string `json:"model"`
+
+	// Messages is the conversation history (array of user/assistant messages)
+	// Each message has a role ("user" or "assistant") and content (the text)
+	Messages []Message `json:"messages"`
+
+	// Temperature controls randomness in responses (0.0 to 2.0)
+	// 0.0 = deterministic/focused, 1.0 = balanced, 2.0 = very creative/random
+	// Optional field (omitempty means it won't be sent if zero value)
+	Temperature float64 `json:"temperature,omitempty"`
+
+	// MaxTokens limits the length of the AI's response
+	// 1 token ≈ 0.75 words. Typical values: 100-2000
+	// Optional field
+	MaxTokens int `json:"max_tokens,omitempty"`
 }
 
 type Message struct {
-	Role    string `json:"role"`
+	// Role identifies who sent this message
+	// Valid values: "user" (your input), "assistant" (AI response), "system" (behavior instructions)
+	Role string `json:"role"`
+
+	// Content is the actual text of the message
 	Content string `json:"content"`
 }
 
 // Response structures - define the JSON we receive from the API
 type ChatResponse struct {
-	ID      string   `json:"id"`
-	Object  string   `json:"object"`
-	Created int64    `json:"created"`
-	Model   string   `json:"model"`
+	// ID is a unique identifier for this API request
+	// Example: "chatcmpl-123abc"
+	ID string `json:"id"`
+
+	// Object describes the type of response
+	// Always "chat.completion" for chat completions
+	Object string `json:"object"`
+
+	// Created is the Unix timestamp (seconds since 1970) when the response was generated
+	Created int64 `json:"created"`
+
+	// Model is the actual model that was used (may differ from requested if fallback occurred)
+	Model string `json:"model"`
+
+	// Choices contains the AI's response(s) - usually just one choice
 	Choices []Choice `json:"choices"`
-	Usage   Usage    `json:"usage"`
+
+	// Usage provides token consumption statistics for billing/monitoring
+	Usage Usage `json:"usage"`
 }
 
 type Choice struct {
-	Index        int     `json:"index"`
-	Message      Message `json:"message"`
-	FinishReason string  `json:"finish_reason"`
+	// Index identifies which choice this is (0-based)
+	// Multiple choices can be requested, but we typically use just one
+	Index int `json:"index"`
+
+	// Message contains the AI's actual response
+	Message Message `json:"message"`
+
+	// FinishReason indicates why the response ended
+	// Values: "stop" (natural end), "length" (hit max_tokens), "content_filter" (safety)
+	FinishReason string `json:"finish_reason"`
 }
 
 type Usage struct {
-	PromptTokens     int `json:"prompt_tokens"`
+	// PromptTokens is the number of tokens in your input (question + context)
+	// Used to calculate input costs
+	PromptTokens int `json:"prompt_tokens"`
+
+	// CompletionTokens is the number of tokens in the AI's response
+	// Used to calculate output costs (usually more expensive than input)
 	CompletionTokens int `json:"completion_tokens"`
-	TotalTokens      int `json:"total_tokens"`
+
+	// TotalTokens is the sum of prompt + completion tokens
+	// Total cost = (PromptTokens × input_price) + (CompletionTokens × output_price)
+	TotalTokens int `json:"total_tokens"`
 }
 
 // MAIN FUNCTION OVERVIEW:

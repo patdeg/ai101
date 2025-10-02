@@ -16,37 +16,76 @@ import (
 // Request structures - define the JSON we send to the API
 // These are the same as in example 01, reused here
 type ChatRequest struct {
-	Model       string    `json:"model"`
-	Messages    []Message `json:"messages"`
-	Temperature float64   `json:"temperature,omitempty"`
-	MaxTokens   int       `json:"max_tokens,omitempty"`
+	// Model is the AI model identifier to use for the completion
+	// Example: "meta-llama/llama-4-scout-17b-16e-instruct"
+	Model string `json:"model"`
+
+	// Messages is the conversation history (array of system/user/assistant messages)
+	// This example uses: [system message, user message] to control AI behavior
+	Messages []Message `json:"messages"`
+
+	// Temperature controls randomness in responses (0.0 to 2.0)
+	// Lower values (0.3-0.5) work better with system prompts for consistent formatting
+	Temperature float64 `json:"temperature,omitempty"`
+
+	// MaxTokens limits the length of the AI's response
+	// System prompts consume tokens, so budget accordingly
+	MaxTokens int `json:"max_tokens,omitempty"`
 }
 
 type Message struct {
-	Role    string `json:"role"`
+	// Role identifies who sent this message
+	// "system" = behavior instructions, "user" = your question, "assistant" = AI response
+	Role string `json:"role"`
+
+	// Content is the actual text of the message
+	// For system role: instructions on how to behave (tone, format, constraints)
+	// For user role: the actual question or prompt
 	Content string `json:"content"`
 }
 
 // Response structures - define the JSON we receive from the API
 type ChatResponse struct {
-	ID      string   `json:"id"`
-	Object  string   `json:"object"`
-	Created int64    `json:"created"`
-	Model   string   `json:"model"`
+	// ID is a unique identifier for this API request
+	ID string `json:"id"`
+
+	// Object describes the type of response ("chat.completion")
+	Object string `json:"object"`
+
+	// Created is the Unix timestamp when the response was generated
+	Created int64 `json:"created"`
+
+	// Model is the actual model used
+	Model string `json:"model"`
+
+	// Choices contains the AI's response(s)
 	Choices []Choice `json:"choices"`
-	Usage   Usage    `json:"usage"`
+
+	// Usage provides token statistics
+	Usage Usage `json:"usage"`
 }
 
 type Choice struct {
-	Index        int     `json:"index"`
-	Message      Message `json:"message"`
-	FinishReason string  `json:"finish_reason"`
+	// Index identifies which choice this is (0-based)
+	Index int `json:"index"`
+
+	// Message contains the AI's response (follows system prompt instructions)
+	Message Message `json:"message"`
+
+	// FinishReason indicates why the response ended
+	// "stop" = completed normally, "length" = hit max_tokens
+	FinishReason string `json:"finish_reason"`
 }
 
 type Usage struct {
-	PromptTokens     int `json:"prompt_tokens"`
+	// PromptTokens includes both system and user message tokens
+	PromptTokens int `json:"prompt_tokens"`
+
+	// CompletionTokens is the AI's response length
 	CompletionTokens int `json:"completion_tokens"`
-	TotalTokens      int `json:"total_tokens"`
+
+	// TotalTokens is prompt + completion
+	TotalTokens int `json:"total_tokens"`
 }
 
 // MAIN FUNCTION OVERVIEW:

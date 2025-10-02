@@ -17,36 +17,71 @@ import (
 
 // Request structures
 type ChatRequest struct {
-	Model     string    `json:"model"`
-	Messages  []Message `json:"messages"`
-	MaxTokens int       `json:"max_tokens,omitempty"`
+	// Model specifies which AI to use
+	// For safety: "meta-llama/llama-guard-4-12b" (specialized content moderator)
+	Model string `json:"model"`
+
+	// Messages contains the content to check for safety
+	// Role is typically "user" for user-generated content to moderate
+	Messages []Message `json:"messages"`
+
+	// MaxTokens limits response length
+	// Safety responses are short: "safe" or "unsafe\nS<number>"
+	MaxTokens int `json:"max_tokens,omitempty"`
 }
 
 type Message struct {
-	Role    string `json:"role"`
+	// Role identifies the content source
+	// "user" = check user input before processing
+	// "assistant" = check AI output before showing to user
+	Role string `json:"role"`
+
+	// Content is the text to check for safety violations
 	Content string `json:"content"`
 }
 
 // Response structures
 type ChatResponse struct {
-	ID      string   `json:"id"`
-	Object  string   `json:"object"`
-	Created int64    `json:"created"`
-	Model   string   `json:"model"`
+	// ID uniquely identifies this safety check request
+	ID string `json:"id"`
+
+	// Object type is "chat.completion" even for safety checks
+	Object string `json:"object"`
+
+	// Created timestamp
+	Created int64 `json:"created"`
+
+	// Model is the safety model used (llama-guard-4-12b)
+	Model string `json:"model"`
+
+	// Choices contains the safety verdict
 	Choices []Choice `json:"choices"`
-	Usage   Usage    `json:"usage"`
+
+	// Usage shows token consumption (safety checks are cheap!)
+	Usage Usage `json:"usage"`
 }
 
 type Choice struct {
-	Index        int     `json:"index"`
-	Message      Message `json:"message"`
-	FinishReason string  `json:"finish_reason"`
+	// Index of this choice (always 0 for safety checks)
+	Index int `json:"index"`
+
+	// Message contains the safety verdict in content field
+	// Content format: "safe" OR "unsafe\nS<number>" (e.g., "unsafe\nS9")
+	Message Message `json:"message"`
+
+	// FinishReason is typically "stop" for completed safety checks
+	FinishReason string `json:"finish_reason"`
 }
 
 type Usage struct {
-	PromptTokens     int `json:"prompt_tokens"`
+	// PromptTokens is the content being checked
+	PromptTokens int `json:"prompt_tokens"`
+
+	// CompletionTokens is very small (just "safe" or "unsafe\nSX")
 	CompletionTokens int `json:"completion_tokens"`
-	TotalTokens      int `json:"total_tokens"`
+
+	// TotalTokens for safety checks is usually < 100 tokens (very cheap!)
+	TotalTokens int `json:"total_tokens"`
 }
 
 // MAIN FUNCTION OVERVIEW:
