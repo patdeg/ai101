@@ -8,23 +8,26 @@
 #   - How to send images to the AI for analysis
 #   - Converting images to base64 format for API transmission
 #   - Combining text and images in a single request
+#   - Using jq to parse and display multi-modal responses
 #
 # What you'll learn:
 #   - Images must be base64-encoded before sending
 #   - Content can be an array of multiple types (text + image)
 #   - How to use data URLs for embedding images
+#   - Vision requests use more tokens (image + text + response)
 #
 # Prerequisites:
 #   - GROQ_API_KEY environment variable must be set
-#   - An image file (test_image.jpg) in the current directory
+#   - jq command installed (see README.md for installation)
 #   - base64 command (pre-installed on Linux/Mac)
+#   - test_image.jpg in parent directory
 #
 # Expected output:
-#   - Detailed description of what's in the image
-#   - Objects, colors, people, text, and context identified
-#
-# To create a test image if you don't have one:
-#   curl -o test_image.jpg https://picsum.photos/400/300
+#   - Raw JSON response (pretty-printed)
+#   - Detailed image description
+#   - Token usage statistics (includes image tokens!)
+#   - Cost breakdown
+#   - Timing information
 #
 ################################################################################
 
@@ -35,11 +38,18 @@ API_URL="https://api.groq.com/openai/v1/chat/completions"
 # Using the shared test image from the root directory
 IMAGE_PATH="../test_image.jpg"
 
+# Check if the image exists
+if [ ! -f "$IMAGE_PATH" ]; then
+  echo "Error: Image not found at $IMAGE_PATH"
+  echo "Please make sure test_image.jpg exists in the root directory"
+  exit 1
+fi
+
 # STEP 2: Convert the image to base64 format
 # Why? Because JSON can't contain raw binary image data
 # The -w 0 flag means "no line wrapping" - we need one continuous string
 echo "Converting image to base64 format..."
-IMAGE_BASE64=$(base64 -w 0 "$IMAGE_PATH")
+IMAGE_BASE64=$(base64 -w 0 "$IMAGE_PATH" 2>/dev/null || base64 "$IMAGE_PATH")
 
 # STEP 3: Build the data URL in the required format
 # Format: data:image/jpeg;base64,<encoded_image_data>
@@ -49,7 +59,8 @@ IMAGE_URL="data:image/jpeg;base64,$IMAGE_BASE64"
 # STEP 4: Send the request with both text and image
 # Note: content is now an ARRAY containing multiple items
 echo "Sending image to AI for analysis..."
-curl "$API_URL" \
+echo ""
+RESPONSE=$(curl -s "$API_URL" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $GROQ_API_KEY" \
   -d '{
@@ -73,8 +84,79 @@ curl "$API_URL" \
     ],
     "temperature": 0.3,
     "max_tokens": 500
-  }'
+  }')
 
+# STEP 5: Display the raw API response (pretty-printed with jq)
+echo "========================================"
+echo "Raw API Response (pretty-printed):"
+echo "========================================"
+echo "$RESPONSE" | jq .
+
+# STEP 6: Extract and display the image description
+echo ""
+echo "========================================"
+echo "Image Description:"
+echo "========================================"
+echo "$RESPONSE" | jq -r '.choices[0].message.content'
+
+# STEP 7: Extract and display token usage statistics
+# Note: Vision requests include image tokens in the prompt count!
+echo ""
+echo "========================================"
+echo "Token Usage:"
+echo "========================================"
+PROMPT_TOKENS=$(echo "$RESPONSE" | jq '.usage.prompt_tokens')
+COMPLETION_TOKENS=$(echo "$RESPONSE" | jq '.usage.completion_tokens')
+TOTAL_TOKENS=$(echo "$RESPONSE" | jq '.usage.total_tokens')
+
+echo "  Prompt tokens:     $PROMPT_TOKENS  (includes image tokens!)"
+echo "  Completion tokens: $COMPLETION_TOKENS"
+echo "  Total tokens:      $TOTAL_TOKENS"
+echo ""
+echo "  💡 The prompt tokens include:"
+echo "     - Your text question (~10-20 tokens)"
+echo "     - The image itself (500-2000 tokens depending on size)"
+
+# STEP 8: Calculate the cost of this API call
+# Pricing for meta-llama/llama-4-scout-17b-16e-instruct (as of Oct 1, 2025):
+#   Input:  $0.11 per 1M tokens
+#   Output: $0.34 per 1M tokens
+echo ""
+echo "========================================"
+echo "Cost Breakdown:"
+echo "========================================"
+
+if command -v bc &> /dev/null; then
+  INPUT_COST=$(echo "scale=10; $PROMPT_TOKENS * 0.11 / 1000000" | bc)
+  OUTPUT_COST=$(echo "scale=10; $COMPLETION_TOKENS * 0.34 / 1000000" | bc)
+  TOTAL_COST=$(echo "scale=10; $INPUT_COST + $OUTPUT_COST" | bc)
+else
+  INPUT_COST=$(awk "BEGIN {printf \"%.10f\", $PROMPT_TOKENS * 0.11 / 1000000}")
+  OUTPUT_COST=$(awk "BEGIN {printf \"%.10f\", $COMPLETION_TOKENS * 0.34 / 1000000}")
+  TOTAL_COST=$(awk "BEGIN {printf \"%.10f\", $INPUT_COST + $OUTPUT_COST}")
+fi
+
+echo "  Input cost:  \$$INPUT_COST  ($PROMPT_TOKENS tokens × \$0.11/1M)"
+echo "  Output cost: \$$OUTPUT_COST  ($COMPLETION_TOKENS tokens × \$0.34/1M)"
+echo "  Total cost:  \$$TOTAL_COST"
+echo ""
+echo "  💡 Vision requests cost more than text-only due to image tokens"
+
+# STEP 9: Extract and display timing information
+echo ""
+echo "========================================"
+echo "Timing (seconds):"
+echo "========================================"
+echo "  Queue time:      $(echo "$RESPONSE" | jq '.usage.queue_time')"
+echo "  Prompt time:     $(echo "$RESPONSE" | jq '.usage.prompt_time')"
+echo "  Completion time: $(echo "$RESPONSE" | jq '.usage.completion_time')"
+echo "  Total time:      $(echo "$RESPONSE" | jq '.usage.total_time')"
+echo ""
+
+################################################################################
+# EXPLANATION OF THE API REQUEST
+################################################################################
+#
 # Here's the request body with detailed explanations:
 # {
 #   "model": "meta-llama/llama-4-scout-17b-16e-instruct",
@@ -124,41 +206,21 @@ curl "$API_URL" \
 # }
 
 ################################################################################
-# EXTRACTING THE IMAGE DESCRIPTION
+# KEY CONCEPTS FROM THIS EXAMPLE
 ################################################################################
 #
-# Get just the AI's image description:
-#   ./03_vision.sh | jq -r '.choices[0].message.content'
+# Multi-modal content:
+#   "content" is an ARRAY instead of a string
+#   Can mix text and images in the same message
 #
-# This will output a detailed description of what the AI "sees" in the image
-#
-# Get description with token count:
-#   ./03_vision.sh | jq '{description: .choices[0].message.content, tokens: .usage.total_tokens}'
-#
-# Note: Vision requests use MORE tokens than text-only requests because:
-# - The image itself is converted to tokens
-# - Detailed descriptions require more output tokens
-#
-# Check how many tokens the image used:
-#   ./03_vision.sh | jq '.usage.prompt_tokens'
-
-################################################################################
-# ORIGINAL DOCUMENTATION
-################################################################################
-#
-# New concepts in this example:
+# Content types:
+#   "type": "text" = your question/instruction
+#   "type": "image_url" = the image to analyze
 #
 # base64 encoding:
 #   Converts binary files (images) to text format
 #   -w 0 means "no line wrapping" (all one line)
-#
-# "content": [...]
-#   Instead of a simple string, content is now an ARRAY
-#   This lets us combine text + images
-#
-# Content types:
-#   "type": "text" = your question
-#   "type": "image_url" = the image to analyze
+#   macOS: use just `base64` without -w flag
 #
 # Data URL format:
 #   data:image/jpeg;base64,<data>
@@ -172,10 +234,19 @@ curl "$API_URL" \
 #   - Max 33 megapixels resolution
 #   - Supported: JPEG, PNG, GIF, WebP
 #
-# "temperature": 0.3
-#   Lower = more accurate, factual descriptions
-#   Higher = more creative interpretations
+# Temperature:
+#   0.3 = Lower temperature for factual, accurate descriptions
+#   We want the AI to describe what it actually sees
+#   Not to hallucinate or be overly creative
 #
-# Creating a test image:
-#   If you don't have an image, create one:
-#   curl -o test_image.jpg https://picsum.photos/400/300
+# Token usage for vision:
+#   Vision requests use MORE tokens than text-only
+#   - Image: 500-2000 tokens (depending on size/resolution)
+#   - Text question: 10-20 tokens
+#   - Response: 50-500 tokens (depending on detail requested)
+#   Total: Usually 600-2500 tokens per vision request
+#
+# Cost comparison:
+#   Text-only request:  ~$0.000002 (20 tokens in, 10 out)
+#   Vision request:     ~$0.000200 (1500 tokens in, 100 out)
+#   Vision is ~100x more expensive, but still very cheap!
