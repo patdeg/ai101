@@ -13,13 +13,14 @@ This project demonstrates how to use the Groq API across 4 different languages: 
 - Environment variables for API keys
 - Reading and parsing JSON responses
 
-## The 5 Examples
+## The 6 Examples
 
 1. **Basic Chat** - Single question to the AI model
 2. **System + User Prompts** - Controlling AI behavior with system instructions
 3. **Vision Analysis** - Analyzing local images with multimodal models
-4. **Safety Check** - Content moderation with LlamaGuard
-5. **Prompt Guard** - Detecting jailbreak attempts
+4. **Safety Check (Text)** - Content moderation with LlamaGuard
+5. **Safety Check (Image)** - Image content moderation with LlamaGuard Vision
+6. **Prompt Guard** - Detecting jailbreak attempts
 
 ## Repository Structure
 
@@ -33,7 +34,7 @@ ai101/
 └── README.md      # This file
 ```
 
-Each folder contains the same 5 examples implemented in that language, plus a detailed README explaining the code.
+Each folder contains the same 6 examples implemented in that language, plus a detailed README explaining the code.
 
 ## Prerequisites
 
@@ -82,11 +83,19 @@ Authorization: Bearer YOUR_API_KEY
 
 ### Models Used
 
-| Model | Purpose | Context Window | Max Output |
-|-------|---------|---------------|------------|
-| `meta-llama/llama-4-scout-17b-16e-instruct` | Chat + Vision | 131,072 tokens | 8,192 tokens |
-| `meta-llama/llama-guard-4-12b` | Content Safety | 131,072 tokens | 1,024 tokens |
-| `meta-llama/llama-prompt-guard-2-86m` | Prompt Injection Detection | 512 tokens | 512 tokens |
+**Full documentation:** https://console.groq.com/docs/models
+
+| Model | Purpose | Context | Max Output | Pricing (per 1M tokens) |
+|-------|---------|---------|------------|------------------------|
+| [`meta-llama/llama-4-scout-17b-16e-instruct`](https://console.groq.com/docs/model/meta-llama/llama-4-scout-17b-16e-instruct) | Chat + Vision | 131K | 8,192 | Input: $0.11<br>Output: $0.34 |
+| [`meta-llama/llama-guard-4-12b`](https://console.groq.com/docs/model/meta-llama/llama-guard-4-12b) | Content Safety (Text + Vision) | 131K | 1,024 | Input: $0.20<br>Output: $0.20 |
+| [`meta-llama/llama-prompt-guard-2-86m`](https://console.groq.com/docs/model/meta-llama/llama-prompt-guard-2-86m) | Prompt Injection Detection | 512 | 512 | Input: $0.04<br>Output: $0.03 |
+
+**Pricing Notes (as of October 1, 2025):**
+- You are billed separately for input tokens (prompt) and output tokens (completion)
+- Vision requests include image tokens in the input count
+- Most requests cost less than $0.01 (one cent)
+- Examples in this repo calculate and display the exact cost for each call
 
 ### Request Format
 

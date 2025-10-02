@@ -57,24 +57,95 @@ curl "$API_URL" \
     "messages": [
       {
         "role": "user",
-        "content": [                              # Content is an array, not a string!
+        "content": [
           {
-            "type": "text",                       # First item: our question
+            "type": "text",
             "text": "What is in this image? Describe in detail."
           },
           {
-            "type": "image_url",                  # Second item: the image to analyze
+            "type": "image_url",
             "image_url": {
-              "url": "'"$IMAGE_URL"'"             # Insert our base64 image data URL
+              "url": "'"$IMAGE_URL"'"
             }
           }
         ]
       }
     ],
-    "temperature": 0.3,                           # Lower = more accurate descriptions
-    "max_tokens": 500                             # Allow longer response for details
+    "temperature": 0.3,
+    "max_tokens": 500
   }'
 
+# Here's the request body with detailed explanations:
+# {
+#   "model": "meta-llama/llama-4-scout-17b-16e-instruct",
+#     ↑ Using same model as before - this one supports vision!
+#     Not all models can analyze images - check the docs
+#
+#   "messages": [
+#     {
+#       "role": "user",
+#
+#       "content": [
+#         ↑ IMPORTANT: content is now an ARRAY, not a string!
+#         This allows us to combine text + images in one message
+#
+#         {
+#           "type": "text",
+#             ↑ First item in the array: text content
+#
+#           "text": "What is in this image? Describe in detail."
+#             ↑ Our question about the image
+#             Tell the AI what you want to know about the image
+#         },
+#
+#         {
+#           "type": "image_url",
+#             ↑ Second item in the array: image content
+#
+#           "image_url": {
+#             "url": "data:image/jpeg;base64,<base64_data>"
+#               ↑ The image as a data URL
+#               Format: data:<mime-type>;base64,<encoded-image>
+#               This is the $IMAGE_URL variable we created earlier
+#           }
+#         }
+#       ]
+#     }
+#   ],
+#
+#   "temperature": 0.3,
+#     ↑ Lower temperature for more accurate, factual descriptions
+#     We want the AI to describe what it actually sees
+#     Not to be creative about it
+#
+#   "max_tokens": 500
+#     ↑ More tokens needed for detailed image descriptions
+#     Images typically need longer responses than simple Q&A
+# }
+
+################################################################################
+# EXTRACTING THE IMAGE DESCRIPTION
+################################################################################
+#
+# Get just the AI's image description:
+#   ./03_vision.sh | jq -r '.choices[0].message.content'
+#
+# This will output a detailed description of what the AI "sees" in the image
+#
+# Get description with token count:
+#   ./03_vision.sh | jq '{description: .choices[0].message.content, tokens: .usage.total_tokens}'
+#
+# Note: Vision requests use MORE tokens than text-only requests because:
+# - The image itself is converted to tokens
+# - Detailed descriptions require more output tokens
+#
+# Check how many tokens the image used:
+#   ./03_vision.sh | jq '.usage.prompt_tokens'
+
+################################################################################
+# ORIGINAL DOCUMENTATION
+################################################################################
+#
 # New concepts in this example:
 #
 # base64 encoding:
