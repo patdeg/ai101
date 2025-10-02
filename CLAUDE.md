@@ -137,7 +137,7 @@ EOF
 ### 6. When Adding New Examples
 
 1. Create files in all language directories (or document which are missing)
-2. Use consistent numbering (01-10, or next available)
+2. Use consistent numbering (01-14, or next available)
 3. For bash: Create both `*_minimal.sh` and `*_full.sh`
 4. Follow existing pattern for headers and comments
 5. Use heredoc for complex JSON in shell scripts
@@ -159,11 +159,11 @@ EOF
 ## File Naming Conventions
 
 - Examples: `01_basic_chat.{sh,js,py,go,ino}`
-- Bash minimal: `01_basic_chat_minimal.sh` (and 02-12)
-- Bash full: `01_basic_chat_full.sh` (and 02-12)
+- Bash minimal: `01_basic_chat_minimal.sh` (and 02-14)
+- Bash full: `01_basic_chat_full.sh` (and 02-14)
 - Arduino: `01_basic_chat/01_basic_chat.ino` (in subdirectories, examples 01-07 only)
 - README files: `README.md` (one per language directory, plus `exercises/README.md`)
-- Exercise files: `exercises/01_basic_chat.md` (and 02-12)
+- Exercise files: `exercises/01_basic_chat.md` (and 02-14)
 - Test resources: `test_image.jpg`, `gettysburg.mp3` (root level)
 - Documentation: `*.md` (root level)
 

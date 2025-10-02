@@ -1,6 +1,6 @@
 # Exercise 10: Tool Use - Building AI Agents with Function Calling
 
-[← Previous: Tavily Extract](09_tavily_extract.md) | [Back to Exercises](README.md)
+[← Previous: Tavily Extract](09_tavily_extract.md) | [Back to Exercises](README.md) | [Next: Web Search (Groq) →](11_web_search.md)
 
 ## What You Learned
 
@@ -499,4 +499,4 @@ Congratulations! You've completed all 10 core exercises. You now know how to:
 - [Exercise 9: Tavily Extract](09_tavily_extract.md) - Content extraction tool
 - [Exercise 1: Basic Chat](01_basic_chat.md) - Groq API fundamentals
 
-[← Previous: Tavily Extract](09_tavily_extract.md) | [Back to Exercises](README.md)
+[← Previous: Tavily Extract](09_tavily_extract.md) | [Back to Exercises](README.md) | [Next: Web Search (Groq) →](11_web_search.md)

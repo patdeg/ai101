@@ -1,3 +1,5 @@
+![AI 101 Banner](ai101.png)
+
 # AI 101 - Groq API Rosetta Stone
 
 **A learning repository for Victor (and anyone starting with AI APIs)**

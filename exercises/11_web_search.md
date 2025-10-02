@@ -1,6 +1,6 @@
 # Exercise 11: Web Search (groq/compound-mini)
 
-[← Previous: Tavily Extract](09_tavily_extract.md) | [Back to Exercises](README.md) | [Next: Code Execution →](12_code_execution.md)
+[← Previous: Tool Use](10_tool_use.md) | [Back to Exercises](README.md) | [Next: Code Execution →](12_code_execution.md)
 
 ## What You’ll Learn
 - Using a built-in web-search-capable model (`groq/compound-mini`)
@@ -119,5 +119,5 @@ Ship it as a script in your language of choice. Share a screenshot of the output
 - [python/11_web_search.py](../python/11_web_search.py)
 - [go/11_web_search.go](../go/11_web_search.go)
 
-[← Previous: Tavily Extract](09_tavily_extract.md) | [Back to Exercises](README.md) | [Next: Code Execution →](12_code_execution.md)
+[← Previous: Tool Use](10_tool_use.md) | [Back to Exercises](README.md) | [Next: Code Execution →](12_code_execution.md)
 

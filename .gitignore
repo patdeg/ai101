@@ -302,6 +302,10 @@ build/
 !**/docs/**/*.jpg
 !**/assets/**/*.png
 !**/assets/**/*.jpg
+!test_image.jpg
+!ai101.png
+!gettysburg.mp3
+
 
 # ============================================================================
 # OPERATING SYSTEM FILES

@@ -1,6 +1,6 @@
 # Exercise 12: Code Execution (openai/gpt-oss-20b)
 
-[← Previous: Web Search](11_web_search.md) | [Back to Exercises](README.md)
+[← Previous: Web Search](11_web_search.md) | [Back to Exercises](README.md) | [Next: Reasoning →](13_reasoning.md)
 
 ## What You’ll Learn
 - Using a Python-execution-capable model (`openai/gpt-oss-20b`)
@@ -105,4 +105,4 @@ Safety tip: Scope to simple snippets and never run untrusted code in production 
 - [python/12_code_execution.py](../python/12_code_execution.py)
 - [go/12_code_execution.go](../go/12_code_execution.go)
 
-[← Previous: Web Search](11_web_search.md) | [Back to Exercises](README.md)
+[← Previous: Web Search](11_web_search.md) | [Back to Exercises](README.md) | [Next: Reasoning →](13_reasoning.md)

@@ -1,5 +1,7 @@
 # Exercise 14: Text-to-Speech Experiments
 
+[← Previous: Reasoning](13_reasoning.md) | [Back to Exercises](README.md)
+
 ## Overview
 
 These exercises explore OpenAI's text-to-speech API (gpt-4o-mini-tts) - an affordable, high-quality TTS solution with 11 distinct voices, customizable instructions, speed control, and multi-language support.
@@ -883,3 +885,24 @@ OpenAI's TTS is:
 **Key Takeaway:** With the right voice, instructions, and speed, TTS can create engaging, accessible audio content at a fraction of the cost of human narration.
 
 Now build something amazing! 🎤
+
+---
+
+## Related Examples
+
+Try the example code files to see TTS in action:
+
+- [bash/14_text_to_speech_minimal.sh](../bash/14_text_to_speech_minimal.sh)
+- [bash/14_text_to_speech_full.sh](../bash/14_text_to_speech_full.sh)
+- [nodejs/14_text_to_speech.js](../nodejs/14_text_to_speech.js)
+- [python/14_text_to_speech.py](../python/14_text_to_speech.py)
+- [go/14_text_to_speech.go](../go/14_text_to_speech.go)
+
+---
+
+## Related Exercises
+
+- [Exercise 1: Basic Chat](01_basic_chat.md) - API fundamentals and token usage
+- [Exercise 13: Reasoning](13_reasoning.md) - Another OpenAI model integration
+
+[← Previous: Reasoning](13_reasoning.md) | [Back to Exercises](README.md)
