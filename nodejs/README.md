@@ -590,4 +590,23 @@ console.log('Chatbot started. Type "exit" to quit.\n');
 chat();
 ```
 
+## 🎯 Exercises
+
+Now that you've mastered the basics, take your learning further with hands-on exercises!
+
+**See the main README.md for detailed exercises** covering:
+- Example 1: Temperature exploration, token limits, top-p sampling, cost tracking
+- Example 2: Persona experimentation, expertise level tuning, output format control
+- Example 3: Image resolution testing, compression experiments, OCR challenges
+- Example 4: Safety boundary testing, false positive hunting, multi-language checks
+- Example 5: Image safety testing, context influence, artistic content handling
+- Example 6: Jailbreak technique catalog, benign vs. malicious detection
+- Example 7: Audio quality degradation, language testing, noise tolerance
+
+Each exercise is designed using modern educational principles (Bloom's Taxonomy, Zone of Proximal Development) to progressively build your skills from **understanding** → **applying** → **analyzing** → **creating**.
+
+**[📖 View all exercises in the main README.md](../README.md#exercises)**
+
+---
+
 Ready to build something? Start experimenting! 🚀
