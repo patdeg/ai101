@@ -30,6 +30,8 @@ Each example has its own exercise file with challenges ranging from basic parame
 | 10 | [Tool Use](10_tool_use.md) | AI agents, function calling | Single tool, multi-tool, custom tools, research agent |
 | 11 | [Web Search (Groq)](11_web_search.md) | Built-in search via `groq/compound-mini` | Boolean logic, domains, country, model compare |
 | 12 | [Code Execution](12_code_execution.md) | Python execution via `openai/gpt-oss-20b` | Primes, exceptions, parsing, performance |
+| 13 | [Reasoning](13_reasoning.md) | Step-by-step thinking, prompt caching | Formats, effort levels, cache optimization |
+| 14 | [Text-to-Speech](14_text_to_speech.md) | Voice synthesis with OpenAI | 11 voices, instructions, speed, multi-language |
 
 ## How to Use These Exercises
 

@@ -11,14 +11,14 @@ Create a "Rosetta Stone" of AI API examples that teach programming fundamentals 
 
 ## Directory Structure
 
-- `bash/` - Bash/cURL examples (20 files: 10 examples × 2 versions each)
-- `nodejs/` - Node.js examples (10 examples, built-in modules only)
-- `python/` - Python examples (10 examples, standard library only)
-- `go/` - Go examples (10 examples, standard library only)
+- `bash/` - Bash/cURL examples (28 files: 14 examples × 2 versions each)
+- `nodejs/` - Node.js examples (14 examples, built-in modules only)
+- `python/` - Python examples (14 examples, standard library only)
+- `go/` - Go examples (14 examples, standard library only)
 - `arduino/` - Arduino/ESP32 examples (for XIAO ESP32-S3 Sense board, examples 1-7 only)
-- `exercises/` - Hands-on practice exercises (10 files, one per example)
+- `exercises/` - Hands-on practice exercises (14 files, one per example)
 
-## The 10 Examples (Repeated Across Languages)
+## The 14 Examples (Repeated Across Languages)
 
 1. **01_basic_chat** - Simple question/answer with AI
 2. **02_system_prompt** - Controlling AI behavior with system messages
@@ -30,6 +30,10 @@ Create a "Rosetta Stone" of AI API examples that teach programming fundamentals 
 8. **08_tavily_search** - Web search with AI-powered answers (Tavily API)
 9. **09_tavily_extract** - Extract clean content from web pages (Tavily API)
 10. **10_tool_use** - AI agents with function calling (Groq + Tavily)
+11. **11_web_search** - Built-in web search with groq/compound-mini
+12. **12_code_execution** - Python code execution with openai/gpt-oss-20b
+13. **13_reasoning** - Step-by-step thinking with openai/gpt-oss-20b + prompt caching
+14. **14_text_to_speech** - Voice synthesis with OpenAI gpt-4o-mini-tts (11 voices)
 
 ## Bash Directory: Dual Version Strategy
 
@@ -114,6 +118,15 @@ EOF
 
 **Whisper Audio**: `whisper-large-v3-turbo`
 - **$0.04 per hour of audio**
+
+**Reasoning + Code Execution**: `openai/gpt-oss-20b`
+- Input: $0.10/1M tokens ($0.05/1M cached - 50% discount)
+- Output: $0.50/1M tokens
+
+**Text-to-Speech** (OpenAI): `gpt-4o-mini-tts`
+- Input: $0.60/1M tokens (≈ characters)
+- Output: $12/1M tokens (audio duration-based)
+- 11 voices: alloy, ash, ballad, coral, echo, fable, onyx, nova, sage, shimmer, verse
 
 **Tavily API** (for examples 08-09):
 - Web search and content extraction

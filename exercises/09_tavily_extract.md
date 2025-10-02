@@ -24,7 +24,6 @@ Compare extraction quality at different depths:
 **Basic extraction (faster):**
 ```json
 {
-  "api_key": "your-key",
   "urls": ["https://example.com/article"],
   "extract_depth": "basic"
 }
@@ -33,7 +32,6 @@ Compare extraction quality at different depths:
 **Advanced extraction (more comprehensive):**
 ```json
 {
-  "api_key": "your-key",
   "urls": ["https://example.com/article"],
   "extract_depth": "advanced"
 }
@@ -65,7 +63,6 @@ Extract content from multiple URLs in one request:
 **Multiple articles:**
 ```json
 {
-  "api_key": "your-key",
   "urls": [
     "https://example.com/article-1",
     "https://example.com/article-2",
@@ -104,7 +101,6 @@ Extract images from web content:
 **With images:**
 ```json
 {
-  "api_key": "your-key",
   "urls": ["https://example.com/visual-guide"],
   "include_images": true
 }

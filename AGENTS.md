@@ -13,12 +13,12 @@ Create a "Rosetta Stone" of AI API examples that teach programming fundamentals 
 
 ```
 ai101/
-├── bash/          # Bash/cURL examples (20 files: 10 examples × 2 versions each)
-├── nodejs/        # Node.js examples (10 examples, built-in modules only)
-├── python/        # Python examples (10 examples, standard library only)
-├── go/            # Go examples (10 examples, standard library only)
+├── bash/          # Bash/cURL examples (28 files: 14 examples × 2 versions each)
+├── nodejs/        # Node.js examples (14 examples, built-in modules only)
+├── python/        # Python examples (14 examples, standard library only)
+├── go/            # Go examples (14 examples, standard library only)
 ├── arduino/       # Arduino/ESP32 examples (examples 1-7 only)
-├── exercises/     # Hands-on practice exercises (12 files)
+├── exercises/     # Hands-on practice exercises (14 files)
 ├── test_image.jpg # Shared test image (300x450, 58KB)
 ├── gettysburg.mp3 # Shared audio file for Whisper
 ├── README.md      # Main documentation
@@ -26,7 +26,7 @@ ai101/
 └── AGENTS.md      # This file
 ```
 
-## The 10 Examples (Repeated Across Languages)
+## The 14 Examples (Repeated Across Languages)
 
 1. **01_basic_chat** - Simple question/answer with AI
 2. **02_system_prompt** - Controlling AI behavior with system messages
@@ -38,8 +38,12 @@ ai101/
 8. **08_tavily_search** - Web search with AI-powered answers (Tavily API)
 9. **09_tavily_extract** - Extract clean content from web pages (Tavily API)
 10. **10_tool_use** - AI agents with function calling (Groq + Tavily)
+11. **11_web_search** - Built-in web search with groq/compound-mini
+12. **12_code_execution** - Python code execution with openai/gpt-oss-20b
+13. **13_reasoning** - Step-by-step thinking with openai/gpt-oss-20b + prompt caching
+14. **14_text_to_speech** - Voice synthesis with OpenAI gpt-4o-mini-tts (11 voices)
 
-**Note**: Examples 08-10 are implemented in bash, nodejs, python, and go (not Arduino). All bash examples have dual versions (minimal + full). There are also examples 11 (web search with groq/compound-mini) and 12 (code execution with openai/gpt-oss-20b) in bash, nodejs, python, and go.
+**Note**: Examples 08-14 are implemented in bash, nodejs, python, and go (not Arduino). All bash examples have dual versions (minimal + full).
 
 ## Coding Standards
 
@@ -138,31 +142,40 @@ const data = JSON.stringify({
 
 ### 5. API Usage
 
-**Models:**
+**Groq Models:**
 - Chat/Vision: `meta-llama/llama-4-scout-17b-16e-instruct`
 - Safety (Text + Vision): `meta-llama/llama-guard-4-12b`
 - Prompt Guard: `meta-llama/llama-prompt-guard-2-86m`
 - Whisper Audio: `whisper-large-v3-turbo`
 - Tool Use: `meta-llama/llama-4-scout-17b-16e-instruct` (supports function calling)
+- Web Search: `groq/compound-mini` (built-in search capability)
+- Reasoning + Code: `openai/gpt-oss-20b` (step-by-step thinking, Python execution)
+
+**OpenAI Models:**
+- Text-to-Speech: `gpt-4o-mini-tts` (11 voices, multi-language)
 
 **Pricing (October 2025):**
 - Llama 4 Scout 17B: Input $0.11/1M, Output $0.34/1M
 - LlamaGuard 4 12B: Input $0.20/1M, Output $0.20/1M
 - Prompt Guard 2 86M: Input $0.04/1M, Output $0.04/1M
 - Whisper Turbo: **$0.04 per hour of audio**
+- GPT-OSS-20B: Input $0.10/1M ($0.05/1M cached), Output $0.50/1M
+- gpt-4o-mini-tts: Input $0.60/1M, Output $12/1M (duration-based)
 
 **Endpoints:**
 ```
-POST https://api.groq.com/openai/v1/chat/completions (chat, vision, safety, prompt guard, tool use)
+POST https://api.groq.com/openai/v1/chat/completions (chat, vision, safety, prompt guard, tool use, reasoning, code execution)
 POST https://api.groq.com/openai/v1/audio/transcriptions (whisper)
 POST https://api.tavily.com/search (web search - examples 08, 11)
 POST https://api.tavily.com/extract (content extraction - example 09)
+POST https://api.openai.com/v1/audio/speech (text-to-speech - example 14)
 ```
 
 **Authentication:**
 ```
 Groq API:   Authorization: Bearer $GROQ_API_KEY
 Tavily API: Authorization: Bearer $TAVILY_API_KEY
+OpenAI API: Authorization: Bearer $OPENAI_API_KEY
 ```
 
 **Common Parameters:**
@@ -262,6 +275,10 @@ S14: Code Interpreter Abuse
 8. **Example 8:** Web search APIs, Tavily integration, filtering
 9. **Example 9:** Content extraction from web pages, markdown processing
 10. **Example 10:** AI agents with function calling, tool definitions, multi-step workflows
+11. **Example 11:** Built-in web search with groq/compound-mini model
+12. **Example 12:** Python code execution, sandboxed environment, error handling
+13. **Example 13:** Reasoning models, step-by-step thinking, prompt caching optimization
+14. **Example 14:** Text-to-speech synthesis, voice selection, instructions parameter, multi-language
 
 ### Key Teaching Principles
 - Show, don't just tell
@@ -274,11 +291,11 @@ S14: Code Interpreter Abuse
 ## File Naming Conventions
 
 - Examples: `01_basic_chat.{sh,js,py,go,ino}`
-- Bash minimal: `01_basic_chat_minimal.sh` (and 02-12)
-- Bash full: `01_basic_chat_full.sh` (and 02-12)
+- Bash minimal: `01_basic_chat_minimal.sh` (and 02-14)
+- Bash full: `01_basic_chat_full.sh` (and 02-14)
 - Arduino: `01_basic_chat/01_basic_chat.ino` (in subdirectories, examples 01-07 only)
 - README files: `README.md` (one per language directory, plus `exercises/README.md`)
-- Exercise files: `exercises/01_basic_chat.md` (and 02-12)
+- Exercise files: `exercises/01_basic_chat.md` (and 02-14)
 - Test resources: `test_image.jpg`, `gettysburg.mp3` (root level)
 - Documentation: `*.md` (root level)
 

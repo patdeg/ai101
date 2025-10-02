@@ -61,6 +61,8 @@ export GROQ_API_KEY="gsk_..."
 | **10 Tool Use** | `10_tool_use_minimal.sh` | `10_tool_use_full.sh` | AI agents with function calling |
 | **11 Web Search (Groq)** | `11_web_search_minimal.sh` | `11_web_search_full.sh` | groq/compound-mini with built-in web search |
 | **12 Code Execution** | `12_code_execution_minimal.sh` | `12_code_execution_full.sh` | openai/gpt-oss-20b Python execution |
+| **13 Reasoning** | `13_reasoning_minimal.sh` | `13_reasoning_full.sh` | Step-by-step thinking with prompt caching |
+| **14 Text-to-Speech** | `14_text_to_speech_minimal.sh` | `14_text_to_speech_full.sh` | OpenAI TTS with 11 voices |
 
 ## 🎯 When to Use Which Version?
 
@@ -244,6 +246,8 @@ Ready to deepen your understanding? Check out the **[exercises/](../exercises/)*
 - **[Exercise 10: Tool Use](../exercises/10_tool_use.md)** - AI agents, function calling, autonomous workflows
 - **[Exercise 11: Web Search (Groq)](../exercises/11_web_search.md)** - Built-in search with groq/compound-mini
 - **[Exercise 12: Code Execution](../exercises/12_code_execution.md)** - Python execution with openai/gpt-oss-20b
+- **[Exercise 13: Reasoning](../exercises/13_reasoning.md)** - Step-by-step thinking with prompt caching
+- **[Exercise 14: Text-to-Speech](../exercises/14_text_to_speech.md)** - Voice synthesis with 11 voices
 
 Each exercise includes progressive challenges, real-world applications, and reflection questions.
 

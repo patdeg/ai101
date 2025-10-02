@@ -46,6 +46,8 @@ python3 09_tavily_extract.py   # Extract clean content from web pages
 python3 10_tool_use.py         # AI agents with function calling
 python3 11_web_search.py       # groq/compound-mini with built-in web search
 python3 12_code_execution.py   # openai/gpt-oss-20b Python execution
+python3 13_reasoning.py        # Step-by-step thinking with prompt caching
+python3 14_text_to_speech.py   # OpenAI TTS with 11 voices
 ```
 
 Or make them executable:
@@ -734,6 +736,8 @@ Ready to deepen your understanding? Check out the **[exercises/](../exercises/)*
 - **[Exercise 10: Tool Use](../exercises/10_tool_use.md)** - AI agents, function calling, autonomous workflows
 - **[Exercise 11: Web Search (Groq)](../exercises/11_web_search.md)** - Built-in search with groq/compound-mini
 - **[Exercise 12: Code Execution](../exercises/12_code_execution.md)** - Python execution with openai/gpt-oss-20b
+- **[Exercise 13: Reasoning](../exercises/13_reasoning.md)** - Step-by-step thinking with prompt caching
+- **[Exercise 14: Text-to-Speech](../exercises/14_text_to_speech.md)** - Voice synthesis with 11 voices
 
 Each exercise includes progressive challenges, real-world applications, and reflection questions.
 

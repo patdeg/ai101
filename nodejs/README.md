@@ -49,6 +49,8 @@ node 09_tavily_extract.js      # Extract clean content from web pages
 node 10_tool_use.js            # AI agents with function calling
 node 11_web_search.js          # groq/compound-mini with built-in web search
 node 12_code_execution.js      # openai/gpt-oss-20b Python execution
+node 13_reasoning.js           # Step-by-step thinking with prompt caching
+node 14_text_to_speech.js      # OpenAI TTS with 11 voices
 ```
 
 ---
@@ -613,6 +615,8 @@ Ready to deepen your understanding? Check out the **[exercises/](../exercises/)*
 - **[Exercise 10: Tool Use](../exercises/10_tool_use.md)** - AI agents, function calling, autonomous workflows
 - **[Exercise 11: Web Search (Groq)](../exercises/11_web_search.md)** - Built-in search with groq/compound-mini
 - **[Exercise 12: Code Execution](../exercises/12_code_execution.md)** - Python execution with openai/gpt-oss-20b
+- **[Exercise 13: Reasoning](../exercises/13_reasoning.md)** - Step-by-step thinking with prompt caching
+- **[Exercise 14: Text-to-Speech](../exercises/14_text_to_speech.md)** - Voice synthesis with 11 voices
 
 Each exercise includes progressive challenges, real-world applications, and reflection questions.
 

@@ -13,7 +13,7 @@ This project demonstrates how to use the Groq API across 4 different languages: 
 - Environment variables for API keys
 - Reading and parsing JSON responses
 
-## The 10 Examples
+## The 14 Examples
 
 1. **Basic Chat** - Single question to the AI model
 2. **System + User Prompts** - Controlling AI behavior with system instructions
@@ -25,6 +25,10 @@ This project demonstrates how to use the Groq API across 4 different languages: 
 8. **Tavily Search** - Web search with AI-powered answers
 9. **Tavily Extract** - Extract clean content from web pages
 10. **Tool Use** - AI agents with function calling (Groq + Tavily)
+11. **Web Search (Groq)** - Built-in web search with groq/compound-mini
+12. **Code Execution** - Python code execution with openai/gpt-oss-20b
+13. **Reasoning** - Step-by-step thinking with openai/gpt-oss-20b + prompt caching
+14. **Text-to-Speech** - Voice synthesis with OpenAI gpt-4o-mini-tts
 
 ## Repository Structure
 
@@ -39,7 +43,7 @@ ai101/
 └── README.md      # This file
 ```
 
-Each language folder contains the same 10 examples implemented in that language (except Arduino has only examples 1-7), plus a detailed README explaining the code.
+Each language folder contains the same 14 examples implemented in that language (except Arduino has only examples 1-7), plus a detailed README explaining the code.
 
 ## Prerequisites
 
@@ -55,6 +59,12 @@ Each language folder contains the same 10 examples implemented in that language 
 2. Sign up for a free account
 3. Get your API key from the dashboard
 4. Add it to your environment: `export TAVILY_API_KEY="tvly-your-key"`
+
+**Get an OpenAI API Key (for examples 13-14):**
+1. Go to https://platform.openai.com
+2. Sign up for an account
+3. Create a new API key
+4. Add it to your environment: `export OPENAI_API_KEY="sk-your-key"`
 
 **Set up your environment:**
 
@@ -110,12 +120,21 @@ Authorization: Bearer YOUR_API_KEY
 
 **Full documentation:** https://console.groq.com/docs/models
 
+### Groq Models
+
 | Model | Purpose | Context | Max Output | Pricing (per 1M tokens) |
 |-------|---------|---------|------------|------------------------|
 | [`meta-llama/llama-4-scout-17b-16e-instruct`](https://console.groq.com/docs/model/meta-llama/llama-4-scout-17b-16e-instruct) | Chat + Vision | 131K | 8,192 | Input: $0.11/1M<br>Output: $0.34/1M |
 | [`meta-llama/llama-guard-4-12b`](https://console.groq.com/docs/model/meta-llama/llama-guard-4-12b) | Content Safety (Text + Vision) | 131K | 1,024 | Input: $0.20/1M<br>Output: $0.20/1M |
 | [`meta-llama/llama-prompt-guard-2-86m`](https://console.groq.com/docs/model/meta-llama/llama-prompt-guard-2-86m) | Prompt Injection Detection | 512 | 512 | Input: $0.04/1M<br>Output: $0.04/1M |
 | [`whisper-large-v3-turbo`](https://console.groq.com/docs/speech-text) | Audio Transcription | - | - | **$0.04 per hour of audio** |
+| [`openai/gpt-oss-20b`](https://console.groq.com/docs/model/openai/gpt-oss-20b) | Reasoning + Code Execution | 131K | 8,192 | Input: $0.10/1M ($0.05/1M cached)<br>Output: $0.50/1M |
+
+### OpenAI Models
+
+| Model | Purpose | Pricing |
+|-------|---------|---------|
+| `gpt-4o-mini-tts` | Text-to-Speech (11 voices) | Input: $0.60/1M<br>Output: $12/1M (duration-based) |
 
 **Pricing Notes (as of October 1, 2025):**
 - You are billed separately for input tokens (prompt) and output tokens (completion)
@@ -280,6 +299,8 @@ Ready to experiment and build? Check out the [**exercises/**](exercises/) direct
 - **[Exercise 10: Tool Use](exercises/10_tool_use.md)** - AI agents, function calling, autonomous workflows
 - **[Exercise 11: Web Search (Groq)](exercises/11_web_search.md)** - Built-in search with groq/compound-mini
 - **[Exercise 12: Code Execution](exercises/12_code_execution.md)** - Python execution with openai/gpt-oss-20b
+- **[Exercise 13: Reasoning](exercises/13_reasoning.md)** - Step-by-step thinking with prompt caching
+- **[Exercise 14: Text-to-Speech](exercises/14_text_to_speech.md)** - Voice synthesis with 11 voices
 
 Each exercise file includes:
 - Progressive difficulty levels
