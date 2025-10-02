@@ -13,18 +13,20 @@ Create a "Rosetta Stone" of AI API examples that teach programming fundamentals 
 
 ```
 ai101/
-├── curl/          # Bash/cURL examples (no dependencies)
-├── nodejs/        # Node.js examples (built-in modules only)
-├── python/        # Python examples (standard library only)
-├── go/            # Go examples (standard library only)
-├── arduino/       # Arduino/ESP32 examples (WiFi-enabled boards)
+├── bash/          # Bash/cURL examples (20 files: 10 examples × 2 versions each)
+├── nodejs/        # Node.js examples (10 examples, built-in modules only)
+├── python/        # Python examples (10 examples, standard library only)
+├── go/            # Go examples (10 examples, standard library only)
+├── arduino/       # Arduino/ESP32 examples (examples 1-7 only)
+├── exercises/     # Hands-on practice exercises (12 files)
 ├── test_image.jpg # Shared test image (300x450, 58KB)
+├── gettysburg.mp3 # Shared audio file for Whisper
 ├── README.md      # Main documentation
 ├── CLAUDE.md      # Guidance for Claude Code
 └── AGENTS.md      # This file
 ```
 
-## The 7 Examples (Repeated Across Languages)
+## The 10 Examples (Repeated Across Languages)
 
 1. **01_basic_chat** - Simple question/answer with AI
 2. **02_system_prompt** - Controlling AI behavior with system messages
@@ -33,8 +35,11 @@ ai101/
 5. **05_image_safety_check** - Image content moderation with LlamaGuard (vision)
 6. **06_prompt_guard** - Jailbreak/injection detection
 7. **07_whisper** - Audio transcription with Whisper
+8. **08_tavily_search** - Web search with AI-powered answers (Tavily API)
+9. **09_tavily_extract** - Extract clean content from web pages (Tavily API)
+10. **10_tool_use** - AI agents with function calling (Groq + Tavily)
 
-**Note**: Not all examples exist in all languages yet. Python, Node.js, and Go have examples 1-4, 6-7 (missing 05). Arduino has 01, 02, 03, 04, 06, 07. cURL has all 7 in dual versions (minimal + full).
+**Note**: Examples 08-10 are implemented in bash, nodejs, python, and go (not Arduino). All bash examples have dual versions (minimal + full). There are also examples 11 (web search with groq/compound-mini) and 12 (code execution with openai/gpt-oss-20b) in bash, nodejs, python, and go.
 
 ## Coding Standards
 
@@ -138,6 +143,7 @@ const data = JSON.stringify({
 - Safety (Text + Vision): `meta-llama/llama-guard-4-12b`
 - Prompt Guard: `meta-llama/llama-prompt-guard-2-86m`
 - Whisper Audio: `whisper-large-v3-turbo`
+- Tool Use: `meta-llama/llama-4-scout-17b-16e-instruct` (supports function calling)
 
 **Pricing (October 2025):**
 - Llama 4 Scout 17B: Input $0.11/1M, Output $0.34/1M
@@ -147,13 +153,16 @@ const data = JSON.stringify({
 
 **Endpoints:**
 ```
-POST https://api.groq.com/openai/v1/chat/completions (chat, vision, safety, prompt guard)
+POST https://api.groq.com/openai/v1/chat/completions (chat, vision, safety, prompt guard, tool use)
 POST https://api.groq.com/openai/v1/audio/transcriptions (whisper)
+POST https://api.tavily.com/search (web search - examples 08, 11)
+POST https://api.tavily.com/extract (content extraction - example 09)
 ```
 
 **Authentication:**
 ```
-Authorization: Bearer $GROQ_API_KEY
+Groq API:   Authorization: Bearer $GROQ_API_KEY
+Tavily API: Authorization: Bearer $TAVILY_API_KEY
 ```
 
 **Common Parameters:**
@@ -250,6 +259,9 @@ S14: Code Interpreter Abuse
 5. **Example 5:** Content safety (images), vision moderation
 6. **Example 6:** Security layers, attack detection, defense-in-depth
 7. **Example 7:** Audio transcription, multipart form data, speech-to-text
+8. **Example 8:** Web search APIs, Tavily integration, filtering
+9. **Example 9:** Content extraction from web pages, markdown processing
+10. **Example 10:** AI agents with function calling, tool definitions, multi-step workflows
 
 ### Key Teaching Principles
 - Show, don't just tell
@@ -262,10 +274,11 @@ S14: Code Interpreter Abuse
 ## File Naming Conventions
 
 - Examples: `01_basic_chat.{sh,js,py,go,ino}`
-- cURL minimal: `01_basic_chat_minimal.sh` (and 02-07)
-- cURL full: `01_basic_chat_full.sh` (and 02-07)
-- Arduino: `01_basic_chat/01_basic_chat.ino` (in subdirectories)
-- README files: `README.md` (one per language directory)
+- Bash minimal: `01_basic_chat_minimal.sh` (and 02-12)
+- Bash full: `01_basic_chat_full.sh` (and 02-12)
+- Arduino: `01_basic_chat/01_basic_chat.ino` (in subdirectories, examples 01-07 only)
+- README files: `README.md` (one per language directory, plus `exercises/README.md`)
+- Exercise files: `exercises/01_basic_chat.md` (and 02-12)
 - Test resources: `test_image.jpg`, `gettysburg.mp3` (root level)
 - Documentation: `*.md` (root level)
 
@@ -387,6 +400,9 @@ or
 - **API Documentation:** https://console.groq.com/docs
 - **Model Information:** https://console.groq.com/docs/models
 - **Vision API Guide:** https://console.groq.com/docs/vision
+- **Tool Use Guide:** https://console.groq.com/docs/tool-use
+- **Tavily API:** https://tavily.com
+- **Tavily Documentation:** https://docs.tavily.com
 
 ## Notes for AI Assistants
 

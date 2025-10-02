@@ -40,6 +40,8 @@ secrets.go
 __pycache__/
 *.py[cod]
 *$py.class
+output
+.gocache
 
 # C extensions
 *.so

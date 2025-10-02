@@ -41,7 +41,14 @@ node 01_basic_chat.js
 node 02_system_prompt.js
 node 03_vision.js
 node 04_safety_check.js
-node 05_prompt_guard.js
+node 05_image_safety_check.js
+node 06_prompt_guard.js
+node 07_whisper.js
+node 08_tavily_search.js       # Web search with AI-powered answers
+node 09_tavily_extract.js      # Extract clean content from web pages
+node 10_tool_use.js            # AI agents with function calling
+node 11_web_search.js          # groq/compound-mini with built-in web search
+node 12_code_execution.js      # openai/gpt-oss-20b Python execution
 ```
 
 ---
@@ -590,22 +597,24 @@ console.log('Chatbot started. Type "exit" to quit.\n');
 chat();
 ```
 
-## 🎯 Exercises
+## 🎓 Practice Exercises
 
-Now that you've mastered the basics, take your learning further with hands-on exercises!
+Ready to deepen your understanding? Check out the **[exercises/](../exercises/)** directory for hands-on challenges:
 
-**See the main README.md for detailed exercises** covering:
-- Example 1: Temperature exploration, token limits, top-p sampling, cost tracking
-- Example 2: Persona experimentation, expertise level tuning, output format control
-- Example 3: Image resolution testing, compression experiments, OCR challenges
-- Example 4: Safety boundary testing, false positive hunting, multi-language checks
-- Example 5: Image safety testing, context influence, artistic content handling
-- Example 6: Jailbreak technique catalog, benign vs. malicious detection
-- Example 7: Audio quality degradation, language testing, noise tolerance
+- **[Exercise 1: Basic Chat](../exercises/01_basic_chat.md)** - Temperature, tokens, cost tracking
+- **[Exercise 2: System Prompt](../exercises/02_system_prompt.md)** - Personas, JSON mode, constraints
+- **[Exercise 3: Vision](../exercises/03_vision.md)** - Resolution, OCR, multi-image analysis
+- **[Exercise 4: Safety Text](../exercises/04_safety_text.md)** - Content moderation, validators
+- **[Exercise 5: Safety Image](../exercises/05_safety_image.md)** - Vision moderation, context
+- **[Exercise 6: Prompt Guard](../exercises/06_prompt_guard.md)** - Jailbreak detection, security
+- **[Exercise 7: Whisper](../exercises/07_whisper.md)** - Quality tests, languages, noise
+- **[Exercise 8: Tavily Search](../exercises/08_tavily_search.md)** - Web search, time filters, domain control
+- **[Exercise 9: Tavily Extract](../exercises/09_tavily_extract.md)** - Content extraction, article analysis
+- **[Exercise 10: Tool Use](../exercises/10_tool_use.md)** - AI agents, function calling, autonomous workflows
+- **[Exercise 11: Web Search (Groq)](../exercises/11_web_search.md)** - Built-in search with groq/compound-mini
+- **[Exercise 12: Code Execution](../exercises/12_code_execution.md)** - Python execution with openai/gpt-oss-20b
 
-Each exercise is designed using modern educational principles (Bloom's Taxonomy, Zone of Proximal Development) to progressively build your skills from **understanding** → **applying** → **analyzing** → **creating**.
-
-**[📖 View all exercises in the main README.md](../README.md#exercises)**
+Each exercise includes progressive challenges, real-world applications, and reflection questions.
 
 ---
 

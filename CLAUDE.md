@@ -11,25 +11,29 @@ Create a "Rosetta Stone" of AI API examples that teach programming fundamentals 
 
 ## Directory Structure
 
-- `curl/` - Bash/cURL examples (14 files: 7 examples × 2 versions each)
-- `nodejs/` - Node.js examples (6 examples, built-in modules only)
-- `python/` - Python examples (6 examples, standard library only)
-- `go/` - Go examples (6 examples, standard library only)
-- `arduino/` - Arduino/ESP32 examples (for XIAO ESP32-S3 Sense board)
+- `bash/` - Bash/cURL examples (20 files: 10 examples × 2 versions each)
+- `nodejs/` - Node.js examples (10 examples, built-in modules only)
+- `python/` - Python examples (10 examples, standard library only)
+- `go/` - Go examples (10 examples, standard library only)
+- `arduino/` - Arduino/ESP32 examples (for XIAO ESP32-S3 Sense board, examples 1-7 only)
+- `exercises/` - Hands-on practice exercises (10 files, one per example)
 
-## The 7 Examples (Repeated Across Languages)
+## The 10 Examples (Repeated Across Languages)
 
 1. **01_basic_chat** - Simple question/answer with AI
 2. **02_system_prompt** - Controlling AI behavior with system messages
 3. **03_vision** - Image analysis using vision models
 4. **04_safety_check** - Content moderation with LlamaGuard (text)
-5. **05_image_safety_check** - Image content moderation (curl only currently)
+5. **05_image_safety_check** - Image content moderation
 6. **06_prompt_guard** - Jailbreak/injection detection
 7. **07_whisper** - Audio transcription with Whisper
+8. **08_tavily_search** - Web search with AI-powered answers (Tavily API)
+9. **09_tavily_extract** - Extract clean content from web pages (Tavily API)
+10. **10_tool_use** - AI agents with function calling (Groq + Tavily)
 
-## cURL Directory: Dual Version Strategy
+## Bash Directory: Dual Version Strategy
 
-Each cURL example has **two versions**:
+Each bash example has **two versions**:
 
 ### Minimal Version (`*_minimal.sh`)
 - **Shell**: `/bin/sh` (POSIX-compliant, works everywhere)
@@ -54,7 +58,7 @@ Each cURL example has **two versions**:
 - Use step-by-step numbered comments
 
 ### 2. No External Dependencies (Except Arduino)
-- **curl/**: Pure bash and curl (minimal), or bash + jq + bc (full)
+- **bash/**: Pure bash and curl (minimal), or bash + jq + bc (full)
 - **nodejs/**: Only built-in modules (`https`, `fs`, `path`, `os`)
 - **python/**: Only standard library (`http.client`, `json`, `os`, `base64`)
 - **go/**: Only standard library packages
@@ -111,15 +115,24 @@ EOF
 **Whisper Audio**: `whisper-large-v3-turbo`
 - **$0.04 per hour of audio**
 
+**Tavily API** (for examples 08-09):
+- Web search and content extraction
+- Authentication: `Authorization: Bearer <TAVILY_API_KEY>` header
+- Endpoints: `/search`, `/extract`
+- Free tier available at https://tavily.com
+
 ### 6. When Adding New Examples
 
 1. Create files in all language directories (or document which are missing)
-2. Use consistent numbering (01-07)
-3. For cURL: Create both `*_minimal.sh` and `*_full.sh`
+2. Use consistent numbering (01-10, or next available)
+3. For bash: Create both `*_minimal.sh` and `*_full.sh`
 4. Follow existing pattern for headers and comments
 5. Use heredoc for complex JSON in shell scripts
-6. Update README.md files
-7. Test in each environment
+6. Update all README.md files (main + all language directories)
+7. Add corresponding exercise file in `exercises/` directory
+8. Update `exercises/README.md` index table
+9. For tool use examples: Define tools with OpenAI-compatible schema
+10. Test in each environment
 
 ### 7. When Modifying Examples
 
@@ -133,10 +146,11 @@ EOF
 ## File Naming Conventions
 
 - Examples: `01_basic_chat.{sh,js,py,go,ino}`
-- cURL minimal: `01_basic_chat_minimal.sh` (and 02-07)
-- cURL full: `01_basic_chat_full.sh` (and 02-07)
-- Arduino: `01_basic_chat/01_basic_chat.ino` (in subdirectories)
-- README files: `README.md` (one per language directory)
+- Bash minimal: `01_basic_chat_minimal.sh` (and 02-12)
+- Bash full: `01_basic_chat_full.sh` (and 02-12)
+- Arduino: `01_basic_chat/01_basic_chat.ino` (in subdirectories, examples 01-07 only)
+- README files: `README.md` (one per language directory, plus `exercises/README.md`)
+- Exercise files: `exercises/01_basic_chat.md` (and 02-12)
 - Test resources: `test_image.jpg`, `gettysburg.mp3` (root level)
 - Documentation: `*.md` (root level)
 
@@ -173,6 +187,9 @@ EOF
 5. Image safety, vision moderation
 6. Security layers, attack detection
 7. Audio transcription, speech-to-text
+8. Web search APIs, Tavily integration
+9. Content extraction from web pages
+10. AI agents with function calling, tool use
 
 **Key Principles**: Show don't tell, explain WHY before HOW, one concept at a time, build on previous examples, real-world use cases.
 
@@ -182,7 +199,36 @@ EOF
 - **API Documentation:** https://console.groq.com/docs
 - **Model Information:** https://console.groq.com/docs/models
 - **Vision API Guide:** https://console.groq.com/docs/vision
+- **Tool Use Guide:** https://console.groq.com/docs/tool-use
+- **Tavily API:** https://tavily.com
+- **Tavily Documentation:** https://docs.tavily.com
 - **XIAO ESP32-S3 Sense:** https://www.seeedstudio.com/XIAO-ESP32S3-Sense-p-5639.html
+
+## Exercises Directory
+
+The `exercises/` directory contains hands-on practice challenges designed using modern educational principles:
+
+- **Progressive difficulty**: Understand → Apply → Analyze → Create
+- **12 exercise files**: One per example (01-12)
+- **Navigation**: Each file links to previous/next exercise and back to main index
+- **Cross-references**: Exercise files reference related code examples in language directories
+- **Real-world applications**: Build validators, pipelines, multi-step workflows, AI agents
+- **Reflection questions**: Encourage deeper understanding
+
+**Structure**:
+- `exercises/README.md` - Index of all exercises with learning philosophy
+- `exercises/01_basic_chat.md` - Temperature, tokens, cost tracking
+- `exercises/02_system_prompt.md` - Personas, JSON mode, constraints
+- ... (through 10 for Groq + Tavily examples)
+- `exercises/11_web_search.md` - Groq built-in web search
+- `exercises/12_code_execution.md` - Python code execution
+
+Each exercise file includes:
+- What the user learned from the basic example
+- 5-7 progressive exercises
+- Real-world application ideas
+- Reflection questions
+- Links to related code examples
 
 ## Summary
 
@@ -193,6 +239,7 @@ When working on this repository:
 4. Heredoc > Escaped JSON
 5. Clarity > Cleverness
 6. Consistency > Innovation
-7. Dual versions for cURL (minimal + full)
+7. Dual versions for bash (minimal + full)
+8. Exercises for hands-on practice
 
 **Remember**: Victor is 14 and learning. Make every line count as a teaching opportunity.

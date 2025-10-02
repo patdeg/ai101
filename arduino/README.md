@@ -1481,6 +1481,20 @@ void setup() {
 - **Model List:** https://console.groq.com/docs/models
 - **Vision API:** https://console.groq.com/docs/vision
 
+## 🎓 Practice Exercises
+
+Ready to deepen your understanding? Check out the **[exercises/](../exercises/)** directory for hands-on challenges:
+
+- **[Exercise 1: Basic Chat](../exercises/01_basic_chat.md)** - Temperature, tokens, cost tracking
+- **[Exercise 2: System Prompt](../exercises/02_system_prompt.md)** - Personas, JSON mode, constraints
+- **[Exercise 3: Vision](../exercises/03_vision.md)** - Resolution, OCR, multi-image analysis
+- **[Exercise 4: Safety Text](../exercises/04_safety_text.md)** - Content moderation, validators
+- **[Exercise 5: Safety Image](../exercises/05_safety_image.md)** - Vision moderation, context
+- **[Exercise 6: Prompt Guard](../exercises/06_prompt_guard.md)** - Jailbreak detection, security
+- **[Exercise 7: Whisper](../exercises/07_whisper.md)** - Quality tests, languages, noise
+
+While many exercises are focused on command-line tools, the concepts apply to embedded systems too!
+
 ---
 
 **Ready to connect the physical world to AI? Flash your board and start building!**
