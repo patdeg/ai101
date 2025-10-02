@@ -142,7 +142,7 @@ const data = JSON.stringify({
 **Pricing (October 2025):**
 - Llama 4 Scout 17B: Input $0.11/1M, Output $0.34/1M
 - LlamaGuard 4 12B: Input $0.20/1M, Output $0.20/1M
-- Prompt Guard 2 86M: Input $0.04/1M, Output $0.03/1M
+- Prompt Guard 2 86M: Input $0.04/1M, Output $0.04/1M
 - Whisper Turbo: **$0.04 per hour of audio**
 
 **Endpoints:**

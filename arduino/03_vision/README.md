@@ -69,7 +69,7 @@ Press button → Capture photo → Send to AI → Get detailed description
 
 ## 📚 Technical Details
 
-- **Model:** llava-v1.5-7b-4096-preview (vision-language model)
+- **Model:** meta-llama/llama-4-scout-17b-16e-instruct (vision + chat model)
 - **Camera:** OV2640, up to 1600x1200 resolution
 - **Image format:** JPEG, base64-encoded for API
 - **Response time:** 2-5 seconds

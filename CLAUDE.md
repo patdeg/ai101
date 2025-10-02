@@ -106,7 +106,7 @@ EOF
 
 **Prompt Guard**: `meta-llama/llama-prompt-guard-2-86m`
 - Input: $0.04/1M tokens
-- Output: $0.03/1M tokens
+- Output: $0.04/1M tokens
 
 **Whisper Audio**: `whisper-large-v3-turbo`
 - **$0.04 per hour of audio**

@@ -188,10 +188,9 @@ choco install jq
 
 | Model | Input | Output | Use Case |
 |-------|-------|--------|----------|
-| Llama 4 Scout 17B | $0.11/1M | $0.34/1M | General chat |
-| LlamaGuard 3 8B | $0.20/1M | $0.20/1M | Content moderation |
-| Prompt Guard 86M | $0.20/1M | $0.20/1M | Injection detection |
-| LLaVA 1.5 7B | $0.20/1M | $0.20/1M | Vision analysis |
+| Llama 4 Scout 17B | $0.11/1M | $0.34/1M | General chat + vision |
+| LlamaGuard 4 12B | $0.20/1M | $0.20/1M | Content moderation (text + images) |
+| Prompt Guard 2 86M | $0.04/1M | $0.04/1M | Injection detection |
 | Whisper Large v3 Turbo | $0.04/hour of audio | - | Speech-to-text |
 
 ## 🔒 Security Best Practices
