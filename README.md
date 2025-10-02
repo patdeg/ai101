@@ -1,19 +1,49 @@
 ![AI 101 Banner](ai101.png)
 
-# AI 101 - Groq API Rosetta Stone
+# AI 101: Learn AI APIs the Safe Way
 
-**A learning repository for Victor (and anyone starting with AI APIs)**
+**A hands-on learning path from basic AI to responsible AI development**
 
-This project demonstrates how to use the Groq API across 4 different languages: **cURL/Bash**, **Node.js**, **Python**, and **Go**. Each example is fully self-contained with detailed explanations of every parameter and API concept.
+Teaching kids AI is cool. Teaching them **safe AI** is cooler. 🛡️
+
+This repository is a complete learning journey for anyone starting with AI APIs—especially young developers making the leap from coding lessons to real computer science. Every example runs in **4 languages** (Bash, Node.js, Python, Go) so you can see how the same concepts translate across different programming environments.
+
+But here's what makes this different: **AI safety is built in from day one.** Alongside chat, vision, and audio examples, you'll learn content moderation with LlamaGuard, prompt injection defense with Prompt Guard, and responsible AI practices throughout.
 
 ## What You'll Learn
 
-- How to make HTTP requests to AI APIs
-- Understanding API request/response formats
-- Working with different AI models (chat, vision, safety)
-- Base64 encoding for images
-- Environment variables for API keys
-- Reading and parsing JSON responses
+### Core AI Capabilities
+- 💬 **Chat & Reasoning**: Question-answering, step-by-step thinking, prompt caching
+- 👁️ **Vision**: Image analysis with multimodal AI models
+- 🎙️ **Audio**: Speech-to-text transcription with Whisper
+- 🔊 **Voice Synthesis**: Text-to-speech with 11 different voices
+- 🔍 **Web Search**: AI-powered search and content extraction
+- 🛠️ **AI Agents**: Building autonomous agents with function calling
+
+### Safety & Security (Built-in)
+- 🛡️ **Content Moderation**: LlamaGuard for text and image safety
+- 🔒 **Prompt Injection Defense**: Detecting jailbreak attempts with Prompt Guard
+- ✅ **Responsible AI Patterns**: Safety checks throughout every workflow
+
+### Programming Fundamentals
+- 🌐 HTTP requests and API authentication
+- 📋 JSON parsing and data handling
+- 🔐 Environment variables and secrets management
+- 🎯 Error handling and production patterns
+
+## Why This Repository?
+
+**🔑 A Rosetta Stone for AI APIs**
+See the same concepts across Bash, Node.js, Python, and Go—perfect for understanding how languages differ and which one fits your style.
+
+**📚 Bridge from Coding Lessons to Real CS**
+Move beyond tutorials into production-ready patterns with real APIs, authentication, error handling, and best practices.
+
+**🛡️ Safety-First Mindset**
+Learn that AI development isn't just about what you can build—it's about what you *should* build. Safety examples are integrated, not afterthoughts.
+
+**🎓 Built for Learning**
+80% of every file is educational comments explaining WHY, not just WHAT. Perfect for self-paced learning or teaching others.
 
 ## The 14 Examples
 
