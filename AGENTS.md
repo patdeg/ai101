@@ -24,13 +24,17 @@ ai101/
 └── AGENTS.md      # This file
 ```
 
-## The 5 Examples (Repeated in Each Language)
+## The 7 Examples (Repeated Across Languages)
 
 1. **01_basic_chat** - Simple question/answer with AI
 2. **02_system_prompt** - Controlling AI behavior with system messages
 3. **03_vision** - Image analysis using vision models
-4. **04_safety_check** - Content moderation with LlamaGuard
-5. **05_prompt_guard** - Jailbreak/injection detection
+4. **04_safety_check** - Content moderation with LlamaGuard (text)
+5. **05_image_safety_check** - Image content moderation with LlamaGuard (vision)
+6. **06_prompt_guard** - Jailbreak/injection detection
+7. **07_whisper** - Audio transcription with Whisper
+
+**Note**: Not all examples exist in all languages yet. Python, Node.js, and Go have examples 1-4, 6-7 (missing 05). Arduino has 01, 02, 03, 04, 06, 07. cURL has all 7 in dual versions (minimal + full).
 
 ## Coding Standards
 
@@ -84,9 +88,19 @@ const data = JSON.stringify({
 ### 4. Language-Specific Guidelines
 
 **Bash/cURL:**
-- Use `#!/bin/bash` shebang
+- **Dual versions**: Create both `*_minimal.sh` (with `/bin/sh`, no jq) and `*_full.sh` (with `/bin/bash`, jq, bc)
+- **Minimal**: Raw JSON output, POSIX-compliant, curl only, for scripting/CI/CD
+- **Full**: Pretty-printed output, cost calculations, extensive documentation, for learning
+- **Use heredoc for complex JSON** (eliminates `\"` escaping):
+  ```bash
+  curl -d @- <<EOF
+  {
+    "model": "meta-llama/llama-4-scout-17b-16e-instruct",
+    "messages": [{"role": "user", "content": "Hello"}]
+  }
+  EOF
+  ```
 - Explain every curl flag inline
-- Use heredocs for multi-line JSON when helpful
 - Show environment variable usage
 
 **Node.js:**
@@ -108,21 +122,33 @@ const data = JSON.stringify({
 - Comment on pointers and memory
 
 **Arduino:**
+- **Target hardware**: Seeed XIAO ESP32-S3 Sense ($14 on Amazon)
+- **Built-in components**: PDM microphone, OV2640 camera, WiFi, 8MB PSRAM
+- **No external components required** - everything is on-board
 - All logic in `setup()`, leave `loop()` empty
 - Print everything to Serial (115200 baud)
 - Monitor memory usage (heap)
 - Handle WiFi connection failures gracefully
+- Examples 03 (vision) and 07 (whisper) use built-in camera and microphone
 
 ### 5. API Usage
 
 **Models:**
 - Chat/Vision: `meta-llama/llama-4-scout-17b-16e-instruct`
-- Safety: `meta-llama/llama-guard-4-12b`
+- Safety (Text + Vision): `meta-llama/llama-guard-4-12b`
 - Prompt Guard: `meta-llama/llama-prompt-guard-2-86m`
+- Whisper Audio: `whisper-large-v3-turbo`
 
-**Endpoint:**
+**Pricing (October 2025):**
+- Llama 4 Scout 17B: Input $0.11/1M, Output $0.34/1M
+- LlamaGuard 4 12B: Input $0.20/1M, Output $0.20/1M
+- Prompt Guard 2 86M: Input $0.04/1M, Output $0.03/1M
+- Whisper Turbo: **$0.04 per hour of audio**
+
+**Endpoints:**
 ```
-POST https://api.groq.com/openai/v1/chat/completions
+POST https://api.groq.com/openai/v1/chat/completions (chat, vision, safety, prompt guard)
+POST https://api.groq.com/openai/v1/audio/transcriptions (whisper)
 ```
 
 **Authentication:**
@@ -219,9 +245,11 @@ S14: Code Interpreter Abuse
 ### Learning Progression
 1. **Example 1:** HTTP requests, JSON, API basics
 2. **Example 2:** Message roles, AI behavior control
-3. **Example 3:** Multimodal AI, file handling, encoding
-4. **Example 4:** Content safety, string parsing, production concerns
-5. **Example 5:** Security layers, attack detection, defense-in-depth
+3. **Example 3:** Multimodal AI, image file handling, base64 encoding
+4. **Example 4:** Content safety (text), string parsing, production concerns
+5. **Example 5:** Content safety (images), vision moderation
+6. **Example 6:** Security layers, attack detection, defense-in-depth
+7. **Example 7:** Audio transcription, multipart form data, speech-to-text
 
 ### Key Teaching Principles
 - Show, don't just tell
@@ -234,8 +262,11 @@ S14: Code Interpreter Abuse
 ## File Naming Conventions
 
 - Examples: `01_basic_chat.{sh,js,py,go,ino}`
+- cURL minimal: `01_basic_chat_minimal.sh` (and 02-07)
+- cURL full: `01_basic_chat_full.sh` (and 02-07)
+- Arduino: `01_basic_chat/01_basic_chat.ino` (in subdirectories)
 - README files: `README.md` (one per language directory)
-- Test resources: `test_image.jpg` (root level)
+- Test resources: `test_image.jpg`, `gettysburg.mp3` (root level)
 - Documentation: `*.md` (root level)
 
 ## Testing Requirements
@@ -253,21 +284,23 @@ Before committing changes to examples:
 1. ❌ **Don't use external libraries** (except Arduino necessities)
 2. ❌ **Don't hardcode API keys** (always use environment variables)
 3. ❌ **Don't skip error handling** (educational opportunity!)
-4. ❌ **Don't use jargon without explanation**
-5. ❌ **Don't write production code** (optimize for learning)
-6. ❌ **Don't create files unless necessary** (modify existing when possible)
-7. ❌ **Don't add emojis** unless explicitly requested
-8. ❌ **Don't create documentation files proactively** (README.md only when needed)
+4. ❌ **Don't use `\"` escaping in JSON** (use heredoc instead)
+5. ❌ **Don't use jargon without explanation**
+6. ❌ **Don't write production code** (optimize for learning)
+7. ❌ **Don't create files unless necessary** (modify existing when possible)
+8. ❌ **Don't add emojis** unless explicitly requested
+9. ❌ **Don't create documentation files proactively** (README.md only when needed)
 
 ## What to Prioritize
 
 1. ✅ **Code clarity and readability**
-2. ✅ **Educational value of comments**
+2. ✅ **Educational value of comments** (80% of content)
 3. ✅ **Consistency across languages**
-4. ✅ **Error messages that teach**
-5. ✅ **Step-by-step execution flow**
-6. ✅ **Real-world applicability**
-7. ✅ **Security awareness (in examples 4 & 5)**
+4. ✅ **Heredoc pattern for JSON** (no escaping)
+5. ✅ **Error messages that teach**
+6. ✅ **Step-by-step execution flow**
+7. ✅ **Real-world applicability**
+8. ✅ **Security awareness** (examples 4, 5, 6)
 
 ## Environment Variables
 
@@ -371,8 +404,10 @@ When working on this repository:
 1. Educational value > Production quality
 2. 80% code/comments > Minimal comments
 3. Standard library > External dependencies
-4. Clarity > Cleverness
-5. Consistency > Innovation
-6. Safety awareness > Feature completeness
+4. Heredoc > Escaped JSON
+5. Clarity > Cleverness
+6. Consistency > Innovation
+7. Dual versions for cURL (minimal + full)
+8. Safety awareness > Feature completeness
 
 **Remember:** Victor is 14 and learning. Make every line count as a teaching opportunity.

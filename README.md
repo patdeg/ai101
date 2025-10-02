@@ -13,7 +13,7 @@ This project demonstrates how to use the Groq API across 4 different languages: 
 - Environment variables for API keys
 - Reading and parsing JSON responses
 
-## The 6 Examples
+## The 7 Examples
 
 1. **Basic Chat** - Single question to the AI model
 2. **System + User Prompts** - Controlling AI behavior with system instructions
@@ -21,6 +21,7 @@ This project demonstrates how to use the Groq API across 4 different languages: 
 4. **Safety Check (Text)** - Content moderation with LlamaGuard
 5. **Safety Check (Image)** - Image content moderation with LlamaGuard Vision
 6. **Prompt Guard** - Detecting jailbreak attempts
+7. **Whisper Audio** - Transcribing audio to text with Whisper
 
 ## Repository Structure
 
@@ -47,6 +48,16 @@ Each folder contains the same 6 examples implemented in that language, plus a de
 
 **Set up your environment:**
 
+**Option 1: Using .env file (recommended for local development)**
+```bash
+# Copy the example file
+cp .env.example .env
+
+# Edit .env and add your API key
+# GROQ_API_KEY=gsk_your_actual_key_here
+```
+
+**Option 2: Export to shell (for bash/curl examples)**
 ```bash
 # Add to your ~/.bashrc or ~/.zshrc
 export GROQ_API_KEY="gsk_your_api_key_here"
@@ -54,6 +65,8 @@ export GROQ_API_KEY="gsk_your_api_key_here"
 # Reload your shell
 source ~/.bashrc
 ```
+
+**Important:** Never commit your `.env` file or expose your API key!
 
 ## Quick Start
 
@@ -90,6 +103,7 @@ Authorization: Bearer YOUR_API_KEY
 | [`meta-llama/llama-4-scout-17b-16e-instruct`](https://console.groq.com/docs/model/meta-llama/llama-4-scout-17b-16e-instruct) | Chat + Vision | 131K | 8,192 | Input: $0.11<br>Output: $0.34 |
 | [`meta-llama/llama-guard-4-12b`](https://console.groq.com/docs/model/meta-llama/llama-guard-4-12b) | Content Safety (Text + Vision) | 131K | 1,024 | Input: $0.20<br>Output: $0.20 |
 | [`meta-llama/llama-prompt-guard-2-86m`](https://console.groq.com/docs/model/meta-llama/llama-prompt-guard-2-86m) | Prompt Injection Detection | 512 | 512 | Input: $0.04<br>Output: $0.03 |
+| [`whisper-large-v3-turbo`](https://console.groq.com/docs/speech-text) | Audio Transcription | - | - | **$0.04 per hour of audio** |
 
 **Pricing Notes (as of October 1, 2025):**
 - You are billed separately for input tokens (prompt) and output tokens (completion)
@@ -205,8 +219,10 @@ Authorization: Bearer YOUR_API_KEY
 
 1. **Start with Example 1** - Understand basic API calls
 2. **Move to Example 2** - Learn how system prompts work
-3. **Try Example 3** - See multimodal AI in action
-4. **Explore Examples 4 & 5** - Understand AI safety tools
+3. **Try Example 3** - See multimodal AI (vision) in action
+4. **Explore Examples 4 & 5** - Understand AI safety tools (text + images)
+5. **Try Example 6** - Learn about prompt injection detection
+6. **Try Example 7** - Transcribe audio with Whisper
 
 ## Common Issues
 
@@ -223,20 +239,27 @@ Authorization: Bearer YOUR_API_KEY
 - Use JPEG format for smaller file sizes
 - Base64 encoding increases size by ~33%
 
+**Audio file issues:**
+- Max audio file size: 25 MB
+- Supported formats: mp3, wav, m4a, flac, ogg, webm
+- Cost is based on audio duration, not file size
+
 ## Resources
 
 - **Groq Console:** https://console.groq.com
 - **API Docs:** https://console.groq.com/docs
 - **Model List:** https://console.groq.com/docs/models
 - **Vision Guide:** https://console.groq.com/docs/vision
+- **Audio Guide:** https://console.groq.com/docs/speech-text
 
 ## Next Steps
 
 After completing these examples, you can:
 - Build a chatbot with conversation history
 - Create an image analysis tool
-- Implement content moderation
+- Implement content moderation for text and images
+- Build a voice transcription app
 - Add streaming responses
-- Combine multiple API calls
+- Combine multiple API calls (e.g., audio transcription → safety check → AI response)
 
 **Pick a language folder and start coding!** 🚀
