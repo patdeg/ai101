@@ -4,10 +4,10 @@ This file provides guidance to AI coding assistants (GitHub Copilot, Cursor, Ope
 
 ## Project Overview
 
-**ai101** is an educational repository demonstrating how to use the Groq API across 5 different languages/platforms. This is a **training project** designed for beginners (starting with a 14-year-old student named Victor), so code clarity and educational value are the top priorities.
+**ai101** is an educational repository teaching **responsible AI development** across 5 different languages/platforms. This is a **training project** designed for beginners (starting with a 14-year-old student named Victor), so **code clarity, educational value, and AI safety** are the top priorities.
 
 ### Primary Goal
-Create a "Rosetta Stone" of AI API examples that teach programming fundamentals while demonstrating practical AI integration.
+Create a "Rosetta Stone" of AI API examples that teach programming fundamentals while demonstrating practical AI integration **with safety built in from day one**. Every learner should understand not just what they *can* build, but what they *should* build responsibly.
 
 ## Repository Structure
 
@@ -281,11 +281,12 @@ S14: Code Interpreter Abuse
 14. **Example 14:** Text-to-speech synthesis, voice selection, instructions parameter, multi-language
 
 ### Key Teaching Principles
+- **Safety-First Mindset**: AI safety (examples 4-6) is taught early, not as an afterthought
 - Show, don't just tell
 - Explain WHY before HOW
 - One concept at a time
 - Build on previous examples
-- Real-world use cases
+- Real-world use cases with responsible AI patterns
 - Error handling as learning opportunities
 
 ## File Naming Conventions
@@ -434,13 +435,14 @@ or
 ## Summary
 
 When working on this repository:
-1. Educational value > Production quality
-2. 80% code/comments > Minimal comments
-3. Standard library > External dependencies
-4. Heredoc > Escaped JSON
-5. Clarity > Cleverness
-6. Consistency > Innovation
-7. Dual versions for cURL (minimal + full)
-8. Safety awareness > Feature completeness
+1. **Safety-first mindset** > Feature completeness
+2. Educational value > Production quality
+3. 80% code/comments > Minimal comments
+4. Standard library > External dependencies
+5. Heredoc > Escaped JSON
+6. Clarity > Cleverness
+7. Consistency > Innovation
+8. Dual versions for bash (minimal + full)
+9. 14 examples + 14 exercises for complete learning path
 
-**Remember:** Victor is 14 and learning. Make every line count as a teaching opportunity.
+**Remember:** Victor is 14 and learning AI for the first time. Make every line count as a teaching opportunity. Teach not just what AI *can* do, but what it *should* do responsibly.

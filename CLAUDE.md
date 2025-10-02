@@ -4,10 +4,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-This is `ai101` - an educational repository demonstrating Groq API usage across 5 languages/platforms. This is a **training project** for beginners (starting with a 14-year-old student named Victor), where **code clarity and educational value are the top priorities**.
+This is `ai101` - an educational repository teaching **responsible AI development** across 5 languages/platforms. This is a **training project** for beginners (starting with a 14-year-old student named Victor), where **code clarity, educational value, and AI safety are the top priorities**.
 
 ### Primary Goal
-Create a "Rosetta Stone" of AI API examples that teach programming fundamentals while demonstrating practical AI integration.
+Create a "Rosetta Stone" of AI API examples that teach programming fundamentals while demonstrating practical AI integration **with safety built in from day one**. Every learner should understand not just what they *can* build, but what they *should* build responsibly.
 
 ## Directory Structure
 
@@ -186,7 +186,7 @@ EOF
 4. ✅ **Heredoc pattern for JSON** (no escaping)
 5. ✅ **Error messages that teach**
 6. ✅ **Step-by-step execution flow**
-7. ✅ **Security awareness** (examples 4, 5, 6)
+7. ✅ **AI safety and responsible development** (integrated throughout, emphasized in examples 4-6)
 
 ## Educational Philosophy
 
@@ -196,15 +196,23 @@ EOF
 1. HTTP requests, JSON, API basics
 2. Message roles, AI behavior control
 3. Multimodal AI, file handling, encoding
-4. Content safety, string parsing
-5. Image safety, vision moderation
-6. Security layers, attack detection
+4. **Content safety** (text) - LlamaGuard moderation (taught early!)
+5. **Image safety** (vision) - Vision moderation (taught early!)
+6. **Security layers** - Prompt injection defense (taught early!)
 7. Audio transcription, speech-to-text
 8. Web search APIs, Tavily integration
 9. Content extraction from web pages
 10. AI agents with function calling, tool use
+11. Web search with groq/compound-mini
+12. Code execution with sandboxing
+13. Reasoning with prompt caching optimization
+14. Text-to-speech with voice synthesis
 
-**Key Principles**: Show don't tell, explain WHY before HOW, one concept at a time, build on previous examples, real-world use cases.
+**Key Principles**:
+- **Safety-first mindset** - AI safety taught in examples 4-6, before advanced features
+- Show don't tell, explain WHY before HOW
+- One concept at a time, build on previous examples
+- Real-world use cases with responsible AI patterns
 
 ## Resources
 
@@ -222,7 +230,8 @@ EOF
 The `exercises/` directory contains hands-on practice challenges designed using modern educational principles:
 
 - **Progressive difficulty**: Understand → Apply → Analyze → Create
-- **12 exercise files**: One per example (01-12)
+- **14 exercise files**: One per example (01-14)
+- **Safety integration**: Exercises 4-6 focus on content moderation and security
 - **Navigation**: Each file links to previous/next exercise and back to main index
 - **Cross-references**: Exercise files reference related code examples in language directories
 - **Real-world applications**: Build validators, pipelines, multi-step workflows, AI agents
@@ -235,6 +244,8 @@ The `exercises/` directory contains hands-on practice challenges designed using 
 - ... (through 10 for Groq + Tavily examples)
 - `exercises/11_web_search.md` - Groq built-in web search
 - `exercises/12_code_execution.md` - Python code execution
+- `exercises/13_reasoning.md` - Step-by-step thinking with caching
+- `exercises/14_text_to_speech.md` - Voice synthesis with 11 voices
 
 Each exercise file includes:
 - What the user learned from the basic example
@@ -246,13 +257,14 @@ Each exercise file includes:
 ## Summary
 
 When working on this repository:
-1. Educational value > Production quality
-2. 80% code/comments > Minimal comments
-3. Standard library > External dependencies
-4. Heredoc > Escaped JSON
-5. Clarity > Cleverness
-6. Consistency > Innovation
-7. Dual versions for bash (minimal + full)
-8. Exercises for hands-on practice
+1. **Safety-first mindset** > Feature completeness
+2. Educational value > Production quality
+3. 80% code/comments > Minimal comments
+4. Standard library > External dependencies
+5. Heredoc > Escaped JSON
+6. Clarity > Cleverness
+7. Consistency > Innovation
+8. Dual versions for bash (minimal + full)
+9. 14 examples + 14 exercises for complete learning path
 
-**Remember**: Victor is 14 and learning. Make every line count as a teaching opportunity.
+**Remember**: Victor is 14 and learning AI for the first time. Make every line count as a teaching opportunity. Teach not just what AI *can* do, but what it *should* do responsibly.
