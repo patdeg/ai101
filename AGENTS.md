@@ -122,7 +122,7 @@ const data = JSON.stringify({
 - Comment on pointers and memory
 
 **Arduino:**
-- **Target hardware**: Seeed XIAO ESP32-S3 Sense ($14 on Amazon)
+- **Target hardware**: Seeed XIAO ESP32-S3 Sense ($23.99 on Amazon)
 - **Built-in components**: PDM microphone, OV2640 camera, WiFi, 8MB PSRAM
 - **No external components required** - everything is on-board
 - All logic in `setup()`, leave `loop()` empty

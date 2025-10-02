@@ -9,9 +9,9 @@ Press button → Capture photo → Send to AI → Get detailed description
 
 ## 🛒 Hardware Needed
 
-- **Seeed XIAO ESP32-S3 Sense** with camera attached ($13.99)
+- **Seeed XIAO ESP32-S3 Sense** with camera attached ($23.99)
 - USB-C cable
-- **Total: $14-17**
+- **Total: ~$27**
 
 ## 💻 Quick Setup
 

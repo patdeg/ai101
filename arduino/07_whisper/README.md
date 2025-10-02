@@ -19,10 +19,10 @@ Perfect for:
 
 | Part | Quantity | Price | Where to Buy |
 |------|----------|-------|--------------|
-| Seeed XIAO ESP32-S3 Sense | 1 | $13.99 | [Amazon](https://www.amazon.com/dp/B0C69FFVHH) |
+| Seeed XIAO ESP32-S3 Sense | 1 | $23.99 | [Amazon](https://www.amazon.com/dp/B0C69FFVHH) |
 | USB-C Cable | 1 | ~$3 | Included or any USB-C cable |
 
-**Total Cost: $14-17** (Literally just the board!)
+**Total Cost: ~$27** (Literally just the board!)
 
 ### Why This Board is Amazing
 
@@ -35,7 +35,7 @@ Perfect for:
 ✅ **8MB Flash** - Plenty of storage
 ✅ **WiFi + Bluetooth** - Full connectivity
 ✅ **USB-C** - Modern, reversible connector
-✅ **Only $14** - Cheapest all-in-one solution
+✅ **Only $23.99** - Affordable all-in-one solution
 
 ## 📐 Wiring Diagram
 

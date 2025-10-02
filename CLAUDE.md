@@ -82,7 +82,7 @@ EOF
 
 ### 4. Hardware Platform: XIAO ESP32-S3 Sense
 
-**Arduino examples target**: [Seeed XIAO ESP32-S3 Sense](https://www.amazon.com/Seeed-Studio-XIAO-ESP32-Sense/dp/B0C69FFVHH) ($14)
+**Arduino examples target**: [Seeed XIAO ESP32-S3 Sense](https://www.amazon.com/Seeed-Studio-XIAO-ESP32-Sense/dp/B0C69FFVHH) ($23.99)
 
 **Built-in Components**:
 - PDM microphone (for audio transcription)

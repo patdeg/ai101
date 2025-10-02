@@ -54,7 +54,7 @@
  *   - Tiny (21x17.5mm) - smaller than a thumb!
  *   - Everything built-in (mic, camera, LED, button)
  *   - 8MB PSRAM + 8MB Flash
- *   - Only $14 on Amazon
+ *   - Only $23.99 on Amazon
  *   - Perfect for wearable/portable projects
  *
  * ============================================================================
@@ -593,9 +593,9 @@ void sendToWhisper() {
  * =============
  *
  * Hardware:
- *   - XIAO ESP32-S3 Sense: $14
+ *   - XIAO ESP32-S3 Sense: $23.99
  *   - USB-C cable: $3 (if you don't have one)
- *   - Total: $17
+ *   - Total: ~$27
  *
  * Software (per command):
  *   - 5 seconds @ $0.04/hour = $0.000056
