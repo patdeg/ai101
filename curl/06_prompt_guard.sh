@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ################################################################################
-# EXAMPLE 5: PROMPT GUARD - DETECTING JAILBREAK ATTEMPTS
+# EXAMPLE 6: PROMPT GUARD - DETECTING JAILBREAK ATTEMPTS
 ################################################################################
 #
 # What this demonstrates:

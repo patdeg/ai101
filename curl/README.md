@@ -19,7 +19,7 @@
 
 2. **Tools needed:** (already installed on most systems)
    - `curl` - for HTTP requests
-   - `base64` - for encoding images (Example 3 only)
+   - `base64` - for encoding images (Examples 3 and 5)
    - `bash` - the shell
 
 3. **REQUIRED: Install jq for JSON parsing**
@@ -252,12 +252,72 @@ USER_MESSAGE="$UNSAFE_MESSAGE"
 
 ---
 
-### 05_prompt_guard.sh
+### 05_image_safety_check.sh
+**What it does:** Checks images for harmful visual content using LlamaGuard Vision.
+
+**Run it:**
+```bash
+./05_image_safety_check.sh
+```
+
+**Expected output (safe image):**
+```
+Converting image to base64 format...
+Checking image for safety violations...
+
+========================================
+Image Safety Check Result:
+========================================
+safe
+
+========================================
+Interpretation:
+========================================
+✓ Image is SAFE to process
+  No harmful visual content detected
+
+  The image passed all 14 safety categories:
+  - No violent crimes imagery
+  - No illegal activity
+  - No sexual content
+  - No hateful symbols
+  - No weapons or dangerous items
+  - No self-harm imagery
+  - And more...
+
+========================================
+Raw API Response:
+========================================
+{ ... }
+```
+
+**What it detects:**
+LlamaGuard Vision checks images for:
+- **S1:** Graphic violence, weapons
+- **S7:** Personal information visible (IDs, credit cards)
+- **S10:** Hate symbols, hateful gestures
+- **S11:** Self-harm imagery
+- **S12:** Nudity, sexual content
+- **S13:** Fake/misleading political imagery
+- And all other 14 safety categories
+
+**Use cases:**
+- Moderating user profile pictures
+- Checking user-uploaded content (forums, social media)
+- Validating generated images before display
+- Scanning documents for sensitive information
+- Building content moderation pipelines
+
+**Learn:** Multi-modal safety, image moderation, visual content filtering, production safety pipelines
+
+---
+
+### 06_prompt_guard.sh
 **What it does:** Detects jailbreak and injection attacks.
 
 **Run it:**
 ```bash
-./05_prompt_guard.sh
+./06_prompt_guard.sh
 ```
 
 **Expected output (jailbreak detected):**
@@ -356,9 +416,19 @@ else
 fi
 ```
 
-**Example 5 - Security pipeline:**
+**Example 5 - Check image safety verdict:**
 ```bash
-GUARD=$(./05_prompt_guard.sh | jq -r '.choices[0].message.content')
+VERDICT=$(./05_image_safety_check.sh | jq -r '.choices[0].message.content')
+if [ "$VERDICT" = "safe" ]; then
+  echo "✓ Image is safe"
+else
+  echo "✗ Unsafe image: $(echo "$VERDICT" | tail -1)"
+fi
+```
+
+**Example 6 - Security pipeline:**
+```bash
+GUARD=$(./06_prompt_guard.sh | jq -r '.choices[0].message.content')
 case "$GUARD" in
   BENIGN)  echo "✓ Safe to proceed" ;;
   JAILBREAK) echo "✗ Jailbreak attempt!" ;;
