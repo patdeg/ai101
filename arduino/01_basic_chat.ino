@@ -1,51 +1,50 @@
 /*
- * 01_basic_chat.ino - Basic Chat Example for ESP32/ESP8266
+ * 01_basic_chat.ino - Basic Chat Example for XIAO ESP32-S3 Sense
  *
  * WHAT THIS EXAMPLE DEMONSTRATES:
  * This Arduino sketch shows you how to make a basic chat request to Groq's AI API
- * using an ESP32 or ESP8266 board with WiFi capability. It's the simplest possible
+ * using the XIAO ESP32-S3 Sense board with WiFi. It's the simplest possible
  * example - just send a question and get a response back.
  *
  * WHAT YOU'LL LEARN:
- * - How to connect your Arduino board to WiFi
+ * - How to connect your ESP32 board to WiFi
  * - How to make HTTPS requests to an AI API
  * - How to build JSON requests using ArduinoJson
- * - How to parse JSON responses
- * - How to extract AI-generated text from the response
+ * - How to parse JSON responses and extract AI-generated text
+ * - How to diagnose network connectivity issues
  *
  * HARDWARE REQUIRED:
- * - ESP32 or ESP8266 board (these have built-in WiFi)
- *   Examples: ESP32 DevKit, NodeMCU, Wemos D1 Mini
+ * - Seeed Studio XIAO ESP32-S3 Sense (or any ESP32 board)
+ *   https://www.amazon.com/dp/B0C69FFVHH
  *
  * LIBRARIES REQUIRED (install via Arduino Library Manager):
  * - ArduinoJson by Benoit Blanchon (for JSON parsing)
- * - WiFiClientSecure (usually built-in for ESP32/ESP8266)
  *
  * HOW TO USE:
  * 1. Update WIFI_SSID and WIFI_PASSWORD with your WiFi credentials
  * 2. Update GROQ_API_KEY with your Groq API key from https://console.groq.com
- * 3. Upload to your ESP32/ESP8266 board
+ * 3. Upload to your ESP32 board
  * 4. Open Serial Monitor at 115200 baud to see output
  *
  * EXPECTED SERIAL MONITOR OUTPUT:
  * You should see:
- * - WiFi connection progress
- * - The JSON request being sent
- * - The AI's response (explaining recursion)
- * - Token usage statistics
+ * - WiFi connection progress with IP address
+ * - Network diagnostics (DNS resolution, TLS connection test)
+ * - The AI's response (a joke)
+ * - No token usage shown (simplified output)
+ *
+ * TROUBLESHOOTING:
+ * - If TLS connection fails, the diagnostics will help identify:
+ *   - DNS resolution problems
+ *   - Firewall/AP isolation issues
+ *   - Captive portal detection
  *
  * NOTE: All logic is in setup() - loop() is empty as per Arduino copy/paste pattern
  */
 
-// Include WiFi library - different for ESP32 vs ESP8266
-#if defined(ESP32)
-  #include <WiFi.h>
-  #include <WiFiClientSecure.h>
-#elif defined(ESP8266)
-  #include <ESP8266WiFi.h>
-  #include <WiFiClientSecure.h>
-#endif
-
+// WiFi and HTTPS libraries (built-in for ESP32)
+#include <WiFi.h>
+#include <WiFiClientSecure.h>
 #include <ArduinoJson.h>  // For JSON serialization and parsing
 
 // ============================================================================
@@ -61,284 +60,316 @@ const int HTTPS_PORT = 443;
 const char* API_PATH = "/openai/v1/chat/completions";
 
 // ============================================================================
-// ARDUINO SETUP FUNCTION - Runs once when board starts
+// HELPER FUNCTIONS
 // ============================================================================
-void setup() {
-  // Step 0: Initialize serial communication for debugging
-  // -------------------------------------------------------
-  // Serial.begin() starts serial communication at 115200 baud rate
-  // Baud rate = bits per second. 115200 is fast enough for debugging
-  // but not so fast that it causes timing issues on Arduino
-  // This allows us to print debug messages and results to Serial Monitor
-  Serial.begin(115200);
 
-  // Small delay to let serial connection stabilize
-  // On some boards, the USB-to-Serial chip needs time to initialize
-  delay(1000);
+// ----------------------------------------------------------------------------
+// checkGroqConnection() - Diagnose network connectivity to Groq API
+// ----------------------------------------------------------------------------
+// This function performs a series of diagnostic tests to verify we can reach
+// the Groq API servers. It's useful for troubleshooting connection problems.
+//
+// WHAT IT TESTS:
+// 1. DNS resolution - Can we convert "api.groq.com" to an IP address?
+// 2. TLS connection - Can we establish an encrypted HTTPS connection?
+// 3. HTTP layer - Can we send a simple request and get a response?
+//
+// WHY THIS IS USEFUL:
+// - Network problems are common on ESP32 (WiFi issues, firewall rules, etc.)
+// - This helps identify exactly where the connection is failing
+// - Provides specific error messages for each failure point
+//
+// RETURNS: true if all tests pass, false if any test fails
+bool checkGroqConnection() {
+  Serial.println("\n=== Network Diagnostics ===");
+
+  // Test 1: DNS Resolution
+  // -------------------------
+  // Before we can connect, we need to convert the hostname to an IP address
+  // This is called DNS resolution (Domain Name System)
+  IPAddress ip;
+  Serial.print("Testing DNS resolution for ");
+  Serial.print(GROQ_HOST);
+  Serial.print("... ");
+
+  if (!WiFi.hostByName(GROQ_HOST, ip)) {
+    Serial.println("FAILED");
+    Serial.println("ERROR: DNS lookup failed. Check your internet connection.");
+    return false;
+  }
+
+  Serial.print("OK (");
+  Serial.print(ip);
+  Serial.println(")");
+
+  // Test 2: TLS Connection
+  // -------------------------
+  // Try to establish an encrypted HTTPS connection to the server
+  // This verifies that firewall/router isn't blocking HTTPS traffic
+  WiFiClientSecure testClient;
+  testClient.setInsecure();           // Skip certificate validation for this test
+  testClient.setHandshakeTimeout(30); // Wait up to 30 seconds for TLS handshake
+
+  Serial.print("Testing TLS connection to ");
+  Serial.print(GROQ_HOST);
+  Serial.print(":443... ");
+
+  if (!testClient.connect(GROQ_HOST, HTTPS_PORT)) {
+    Serial.println("FAILED");
+    Serial.println("ERROR: Cannot establish TLS connection.");
+    Serial.println("Possible causes:");
+    Serial.println("  - Router/firewall blocking HTTPS");
+    Serial.println("  - AP isolation enabled on WiFi network");
+    Serial.println("  - Captive portal requiring login");
+    Serial.println("Try connecting to a mobile hotspot to test.");
+    return false;
+  }
+
+  Serial.println("OK");
+
+  // Test 3: HTTP Layer
+  // -------------------------
+  // Send a simple HTTP HEAD request to verify the HTTP layer is working
+  // HEAD requests are like GET but only return headers (no body)
+  Serial.print("Testing HTTP layer... ");
+
+  testClient.print(String("HEAD / HTTP/1.1\r\n") +
+                   "Host: " + GROQ_HOST + "\r\n" +
+                   "Connection: close\r\n\r\n");
+
+  // Wait for response (up to 5 seconds)
+  unsigned long startTime = millis();
+  while (testClient.connected() && !testClient.available() && millis() - startTime < 5000) {
+    delay(10);
+  }
+
+  if (!testClient.available()) {
+    Serial.println("WARNING");
+    Serial.println("TLS connected but no HTTP response.");
+    Serial.println("This might indicate a proxy or firewall issue.");
+  } else {
+    Serial.println("OK");
+  }
+
+  testClient.stop();
+  Serial.println("=== Diagnostics Complete ===\n");
+  return true;
+}
+
+// ----------------------------------------------------------------------------
+// groqRequest() - Send a chat request to Groq API and return the response
+// ----------------------------------------------------------------------------
+// This function handles the entire API request/response cycle:
+// 1. Establish HTTPS connection
+// 2. Build JSON request body
+// 3. Send HTTP POST request with authentication
+// 4. Read and parse the response
+// 5. Extract the AI's message from the response
+//
+// PARAMETERS:
+// - prompt: The question or message to send to the AI
+//
+// RETURNS: The AI's response as a String, or empty string on error
+String groqRequest(const char* prompt) {
+  // Create HTTPS client with security settings
+  WiFiClientSecure client;
+  client.setInsecure();           // Skip certificate validation (simpler for beginners)
+  client.setHandshakeTimeout(30); // 30 second timeout for TLS handshake
+  WiFi.setSleep(false);           // Disable WiFi power saving (prevents connection stalls)
+
+  // Step 1: Connect to Groq API server
+  Serial.println("Connecting to Groq API...");
+  if (!client.connect(GROQ_HOST, HTTPS_PORT)) {
+    Serial.println("ERROR: Connection failed!");
+    return "";
+  }
+  Serial.println("Connected!");
+
+  // Step 2: Build JSON request body using ArduinoJson
+  // ---------------------------------------------------
+  // StaticJsonDocument allocates memory on the stack (fast, but limited size)
+  // 512 bytes is enough for our simple request
+  StaticJsonDocument<512> doc;
+
+  // Set the AI model
+  // meta-llama/llama-4-scout-17b-16e-instruct is the latest Llama model (Oct 2025)
+  // It's fast, accurate, and cost-effective for general chat
+  doc["model"] = "meta-llama/llama-4-scout-17b-16e-instruct";
+
+  // Create the messages array
+  // Chat APIs expect an array of message objects with "role" and "content"
+  JsonArray messages = doc.createNestedArray("messages");
+
+  // Add the user's message
+  JsonObject userMessage = messages.createNestedObject();
+  userMessage["role"] = "user";      // Role can be "system", "user", or "assistant"
+  userMessage["content"] = prompt;   // The actual question/prompt
+
+  // Optional parameters to control AI behavior
+  doc["temperature"] = 0.7;   // Randomness: 0.0 (focused) to 2.0 (creative)
+  doc["max_tokens"] = 150;    // Maximum length of response (prevents very long answers)
+
+  // Convert JSON document to a String for sending
+  String requestBody;
+  serializeJson(doc, requestBody);
+
+  Serial.println("\nRequest:");
+  Serial.println(requestBody);
+
+  // Step 3: Build and send HTTP POST request
+  // ---------------------------------------------------
+  // HTTP requests have this structure:
+  //   REQUEST_LINE (POST /path HTTP/1.1)
+  //   HEADERS (Host, Content-Type, etc.)
+  //   BLANK_LINE
+  //   BODY (JSON data)
+
+  String httpRequest =
+    String("POST ") + API_PATH + " HTTP/1.1\r\n" +
+    "Host: " + GROQ_HOST + "\r\n" +
+    "Content-Type: application/json\r\n" +
+    "Authorization: Bearer " + GROQ_API_KEY + "\r\n" +
+    "Content-Length: " + requestBody.length() + "\r\n" +
+    "Connection: close\r\n" +
+    "\r\n" +  // Blank line separates headers from body
+    requestBody;
+
+  // Send the complete HTTP request
+  client.print(httpRequest);
+  Serial.println("Request sent, waiting for response...\n");
+
+  // Step 4: Read the entire HTTP response
+  // ---------------------------------------------------
+  // We read everything into a String, then split headers from body
+  String response = "";
+  while (client.connected() || client.available()) {
+    if (client.available()) {
+      response += client.readStringUntil('\n') + "\n";
+    }
+  }
+  client.stop();
+
+  // Step 5: Extract JSON body from HTTP response
+  // ---------------------------------------------------
+  // HTTP responses have headers and body separated by "\r\n\r\n"
+  // We only care about the JSON body (after the separator)
+  int bodyStart = response.indexOf("\r\n\r\n");
+  String jsonBody = (bodyStart >= 0) ? response.substring(bodyStart + 4) : response;
+
+  // Step 6: Parse JSON response
+  // ---------------------------------------------------
+  // Use a larger buffer for responses (AI responses can be long)
+  DynamicJsonDocument responseDoc(4096);
+  DeserializationError error = deserializeJson(responseDoc, jsonBody);
+
+  if (error) {
+    Serial.print("ERROR: JSON parsing failed: ");
+    Serial.println(error.c_str());
+    Serial.println("Raw response:");
+    Serial.println(jsonBody);
+    return "";
+  }
+
+  // Step 7: Extract the AI's message from the response
+  // ---------------------------------------------------
+  // Groq API response structure:
+  // {
+  //   "choices": [
+  //     {
+  //       "message": {
+  //         "content": "The AI's response text here"
+  //       }
+  //     }
+  //   ]
+  // }
+
+  if (responseDoc.containsKey("choices") &&
+      responseDoc["choices"].is<JsonArray>() &&
+      responseDoc["choices"].size() > 0) {
+    // Extract content from first choice
+    const char* content = responseDoc["choices"][0]["message"]["content"];
+    return String(content);
+  } else if (responseDoc.containsKey("error")) {
+    // Handle API errors (invalid key, rate limits, etc.)
+    const char* errorMsg = responseDoc["error"]["message"];
+    Serial.print("API ERROR: ");
+    Serial.println(errorMsg);
+    return "";
+  } else {
+    // Unexpected response format - return raw JSON for debugging
+    Serial.println("WARNING: Unexpected response format");
+    return jsonBody;
+  }
+}
+
+void setup() {
+  // Step 1: Initialize serial communication
+  // ---------------------------------------------------
+  // Serial.begin() starts serial communication at 115200 baud (bits per second)
+  // This lets us print debug messages and results to the Serial Monitor
+  Serial.begin(115200);
+  delay(1000);  // Small delay to let serial connection stabilize
 
   Serial.println("\n\n=== Groq API Basic Chat Example ===");
-  Serial.println("Starting ESP32/ESP8266...\n");
+  Serial.println("XIAO ESP32-S3 Sense\n");
 
-  // ------------------------------------------------------------------------
-  // STEP 1: Connect to WiFi network
-  // ------------------------------------------------------------------------
-  // Before we can make internet requests, we need to connect to WiFi
+  // Step 2: Connect to WiFi
+  // ---------------------------------------------------
+  // Before making internet requests, we must connect to WiFi
   Serial.print("Connecting to WiFi: ");
   Serial.println(WIFI_SSID);
 
-  // WiFi.begin() initiates the WiFi connection process
-  // It's non-blocking - the board continues running while connecting
+  // WiFi.begin() initiates the connection process (non-blocking)
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
 
-  // Wait for WiFi connection to complete (timeout after 30 seconds)
-  // WiFi.status() returns WL_CONNECTED when successfully connected
-  // We use a timeout to prevent infinite loops if WiFi is unavailable
-  int wifi_timeout = 0;
-  while (WiFi.status() != WL_CONNECTED && wifi_timeout < 30) {
-    delay(1000);  // Wait 1 second between checks
-    Serial.print(".");  // Print progress dots
-    wifi_timeout++;
+  // Wait for connection with 30-second timeout
+  // WiFi.status() returns WL_CONNECTED when successful
+  int wifiTimeout = 0;
+  while (WiFi.status() != WL_CONNECTED && wifiTimeout < 30) {
+    delay(1000);
+    Serial.print(".");
+    wifiTimeout++;
   }
 
-  // Check if WiFi connected successfully
+  // Check connection status
   if (WiFi.status() != WL_CONNECTED) {
     Serial.println("\nERROR: WiFi connection failed!");
-    Serial.println("Please check your SSID and password.");
-    return; // Exit setup() - board will continue to loop() but do nothing
+    Serial.println("Check your SSID and password.");
+    return;  // Exit setup() - loop() will do nothing
   }
 
   Serial.println("\nWiFi connected!");
   Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());  // Print the IP address assigned by the router
+  Serial.println(WiFi.localIP());
 
-  // ------------------------------------------------------------------------
-  // STEP 2: Create HTTPS client and connect to Groq API
-  // ------------------------------------------------------------------------
-  // WiFiClientSecure is like WiFiClient but with SSL/TLS encryption
-  // HTTPS uses port 443 and encrypts all data for security
-  WiFiClientSecure client;
+  // Disable WiFi power saving to prevent connection stalls
+  WiFi.setSleep(false);
 
-  // Configure SSL certificate validation
-  // For production, you should verify SSL certificates to prevent man-in-the-middle attacks
-  // For simplicity in this example, we skip certificate validation
-  // WARNING: This makes the connection less secure but easier for beginners
-  #if defined(ESP32)
-    client.setInsecure(); // ESP32: Skip certificate validation
-  #elif defined(ESP8266)
-    client.setInsecure(); // ESP8266: Skip certificate validation
-  #endif
-
-  Serial.println("\nConnecting to Groq API...");
-
-  // client.connect() establishes a TCP connection to the server
-  // Parameters: hostname (string) and port (443 for HTTPS)
-  // Returns true if connection successful, false if it fails
-  if (!client.connect(GROQ_HOST, HTTPS_PORT)) {
-    Serial.println("ERROR: Connection to Groq API failed!");
-    Serial.println("Check your internet connection and API host.");
-    return;
+  // Step 3: Run network diagnostics
+  // ---------------------------------------------------
+  // Test DNS, TLS, and HTTP connectivity to Groq API
+  // This helps identify connection problems early
+  if (!checkGroqConnection()) {
+    Serial.println("\nWARNING: Diagnostics failed, but continuing anyway...");
+    // You can uncomment the next line to stop on diagnostic failure:
+    // return;
   }
 
-  Serial.println("Connected to Groq API!");
+  // Step 4: Make API request
+  // ---------------------------------------------------
+  // Send a simple question to the AI and get a response
+  Serial.println("Asking AI for a joke...");
+  String response = groqRequest("Tell me a joke");
 
-  // ------------------------------------------------------------------------
-  // STEP 3: Build JSON request body using ArduinoJson library
-  // ------------------------------------------------------------------------
-  // ArduinoJson uses a pre-allocated buffer for JSON documents
-  // StaticJsonDocument allocates memory on the stack (fast, but limited size)
-  // DynamicJsonDocument allocates on heap (slower, but more flexible)
-  // The number (512) is the buffer size in bytes - must be large enough for our JSON
-  StaticJsonDocument<512> requestDoc;
-
-  // Set the AI model we want to use
-  // "llama-3.1-8b-instant" is fast and good for simple tasks
-  requestDoc["model"] = "llama-3.1-8b-instant";
-
-  // Create the messages array
-  // Chat APIs use an array of messages with "role" and "content"
-  JsonArray messages = requestDoc.createNestedArray("messages");
-
-  // Add a user message to the conversation
-  // This is what we're asking the AI
-  JsonObject userMessage = messages.createNestedObject();
-  userMessage["role"] = "user";  // Role can be "system", "user", or "assistant"
-  userMessage["content"] = "Explain the concept of recursion in programming in one sentence.";
-
-  // Optional: Set temperature for response randomness (0.0 to 2.0)
-  // Lower values = more focused and deterministic
-  // Higher values = more creative and random
-  requestDoc["temperature"] = 0.7;
-
-  // Optional: Set max tokens for the response
-  // Tokens are roughly words (1 token ≈ 0.75 words)
-  // This prevents very long responses and saves API costs
-  requestDoc["max_tokens"] = 150;
-
-  // Serialize (convert) the JSON document to a String
-  // This creates the actual JSON text that we'll send to the API
-  String requestBody;
-  serializeJson(requestDoc, requestBody);
-
-  Serial.println("\nRequest Body:");
-  Serial.println(requestBody);
-
-  // ------------------------------------------------------------------------
-  // STEP 4: Build and send HTTP POST request
-  // ------------------------------------------------------------------------
-  // HTTP requests consist of headers (metadata) and body (data)
-  // We need to build the request string manually with proper formatting
-  // \r\n is the HTTP line ending (carriage return + line feed)
-
-  // Start with the request line: METHOD PATH HTTP_VERSION
-  String request = String("POST ") + API_PATH + " HTTP/1.1\r\n";
-
-  // Add required HTTP headers:
-  request += String("Host: ") + GROQ_HOST + "\r\n";  // Host header (required in HTTP/1.1)
-  request += "Content-Type: application/json\r\n";   // Tell server we're sending JSON
-  request += String("Authorization: Bearer ") + GROQ_API_KEY + "\r\n";  // API key for authentication
-  request += String("Content-Length: ") + requestBody.length() + "\r\n";  // Length of body in bytes
-  request += "Connection: close\r\n";  // Close connection after response (simpler for Arduino)
-  request += "\r\n";  // Empty line separates headers from body (REQUIRED!)
-  request += requestBody;  // Attach the JSON body
-
-  // Send the entire request to the server
-  // client.print() sends data over the TCP connection
-  client.print(request);
-  Serial.println("\nHTTP request sent!");
-
-  // ------------------------------------------------------------------------
-  // STEP 5: Wait for and read the HTTP response
-  // ------------------------------------------------------------------------
-  Serial.println("\nWaiting for response...\n");
-
-  // Wait for response data to arrive (timeout after 10 seconds)
-  // client.available() returns the number of bytes available to read
-  // The server may take a few seconds to process our request
-  int timeout = 0;
-  while (!client.available() && timeout < 10000) {
-    delay(100);  // Check every 100ms
-    timeout += 100;
-  }
-
-  if (!client.available()) {
-    Serial.println("ERROR: Response timeout!");
-    Serial.println("The server didn't respond in time.");
-    client.stop();  // Close the connection
-    return;
-  }
-
-  // Skip HTTP response headers - we only want the JSON body
-  // Headers end with an empty line: "\r\n\r\n"
-  // We need to read and discard them to get to the actual data
-  bool headersEnded = false;
-  String line = "";
-  while (client.connected() || client.available()) {
-    if (client.available()) {
-      char c = client.read();  // Read one character at a time
-      line += c;
-
-      // Check for end of headers (double line break)
-      if (line.endsWith("\r\n\r\n")) {
-        headersEnded = true;
-        break;  // Stop reading - we've found the end of headers
-      }
-    }
-  }
-
-  if (!headersEnded) {
-    Serial.println("ERROR: Failed to parse HTTP headers!");
-    client.stop();
-    return;
-  }
-
-  // Read the JSON response body
-  // Everything after the headers is the actual response data
-  String responseBody = "";
-  while (client.connected() || client.available()) {
-    if (client.available()) {
-      char c = client.read();  // Read one character at a time
-      responseBody += c;        // Build up the response string
-    }
-  }
-
-  // Close the connection - we're done reading
-  client.stop();
-
-  Serial.println("Response received!");
-  Serial.println("\nRaw JSON Response:");
-  Serial.println(responseBody);
-
-  // ------------------------------------------------------------------------
-  // STEP 6: Parse the JSON response using ArduinoJson
-  // ------------------------------------------------------------------------
-  // We need a larger buffer for the response (AI responses can be long)
-  // Using DynamicJsonDocument (heap allocation) because response size varies
-  // 4096 bytes should be enough for most responses
-  DynamicJsonDocument responseDoc(4096);
-
-  // Deserialize (parse) the JSON string into a document we can navigate
-  // This converts the text into a structured object we can query
-  DeserializationError error = deserializeJson(responseDoc, responseBody);
-
-  // Check for parsing errors
-  // If the JSON is malformed or too large, this will fail
-  if (error) {
-    Serial.print("ERROR: JSON parsing failed: ");
-    Serial.println(error.c_str());  // Print the error message
-    return;
-  }
-
-  // ------------------------------------------------------------------------
-  // STEP 7: Extract and display the AI-generated response
-  // ------------------------------------------------------------------------
-  Serial.println("\n=== AI RESPONSE ===");
-
-  // Navigate the JSON structure to find the AI's message
-  // Groq API response structure: {choices: [{message: {content: "..."}}]}
-  // We need to drill down through this hierarchy to get the actual text
-  if (responseDoc.containsKey("choices")) {
-    // Get the "choices" array from the response
-    JsonArray choices = responseDoc["choices"];
-
-    if (choices.size() > 0) {
-      // Extract the content from the first choice
-      // Path: choices[0] → message → content
-      const char* content = choices[0]["message"]["content"];
-      Serial.println(content);  // Print the AI's answer!
-
-      // Also print some useful metadata about the response
-      Serial.println("\n=== METADATA ===");
-
-      // Which model was actually used (server confirms this)
-      const char* model = responseDoc["model"];
-      Serial.print("Model: ");
-      Serial.println(model);
-
-      // Token usage information (important for cost tracking)
-      // Tokens are the basic units AI models use - roughly 0.75 words per token
-      int promptTokens = responseDoc["usage"]["prompt_tokens"];      // Tokens in our question
-      int completionTokens = responseDoc["usage"]["completion_tokens"];  // Tokens in AI's answer
-      int totalTokens = responseDoc["usage"]["total_tokens"];        // Total = prompt + completion
-
-      Serial.print("Tokens - Prompt: ");
-      Serial.print(promptTokens);
-      Serial.print(", Completion: ");
-      Serial.print(completionTokens);
-      Serial.print(", Total: ");
-      Serial.println(totalTokens);
-    } else {
-      Serial.println("ERROR: No choices in response!");
-    }
-  } else if (responseDoc.containsKey("error")) {
-    // Handle API errors (invalid key, rate limits, etc.)
-    const char* errorMessage = responseDoc["error"]["message"];
-    Serial.print("API ERROR: ");
-    Serial.println(errorMessage);
+  // Step 5: Display the response
+  // ---------------------------------------------------
+  if (response.length() > 0) {
+    Serial.println("\n=== AI RESPONSE ===");
+    Serial.println(response);
+    Serial.println("\n=== DONE ===");
   } else {
-    Serial.println("ERROR: Unexpected response format!");
+    Serial.println("\nERROR: No response from AI");
   }
-
-  Serial.println("\n=== DONE ===");
 }
 
 // ============================================================================
