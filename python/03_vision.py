@@ -53,7 +53,7 @@ if not api_key:
 # Step 2: Specify the image file path
 # ==============================================================================
 
-# Path to your image file (using shared test image from root directory)
+# Path to test_image.jpg from the root directory
 image_path = '../test_image.jpg'
 
 # ==============================================================================

@@ -154,7 +154,7 @@ func main() {
 	}
 
 	// Step 2: Define path to image file
-	// Using the shared test image from the root directory
+	// Using test_image.jpg from the root directory
 	imagePath := "../test_image.jpg"
 
 	// Step 3: Read the image file from disk

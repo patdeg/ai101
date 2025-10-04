@@ -40,7 +40,7 @@ const fs = require('fs');        // File System - for reading files
 const path = require('path');    // For working with file paths
 
 // Step 2: Define the path to the image you want to analyze
-// Using the shared test image from the root directory
+// Using test_image.jpg from the root directory
 const imagePath = '../test_image.jpg';
 
 // Step 3: Read the image file and convert it to base64 format
