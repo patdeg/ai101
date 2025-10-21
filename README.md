@@ -45,22 +45,23 @@ Learn that AI development isn't just about what you can build—it's about what 
 **🎓 Built for Learning**
 80% of every file is educational comments explaining WHY, not just WHAT. Perfect for self-paced learning or teaching others.
 
-## The 14 Examples
+## The 15 Examples
 
 1. **Basic Chat** - Single question to the AI model
 2. **System + User Prompts** - Controlling AI behavior with system instructions
-3. **Vision Analysis** - Analyzing local images with multimodal models
-4. **Safety Check (Text)** - Content moderation with LlamaGuard
-5. **Safety Check (Image)** - Image content moderation with LlamaGuard Vision
-6. **Prompt Guard** - Detecting jailbreak attempts
-7. **Whisper Audio** - Transcribing audio to text with Whisper
-8. **Tavily Search** - Web search with AI-powered answers
-9. **Tavily Extract** - Extract clean content from web pages
-10. **Tool Use** - AI agents with function calling (Groq + Tavily)
-11. **Web Search (Groq)** - Built-in web search with groq/compound-mini
-12. **Code Execution** - Python code execution with openai/gpt-oss-20b
-13. **Reasoning** - Step-by-step thinking with openai/gpt-oss-20b + prompt caching
-14. **Text-to-Speech** - Voice synthesis with OpenAI gpt-4o-mini-tts
+3. **Prompt Templates** - Dynamic prompt compilation with variables and conditionals
+4. **Vision Analysis** - Analyzing local images with multimodal models
+5. **Safety Check (Text)** - Content moderation with LlamaGuard
+6. **Safety Check (Image)** - Image content moderation with LlamaGuard Vision
+7. **Prompt Guard** - Detecting jailbreak attempts
+8. **Whisper Audio** - Transcribing audio to text with Whisper
+9. **Tavily Search** - Web search with AI-powered answers
+10. **Tavily Extract** - Extract clean content from web pages
+11. **Tool Use** - AI agents with function calling (Groq + Tavily)
+12. **Web Search (Groq)** - Built-in web search with groq/compound-mini
+13. **Code Execution** - Python code execution with openai/gpt-oss-20b
+14. **Reasoning** - Step-by-step thinking with openai/gpt-oss-20b + prompt caching
+15. **Text-to-Speech** - Voice synthesis with OpenAI gpt-4o-mini-tts
 
 ## Repository Structure
 
@@ -75,7 +76,7 @@ ai101/
 └── README.md      # This file
 ```
 
-Each language folder contains the same 14 examples implemented in that language (except Arduino has only examples 1-7), plus a detailed README explaining the code.
+Each language folder contains the same 15 examples implemented in that language (except Arduino has only examples 1-8), plus a detailed README explaining the code.
 
 ## Prerequisites
 

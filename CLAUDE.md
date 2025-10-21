@@ -11,29 +11,30 @@ Create a "Rosetta Stone" of AI API examples that teach programming fundamentals 
 
 ## Directory Structure
 
-- `bash/` - Bash/cURL examples (28 files: 14 examples × 2 versions each)
-- `nodejs/` - Node.js examples (14 examples, built-in modules only)
-- `python/` - Python examples (14 examples, standard library only)
-- `go/` - Go examples (14 examples, standard library only)
-- `arduino/` - Arduino/ESP32 examples (for XIAO ESP32-S3 Sense board, examples 1-7 only)
-- `exercises/` - Hands-on practice exercises (14 files, one per example)
+- `bash/` - Bash/cURL examples (30 files: 15 examples × 2 versions each)
+- `nodejs/` - Node.js examples (15 examples, built-in modules only)
+- `python/` - Python examples (15 examples, standard library only)
+- `go/` - Go examples (15 examples, standard library only)
+- `arduino/` - Arduino/ESP32 examples (for XIAO ESP32-S3 Sense board, examples 1-8 only)
+- `exercises/` - Hands-on practice exercises (15 files, one per example)
 
-## The 14 Examples (Repeated Across Languages)
+## The 15 Examples (Repeated Across Languages)
 
 1. **01_basic_chat** - Simple question/answer with AI
 2. **02_system_prompt** - Controlling AI behavior with system messages
-3. **03_vision** - Image analysis using vision models
-4. **04_safety_check** - Content moderation with LlamaGuard (text)
-5. **05_image_safety_check** - Image content moderation
-6. **06_prompt_guard** - Jailbreak/injection detection
-7. **07_whisper** - Audio transcription with Whisper
-8. **08_tavily_search** - Web search with AI-powered answers (Tavily API)
-9. **09_tavily_extract** - Extract clean content from web pages (Tavily API)
-10. **10_tool_use** - AI agents with function calling (Groq + Tavily)
-11. **11_web_search** - Built-in web search with groq/compound-mini
-12. **12_code_execution** - Python code execution with openai/gpt-oss-20b
-13. **13_reasoning** - Step-by-step thinking with openai/gpt-oss-20b + prompt caching
-14. **14_text_to_speech** - Voice synthesis with OpenAI gpt-4o-mini-tts (11 voices)
+3. **03_prompt_template** - Dynamic prompt compilation with templates
+4. **04_vision** - Image analysis using vision models
+5. **05_safety_check** - Content moderation with LlamaGuard (text)
+6. **06_image_safety_check** - Image content moderation
+7. **07_prompt_guard** - Jailbreak/injection detection
+8. **08_whisper** - Audio transcription with Whisper
+9. **09_tavily_search** - Web search with AI-powered answers (Tavily API)
+10. **10_tavily_extract** - Extract clean content from web pages (Tavily API)
+11. **11_tool_use** - AI agents with function calling (Groq + Tavily)
+12. **12_web_search** - Built-in web search with groq/compound-mini
+13. **13_code_execution** - Python code execution with openai/gpt-oss-20b
+14. **14_reasoning** - Step-by-step thinking with openai/gpt-oss-20b + prompt caching
+15. **15_text_to_speech** - Voice synthesis with OpenAI gpt-4o-mini-tts (11 voices)
 
 ## Bash Directory: Dual Version Strategy
 
@@ -195,21 +196,22 @@ EOF
 **Learning Progression**:
 1. HTTP requests, JSON, API basics
 2. Message roles, AI behavior control
-3. Multimodal AI, file handling, encoding
-4. **Content safety** (text) - LlamaGuard moderation (taught early!)
-5. **Image safety** (vision) - Vision moderation (taught early!)
-6. **Security layers** - Prompt injection defense (taught early!)
-7. Audio transcription, speech-to-text
-8. Web search APIs, Tavily integration
-9. Content extraction from web pages
-10. AI agents with function calling, tool use
-11. Web search with groq/compound-mini
-12. Code execution with sandboxing
-13. Reasoning with prompt caching optimization
-14. Text-to-speech with voice synthesis
+3. Template systems, dynamic prompt generation
+4. Multimodal AI, file handling, encoding
+5. **Content safety** (text) - LlamaGuard moderation (taught early!)
+6. **Image safety** (vision) - Vision moderation (taught early!)
+7. **Security layers** - Prompt injection defense (taught early!)
+8. Audio transcription, speech-to-text
+9. Web search APIs, Tavily integration
+10. Content extraction from web pages
+11. AI agents with function calling, tool use
+12. Web search with groq/compound-mini
+13. Code execution with sandboxing
+14. Reasoning with prompt caching optimization
+15. Text-to-speech with voice synthesis
 
 **Key Principles**:
-- **Safety-first mindset** - AI safety taught in examples 4-6, before advanced features
+- **Safety-first mindset** - AI safety taught in examples 5-7, before advanced features
 - Show don't tell, explain WHY before HOW
 - One concept at a time, build on previous examples
 - Real-world use cases with responsible AI patterns
@@ -230,8 +232,8 @@ EOF
 The `exercises/` directory contains hands-on practice challenges designed using modern educational principles:
 
 - **Progressive difficulty**: Understand → Apply → Analyze → Create
-- **14 exercise files**: One per example (01-14)
-- **Safety integration**: Exercises 4-6 focus on content moderation and security
+- **15 exercise files**: One per example (01-15)
+- **Safety integration**: Exercises 5-7 focus on content moderation and security
 - **Navigation**: Each file links to previous/next exercise and back to main index
 - **Cross-references**: Exercise files reference related code examples in language directories
 - **Real-world applications**: Build validators, pipelines, multi-step workflows, AI agents
@@ -241,11 +243,12 @@ The `exercises/` directory contains hands-on practice challenges designed using 
 - `exercises/README.md` - Index of all exercises with learning philosophy
 - `exercises/01_basic_chat.md` - Temperature, tokens, cost tracking
 - `exercises/02_system_prompt.md` - Personas, JSON mode, constraints
-- ... (through 10 for Groq + Tavily examples)
-- `exercises/11_web_search.md` - Groq built-in web search
-- `exercises/12_code_execution.md` - Python code execution
-- `exercises/13_reasoning.md` - Step-by-step thinking with caching
-- `exercises/14_text_to_speech.md` - Voice synthesis with 11 voices
+- `exercises/03_prompt_template.md` - Template systems, variables, conditionals
+- ... (through 11 for Groq + Tavily examples)
+- `exercises/12_web_search.md` - Groq built-in web search
+- `exercises/13_code_execution.md` - Python code execution
+- `exercises/14_reasoning.md` - Step-by-step thinking with caching
+- `exercises/15_text_to_speech.md` - Voice synthesis with 11 voices
 
 Each exercise file includes:
 - What the user learned from the basic example
