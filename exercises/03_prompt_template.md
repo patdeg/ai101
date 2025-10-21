@@ -138,9 +138,9 @@ Create a template that uses various markdown elements as semantic signals:
 **Language:** `[[.Language]]`
 
 ## Code to Review
-```[[.Language]]
+\`\`\`[[.Language]]
 [[.CodeSnippet]]
-```
+\`\`\`
 
 ### Key Areas (use formatting for emphasis)
 - **Critical:** Security vulnerabilities
@@ -254,22 +254,22 @@ Create templates that use formatting to control response characteristics:
 **Format:** Single paragraph, no technical details
 
 ### 2. Technical Report
-```yaml
+\`\`\`yaml
 format: structured
 sections:
   - methodology
   - findings
   - recommendations
 detail_level: high
-```
+\`\`\`
 
 ### 3. Visual Representation
-```mermaid
+\`\`\`mermaid
 graph TD
     A[Start] --> B[Process]
     B --> C[Decision]
     C --> D[Output]
-```
+\`\`\`
 
 ### 4. Actionable Checklist
 - [ ] Action item with checkbox
