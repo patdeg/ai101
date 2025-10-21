@@ -179,6 +179,9 @@ class TemplateProcessor:
             Text with variables substituted
         """
         for key, value in variables.items():
+            # Skip Topic variable as it will be in user message
+            if key == "Topic":
+                continue
             pattern = f"\\[\\[\\.{key}\\]\\]"
             text = re.sub(pattern, str(value), text)
         return text

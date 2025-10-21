@@ -1,16 +1,15 @@
 #!/bin/sh
 # Compile a prompt template and use it with AI
-# Usage: ./03_prompt_template_minimal.sh "History" "The Renaissance"
+# Usage: ./03_prompt_template_minimal.sh "The Renaissance"
 
-CATEGORY=${1:-"Science"}
-TOPIC=${2:-"Climate Change"}
-TEMPLATE_FILE="../templates/essay_writer.txt"
+TOPIC=${1:-"Climate Change"}
+TEMPLATE_FILE="../templates/essay_writer_simple.txt"
 
 # Get current timestamp
 NOW=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
 
 # Read and process template (remove /// comments, substitute variables)
-PROMPT=$(sed -e '/^\/\/\//d' -e "s/\[\[\.Now\]\]/$NOW/g" -e "s/\[\[\.Category\]\]/$CATEGORY/g" -e "s/\[\[\.Topic\]\]/$TOPIC/g" "$TEMPLATE_FILE")
+PROMPT=$(sed -e '/^\/\/\//d' -e "s/\[\[\.Now\]\]/$NOW/g" "$TEMPLATE_FILE")
 
 # Send to AI
 curl -s https://api.groq.com/openai/v1/chat/completions \
@@ -30,5 +29,5 @@ EOF
 
 # Parameters explained:
 # Template compilation removes /// comments and substitutes variables
-# System prompt contains the compiled template
+# Simpler template without conditionals for bash/sed compatibility
 # User provides the specific topic for the essay

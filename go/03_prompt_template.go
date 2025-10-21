@@ -102,7 +102,7 @@ type Error struct {
 // TemplateData holds the data for template substitution
 type TemplateData struct {
 	Category string
-	Topic    string
+	Topic    string // Topic will be provided in user message, not substituted in template
 	Now      string
 }
 
@@ -370,10 +370,10 @@ func main() {
 	now := time.Now().UTC().Format("2006-01-02 15:04:05 UTC")
 	fmt.Printf("Timestamp: %s\n", now)
 
-	// Prepare template data
+	// Prepare template data (Topic excluded as it's in user message)
 	data := TemplateData{
 		Category: category,
-		Topic:    topic,
+		// Topic not substituted in template, provided in user message
 		Now:      now,
 	}
 

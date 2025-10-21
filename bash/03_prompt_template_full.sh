@@ -44,7 +44,7 @@ readonly MODEL="meta-llama/llama-4-scout-17b-16e-instruct"
 
 # Template configuration
 readonly TEMPLATE_DIR="../templates"
-readonly TEMPLATE_FILE="$TEMPLATE_DIR/essay_writer.txt"
+readonly TEMPLATE_FILE="$TEMPLATE_DIR/essay_writer_simple.txt"
 
 # Pricing (per million tokens)
 readonly INPUT_PRICE=0.11
@@ -114,13 +114,13 @@ validate_environment() {
 create_example_template() {
     mkdir -p "$TEMPLATE_DIR"
     cat > "$TEMPLATE_FILE" << 'TEMPLATE_EOF'
-/// Template for writing educational essays
-/// Variables: [[.Now]] = current timestamp, [[.Category]] = essay category, [[.Topic]] = essay topic
+/// Simple template for bash/curl examples - no conditionals
+/// Variables: [[.Now]] = current timestamp, [[.Topic]] = essay topic
 /// Comments starting with /// are removed during compilation
 
 # 🎯 OBJECTIVE
 
-Write an engaging, educational essay about [[.Topic]] in the [[.Category]] category.
+Write an engaging, educational essay about [[.Topic]].
 The essay should be appropriate for students aged 14-18, informative yet accessible.
 Current timestamp: [[.Now]]
 
@@ -131,15 +131,10 @@ Current timestamp: [[.Now]]
 * **Tone:** Educational, engaging, age-appropriate
 * **Citations:** Include at least 3 factual references
 
-# 📚 CATEGORY: [[.Category]]
-
-Focus on making the content relevant and engaging for young learners.
-Use examples and analogies that resonate with teenagers.
-
 # OUTPUT FORMAT
 
 Provide the essay with:
-- Clear title
+- Clear title about [[.Topic]]
 - Structured paragraphs
 - Key terms defined
 - Discussion questions at the end
@@ -149,46 +144,20 @@ TEMPLATE_EOF
 
 # Process template with variable substitution
 process_template() {
-    local category=$1
-    local topic=$2
-    local now=$3
+    local topic=$1
+    local now=$2
 
     # Read template and process it:
     # 1. Remove lines starting with ///
     # 2. Replace [[.Now]] with current timestamp
-    # 3. Replace [[.Category]] with category
-    # 4. Replace [[.Topic]] with topic
-    # 5. Handle simple conditionals (basic implementation)
+    # 3. Replace [[.Topic]] with topic (removed from system prompt)
 
     local processed
     processed=$(sed \
         -e '/^\/\/\//d' \
         -e "s/\[\[\.Now\]\]/$now/g" \
-        -e "s/\[\[\.Category\]\]/$category/g" \
-        -e "s/\[\[\.Topic\]\]/$topic/g" \
+        -e "s/\[\[\.Topic\]\]//g" \
         "$TEMPLATE_FILE")
-
-    # Simple conditional processing (basic if/else)
-    # This is a simplified version - production would need proper template engine
-    if [[ "$category" == "History" ]]; then
-        processed=$(echo "$processed" | sed \
-            -e '/\[\[if \.Category == "History"\]\]/,/\[\[else/{ /\[\[if/d; /\[\[else/d; p; }' \
-            -e '/\[\[else/,/\[\[end\]\]/d' \
-            -e '/\[\[end\]\]/d')
-    elif [[ "$category" == "Science" ]]; then
-        processed=$(echo "$processed" | sed \
-            -e '/\[\[else if \.Category == "Science"\]\]/,/\[\[else/{ /\[\[else if/d; /\[\[else/d; p; }' \
-            -e '/\[\[if/,/\[\[else if \.Category == "Science"\]\]/d' \
-            -e '/\[\[else if \.Category/,/\[\[else/d' \
-            -e '/\[\[else\]\]/,/\[\[end\]\]/d' \
-            -e '/\[\[end\]\]/d')
-    fi
-
-    # Clean up any remaining conditional markers
-    processed=$(echo "$processed" | sed \
-        -e '/\[\[if/d' \
-        -e '/\[\[else/d' \
-        -e '/\[\[end\]\]/d')
 
     echo "$processed"
 }
@@ -291,8 +260,7 @@ display_response() {
 
 main() {
     # Parse command line arguments
-    local category=${1:-"Science"}
-    local topic=${2:-"Climate Change"}
+    local topic=${1:-"Climate Change"}
 
     # Display banner
     print_header "PROMPT TEMPLATE COMPILATION DEMO"
@@ -305,7 +273,6 @@ main() {
 
     # Display input parameters
     print_color "$BLUE" "Parameters:"
-    echo "  Category: $category"
     echo "  Topic: $topic"
     echo "  Template: $TEMPLATE_FILE"
     echo
@@ -320,12 +287,11 @@ main() {
     echo "Loading template from: $TEMPLATE_FILE"
     echo "Removing comment lines (///)"
     echo "Substituting variables:"
-    echo "  [[.Category]] → $category"
-    echo "  [[.Topic]] → $topic"
     echo "  [[.Now]] → $now"
+    echo "  [[.Topic]] → removed from system prompt"
 
     local processed_prompt
-    processed_prompt=$(process_template "$category" "$topic" "$now")
+    processed_prompt=$(process_template "$topic" "$now")
 
     # Show processed prompt (first 500 chars)
     print_header "COMPILED PROMPT (PREVIEW)"

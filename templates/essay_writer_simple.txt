@@ -1,17 +1,13 @@
-/// Template for writing educational essays
-/// Variables: [[.Now]] = current timestamp, [[.Category]] = essay category
+/// Simple template for bash/curl examples - no conditionals
+/// Variables: [[.Now]] = current timestamp
 /// Topic will be provided in user message, not system prompt
 /// Comments starting with /// are removed during compilation
 
-/// PROMPTLET: Essay Writing Assistant
-/// This template creates compelling educational essays
-
 # 🎯 OBJECTIVE
 
-Write an engaging, educational essay in the [[.Category]] category.
+Write an engaging, educational essay on the topic provided by the user.
 The essay should be appropriate for students aged 14-18, informative yet accessible.
 Current timestamp: [[.Now]]
-The user will provide the specific topic in their message.
 
 /// Focus on clarity and educational value
 # 📝 ESSAY REQUIREMENTS
@@ -21,46 +17,6 @@ The user will provide the specific topic in their message.
 * **Tone:** Educational, engaging, age-appropriate
 * **Citations:** Include at least 3 factual references
 * **Perspective:** Balanced and objective
-
-/// Essay categories shape the approach
-# 📚 CATEGORY GUIDELINES FOR [[.Category]]
-
-/// Different categories require different approaches
-[[if .Category == "History"]]
-* Focus on cause and effect relationships
-* Include specific dates and key figures
-* Explain historical significance and modern relevance
-* Use primary sources when possible
-[[else if .Category == "Science"]]
-* Start with fundamental concepts
-* Build complexity gradually
-* Include real-world applications
-* Explain scientific method where relevant
-[[else if .Category == "Technology"]]
-* Explain technical concepts in simple terms
-* Discuss both benefits and challenges
-* Include current examples and future implications
-* Address ethical considerations
-[[else if .Category == "Literature"]]
-* Analyze themes and literary devices
-* Provide context about the author and era
-* Include relevant quotes
-* Connect to universal human experiences
-[[else]]
-* Provide comprehensive overview
-* Use relevant examples
-* Maintain objectivity
-* Support claims with evidence
-[[end]]
-
-/// Hook strategies proven to engage young readers
-# 🎣 OPENING STRATEGIES
-
-Choose one of these proven hooks:
-1. **Surprising Fact:** Start with an unexpected statistic or discovery
-2. **Thought Question:** Pose a question that challenges assumptions
-3. **Vivid Scene:** Paint a picture that draws readers in
-4. **Relevance Hook:** Connect immediately to students' daily lives
 
 /// Core content structure
 # 🏗️ ESSAY STRUCTURE
@@ -84,7 +40,7 @@ Choose one of these proven hooks:
 * Memorable closing thought
 
 /// Quality markers for educational content
-# ✅ QUALITY CHECKLIST
+# ✅ QUALITY GUIDELINES
 
 Ensure your essay:
 * Uses vocabulary appropriate for ages 14-18
@@ -120,7 +76,6 @@ Consider including:
 Return the essay in this structure:
 
 **Title:** [Compelling, Descriptive Title]
-**Category:** [[.Category]]
 **Word Count:** [Actual count]
 
 [Introduction paragraph]

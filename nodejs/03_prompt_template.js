@@ -168,6 +168,8 @@ class TemplateProcessor {
      */
     substituteVariables(text, variables) {
         for (const [key, value] of Object.entries(variables)) {
+            // Skip Topic variable as it will be in user message
+            if (key === 'Topic') continue;
             const pattern = new RegExp(`\\[\\[\\.${key}\\]\\]`, 'g');
             text = text.replace(pattern, String(value));
         }
