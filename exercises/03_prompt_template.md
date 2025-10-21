@@ -130,7 +130,7 @@ Build a template that uses different list formats for the same content:
 **Part C - Code Block and Formatting Signals:**
 Create a template that uses various markdown elements as semantic signals:
 
-```markdown
+````markdown
 /// Semantic markdown signals template
 # Code Review Request
 
@@ -138,9 +138,9 @@ Create a template that uses various markdown elements as semantic signals:
 **Language:** `[[.Language]]`
 
 ## Code to Review
-\`\`\`[[.Language]]
+```[[.Language]]
 [[.CodeSnippet]]
-\`\`\`
+```
 
 ### Key Areas (use formatting for emphasis)
 - **Critical:** Security vulnerabilities
@@ -156,7 +156,7 @@ Create a template that uses various markdown elements as semantic signals:
 |--------|---------|-----------|
 | Security | ✅/❌ | Details |
 | Performance | ⚠️ | Suggestions |
-```
+````
 
 **Evaluation criteria:**
 1. Does bold text get higher priority in responses?
@@ -244,7 +244,7 @@ Create templates that use formatting to control response characteristics:
 ```
 
 **Part B - Multi-Format Output Template:**
-```markdown
+````markdown
 /// Multi-format response template
 # Data Analysis for [[.Dataset]]
 
@@ -254,28 +254,28 @@ Create templates that use formatting to control response characteristics:
 **Format:** Single paragraph, no technical details
 
 ### 2. Technical Report
-\`\`\`yaml
+```yaml
 format: structured
 sections:
   - methodology
   - findings
   - recommendations
 detail_level: high
-\`\`\`
+```
 
 ### 3. Visual Representation
-\`\`\`mermaid
+```mermaid
 graph TD
     A[Start] --> B[Process]
     B --> C[Decision]
     C --> D[Output]
-\`\`\`
+```
 
 ### 4. Actionable Checklist
 - [ ] Action item with checkbox
 - [x] Completed item example
 - [ ] **Priority:** High priority item
-```
+````
 
 **Experiments to run:**
 1. Test if format specifications in code blocks are followed more precisely
