@@ -65,6 +65,52 @@ Add `"stop": ["\n", ".", "!"]` to make the AI stop at specific characters:
 
 **What to learn:** Control over response length and format using stop sequences.
 
+## Exercise 1.6: Multi-Vendor Comparison
+
+Run the SAME question across different AI providers and compare:
+
+**Task:** Ask each provider: "What makes a good programmer?"
+
+Run with different providers:
+```bash
+# Bash examples
+./01_basic_chat_minimal.sh           # Groq
+./01_basic_chat_OPENAI_minimal.sh    # OpenAI
+./01_basic_chat_ANTHROPIC_minimal.sh # Anthropic
+./01_basic_chat_SAMBA_minimal.sh     # SambaNova
+./01_basic_chat_DEMETERICS_minimal.sh # Via proxy
+```
+
+**What to compare:**
+- Response style and tone
+- Answer length and detail
+- Response time (latency)
+- Token usage and cost
+- Unique perspectives each model provides
+
+**Track in a table:**
+| Provider | Response Time | Tokens Used | Cost | Key Points |
+|----------|--------------|-------------|------|------------|
+| Groq     | ...          | ...         | ...  | ...        |
+| OpenAI   | ...          | ...         | ...  | ...        |
+| Anthropic| ...          | ...         | ...  | ...        |
+
+**What to learn:** Different AI providers have different strengths. Groq is fast, OpenAI is advanced, Anthropic is nuanced, SambaNova uses open models, and Demeterics adds observability.
+
+## Exercise 1.7: Observability with Demeterics
+
+Use the Demeterics proxy to track your API usage:
+
+1. Run 10 different questions through Demeterics
+2. Visit the Demeterics dashboard at https://demeterics.com/dashboard
+3. Analyze:
+   - Total tokens used
+   - Average response time
+   - Cost breakdown
+   - Error rates (if any)
+
+**What to learn:** Production monitoring and analytics are crucial for AI applications. Demeterics provides Google Analytics-style insights for your AI API calls.
+
 ## Reflection Questions
 
 After completing these exercises, consider:
@@ -81,10 +127,9 @@ Once you've mastered basic parameters, move on to [Exercise 2: System Prompt](02
 ---
 
 **Related Examples:**
-- [bash/01_basic_chat_minimal.sh](../bash/01_basic_chat_minimal.sh)
-- [bash/01_basic_chat_full.sh](../bash/01_basic_chat_full.sh)
-- [nodejs/01_basic_chat.js](../nodejs/01_basic_chat.js)
-- [python/01_basic_chat.py](../python/01_basic_chat.py)
-- [go/01_basic_chat.go](../go/01_basic_chat.go)
+- **Bash:** [Groq](../bash/01_basic_chat_minimal.sh) | [OpenAI](../bash/01_basic_chat_OPENAI_minimal.sh) | [Anthropic](../bash/01_basic_chat_ANTHROPIC_minimal.sh) | [SambaNova](../bash/01_basic_chat_SAMBA_minimal.sh) | [Demeterics](../bash/01_basic_chat_DEMETERICS_minimal.sh)
+- **Node.js:** [Groq](../nodejs/01_basic_chat.js) | [OpenAI](../nodejs/01_basic_chat_OPENAI.js) | [Anthropic](../nodejs/01_basic_chat_ANTHROPIC.js) | [SambaNova](../nodejs/01_basic_chat_SAMBA.js) | [Demeterics](../nodejs/01_basic_chat_DEMETERICS.js)
+- **Python:** [Groq](../python/01_basic_chat.py) | [OpenAI](../python/01_basic_chat_OPENAI.py) | [Anthropic](../python/01_basic_chat_ANTHROPIC.py) | [SambaNova](../python/01_basic_chat_SAMBA.py) | [Demeterics](../python/01_basic_chat_DEMETERICS.py)
+- **Go:** [Groq](../go/01_basic_chat.go) | [OpenAI](../go/01_basic_chat_OPENAI.go)
 
 [← Back to Exercises](README.md) | [Next: System Prompt →](02_system_prompt.md)

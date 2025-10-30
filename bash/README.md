@@ -1,6 +1,6 @@
-# Bash/cURL Examples for Groq AI API
+# Bash/cURL Examples for AI APIs
 
-Shell script examples demonstrating Groq's AI APIs using plain bash and cURL commands.
+Shell script examples demonstrating multiple AI provider APIs using plain bash and cURL commands. Learn how to interact with Groq, OpenAI, Anthropic, SambaNova, and Demeterics using the same concepts.
 
 ## 📚 Two Versions of Each Example
 
@@ -22,13 +22,35 @@ Each example comes in **two flavors** to suit different needs:
 
 ## 🚀 Quick Start
 
-### Option 1: Minimal (Just Works™)
+### Setting up API Keys
+
+Different providers require different API keys:
+
 ```bash
-# Set your API key
+# Groq (default for most examples)
 export GROQ_API_KEY="gsk_..."
 
+# OpenAI
+export OPENAI_API_KEY="sk-..."
+
+# Anthropic (Claude)
+export ANTHROPIC_API_KEY="sk-ant-..."
+
+# SambaNova
+export SAMBANOVA_API_KEY="..."
+
+# Demeterics (Universal instrumentation proxy)
+export DEMETERICS_API_KEY="..."
+```
+
+### Option 1: Minimal (Just Works™)
+```bash
 # Run any minimal script
-./01_basic_chat_minimal.sh
+./01_basic_chat_minimal.sh           # Groq (default)
+./01_basic_chat_OPENAI_minimal.sh    # OpenAI
+./01_basic_chat_ANTHROPIC_minimal.sh # Anthropic
+./01_basic_chat_SAMBA_minimal.sh     # SambaNova
+./01_basic_chat_DEMETERICS_minimal.sh # Demeterics proxy
 ```
 
 ### Option 2: Full (Beautiful Output)
@@ -38,9 +60,6 @@ export GROQ_API_KEY="gsk_..."
 # Linux: sudo apt-get install jq
 # Windows: choco install jq
 
-# Set your API key
-export GROQ_API_KEY="gsk_..."
-
 # Run any full script
 ./01_basic_chat_full.sh
 ```
@@ -49,7 +68,11 @@ export GROQ_API_KEY="gsk_..."
 
 | Example | Minimal | Full | What it does |
 |---------|---------|------|--------------|
-| **01 Basic Chat** | `01_basic_chat_minimal.sh` | `01_basic_chat_full.sh` | Ask AI a question |
+| **01 Basic Chat** | `01_basic_chat_minimal.sh` | `01_basic_chat_full.sh` | Ask AI a question (Groq) |
+| **01 Basic Chat - OpenAI** | `01_basic_chat_OPENAI_minimal.sh` | - | Ask AI a question (OpenAI) |
+| **01 Basic Chat - Anthropic** | `01_basic_chat_ANTHROPIC_minimal.sh` | - | Ask AI a question (Claude) |
+| **01 Basic Chat - SambaNova** | `01_basic_chat_SAMBA_minimal.sh` | - | Ask AI a question (SambaNova) |
+| **01 Basic Chat - Demeterics** | `01_basic_chat_DEMETERICS_minimal.sh` | - | Ask AI a question (via proxy) |
 | **02 System Prompt** | `02_system_prompt_minimal.sh` | `02_system_prompt_full.sh` | Control AI behavior with instructions |
 | **03 Vision** | `03_vision_minimal.sh` | `03_vision_full.sh` | Analyze images with AI |
 | **04 Safety Check** | `04_safety_check_minimal.sh` | `04_safety_check_full.sh` | Moderate text content |
@@ -79,6 +102,29 @@ export GROQ_API_KEY="gsk_..."
 - 💰 Tracking costs and token usage
 - 🎨 Want pretty, readable output
 - 📊 Need parsed data (just the answer, costs, etc.)
+
+## 🌐 Provider Comparison
+
+### Supported Providers
+
+| Provider | API Endpoint | Key Models | Best For |
+|----------|-------------|------------|----------|
+| **Groq** | `api.groq.com` | Llama 4, Mixtral | Fast inference, cost-effective |
+| **OpenAI** | `api.openai.com` | GPT-5-nano, GPT-4o | Advanced reasoning, function calling |
+| **Anthropic** | `api.anthropic.com` | Claude Haiku 4.5, Sonnet, Opus | Long context, nuanced responses |
+| **SambaNova** | `api.sambanova.ai` | Llama 3.1 variants | Open models, enterprise focus |
+| **Demeterics** | `demeterics.uc.r.appspot.com` | All Groq models | Analytics, observability, instrumentation |
+
+### About Demeterics
+
+Demeterics is a universal observability layer that acts as a reverse proxy to major AI providers. It adds Google Analytics-style instrumentation to every API call, allowing you to:
+- Track token usage and costs across all providers
+- Monitor performance and latency
+- Analyze prompt effectiveness
+- Debug production issues
+- Generate compliance reports
+
+The Demeterics examples use the same API format as Groq but route through their proxy for added observability.
 
 ## 💡 Example Comparison
 

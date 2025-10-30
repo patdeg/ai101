@@ -1,6 +1,6 @@
 # Python Examples
 
-**Pure Python 3 - no external dependencies!** These examples use only the Python standard library (`http.client`, `json`, `os`, `base64`).
+**Pure Python 3 - no external dependencies!** These examples use only the Python standard library (`http.client`, `json`, `os`, `base64`) to demonstrate multiple AI provider APIs.
 
 ## Why Python?
 
@@ -9,6 +9,16 @@
 - **Batteries included** - rich standard library
 - **Popular** - huge community, tons of resources
 
+## Supported AI Providers
+
+| Provider | Example File | API Endpoint | Best For |
+|----------|-------------|--------------|----------|
+| **Groq** | `01_basic_chat.py` | `api.groq.com` | Fast inference, cost-effective |
+| **OpenAI** | `01_basic_chat_OPENAI.py` | `api.openai.com` | Advanced reasoning, GPT models |
+| **Anthropic** | `01_basic_chat_ANTHROPIC.py` | `api.anthropic.com` | Claude models, nuanced responses |
+| **SambaNova** | `01_basic_chat_SAMBA.py` | `api.sambanova.ai` | Open models, enterprise focus |
+| **Demeterics** | `01_basic_chat_DEMETERICS.py` | `demeterics.uc.r.appspot.com` | Analytics, observability proxy |
+
 ## Prerequisites
 
 **1. Check Python version:**
@@ -16,9 +26,22 @@
 python3 --version  # Should be 3.6 or higher
 ```
 
-**2. Set API key:**
+**2. Set API keys (based on provider):**
 ```bash
-export GROQ_API_KEY="gsk_your_key_here"
+# Groq (default for most examples)
+export GROQ_API_KEY="gsk_..."
+
+# OpenAI
+export OPENAI_API_KEY="sk-..."
+
+# Anthropic (Claude)
+export ANTHROPIC_API_KEY="sk-ant-..."
+
+# SambaNova
+export SAMBANOVA_API_KEY="..."
+
+# Demeterics (observability proxy)
+export DEMETERICS_API_KEY="..."
 ```
 
 **3. Verify setup:**
@@ -30,7 +53,14 @@ python3 -c "import http.client, json, os, base64; print('All modules OK')"
 ## Running the Examples
 
 ```bash
-python3 01_basic_chat.py
+# Basic chat with different providers
+python3 01_basic_chat.py              # Groq (default)
+python3 01_basic_chat_OPENAI.py       # OpenAI
+python3 01_basic_chat_ANTHROPIC.py    # Anthropic (Claude)
+python3 01_basic_chat_SAMBA.py        # SambaNova
+python3 01_basic_chat_DEMETERICS.py   # Via Demeterics proxy
+
+# Other examples (currently Groq only)
 python3 02_system_prompt.py
 python3 03_vision.py
 python3 04_safety_check.py

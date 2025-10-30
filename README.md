@@ -45,9 +45,23 @@ Learn that AI development isn't just about what you can build—it's about what 
 **🎓 Built for Learning**
 80% of every file is educational comments explaining WHY, not just WHAT. Perfect for self-paced learning or teaching others.
 
+## Multi-Vendor Support
+
+Example 01 (Basic Chat) demonstrates how to work with **5 different AI providers**:
+
+| Provider | Strengths | Best Use Case |
+|----------|-----------|---------------|
+| **Groq** | Fastest inference, cost-effective | Real-time applications, high volume |
+| **OpenAI** | Most advanced models, GPT series | Complex reasoning, function calling |
+| **Anthropic** | Claude models, nuanced responses | Long context, careful analysis |
+| **SambaNova** | Open models (Llama), enterprise | Privacy-conscious, on-premise |
+| **Demeterics** | Universal observability proxy | Production monitoring, analytics |
+
+Each provider has its own example file (e.g., `01_basic_chat_OPENAI.py`) showing provider-specific authentication and API patterns.
+
 ## The 15 Examples
 
-1. **Basic Chat** - Single question to the AI model
+1. **Basic Chat** - Single question to the AI model (multi-vendor support!)
 2. **System + User Prompts** - Controlling AI behavior with system instructions
 3. **Prompt Templates** - Dynamic prompt compilation with variables and conditionals
 4. **Vision Analysis** - Analyzing local images with multimodal models
@@ -80,24 +94,50 @@ Each language folder contains the same 15 examples implemented in that language 
 
 ## Prerequisites
 
-**Get a Groq API Key:**
+### Primary Provider API Keys
+
+Example 01 (Basic Chat) now supports multiple AI providers. Choose one or more:
+
+**Groq (Default - Used in examples 2-15):**
 1. Go to https://console.groq.com
 2. Sign up for a free account
 3. Navigate to API Keys
 4. Create a new API key
-5. Save it somewhere safe
+5. Save as `GROQ_API_KEY`
 
-**Get a Tavily API Key (for examples 08-10):**
+**OpenAI:**
+1. Go to https://platform.openai.com
+2. Sign up for an account
+3. Create a new API key
+4. Save as `OPENAI_API_KEY`
+
+**Anthropic (Claude):**
+1. Go to https://console.anthropic.com
+2. Sign up for an account
+3. Navigate to API Keys
+4. Create a new API key
+5. Save as `ANTHROPIC_API_KEY`
+
+**SambaNova:**
+1. Go to https://sambanova.ai
+2. Sign up for an account
+3. Get your API key
+4. Save as `SAMBANOVA_API_KEY`
+
+**Demeterics (Observability Proxy):**
+1. Go to https://demeterics.com
+2. Sign up for an account
+3. Get your API key
+4. Save as `DEMETERICS_API_KEY`
+5. See analytics at https://demeterics.com/dashboard
+
+### Additional API Keys
+
+**Tavily (for examples 08-10):**
 1. Go to https://tavily.com
 2. Sign up for a free account
 3. Get your API key from the dashboard
 4. Add it to your environment: `export TAVILY_API_KEY="tvly-your-key"`
-
-**Get an OpenAI API Key (for examples 13-14):**
-1. Go to https://platform.openai.com
-2. Sign up for an account
-3. Create a new API key
-4. Add it to your environment: `export OPENAI_API_KEY="sk-your-key"`
 
 **Set up your environment:**
 

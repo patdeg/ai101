@@ -1,6 +1,6 @@
 # Node.js Examples
 
-**Pure Node.js - no external dependencies!** These examples use only built-in modules (`https`, `fs`, `path`).
+**Pure Node.js - no external dependencies!** These examples use only built-in modules (`https`, `fs`, `path`) to demonstrate multiple AI provider APIs.
 
 ## Why Node.js?
 
@@ -8,6 +8,16 @@
 - **Event-driven** - great for async API calls
 - **Built-in HTTP** - no libraries needed
 - **Cross-platform** - works on Windows, macOS, Linux
+
+## Supported AI Providers
+
+| Provider | Example File | API Endpoint | Best For |
+|----------|-------------|--------------|----------|
+| **Groq** | `01_basic_chat.js` | `api.groq.com` | Fast inference, cost-effective |
+| **OpenAI** | `01_basic_chat_OPENAI.js` | `api.openai.com` | Advanced reasoning, GPT models |
+| **Anthropic** | `01_basic_chat_ANTHROPIC.js` | `api.anthropic.com` | Claude models, nuanced responses |
+| **SambaNova** | `01_basic_chat_SAMBA.js` | `api.sambanova.ai` | Open models, enterprise focus |
+| **Demeterics** | `01_basic_chat_DEMETERICS.js` | `demeterics.uc.r.appspot.com` | Analytics, observability proxy |
 
 ## Prerequisites
 
@@ -23,9 +33,22 @@ node --version
 # Windows: Download from nodejs.org
 ```
 
-**2. Set API key:**
+**2. Set API keys (based on provider):**
 ```bash
-export GROQ_API_KEY="gsk_your_key_here"
+# Groq (default for most examples)
+export GROQ_API_KEY="gsk_..."
+
+# OpenAI
+export OPENAI_API_KEY="sk-..."
+
+# Anthropic (Claude)
+export ANTHROPIC_API_KEY="sk-ant-..."
+
+# SambaNova
+export SAMBANOVA_API_KEY="..."
+
+# Demeterics (observability proxy)
+export DEMETERICS_API_KEY="..."
 ```
 
 **3. Verify setup:**
@@ -37,7 +60,14 @@ node --version  # Should be v14+ or higher
 ## Running the Examples
 
 ```bash
-node 01_basic_chat.js
+# Basic chat with different providers
+node 01_basic_chat.js              # Groq (default)
+node 01_basic_chat_OPENAI.js       # OpenAI
+node 01_basic_chat_ANTHROPIC.js    # Anthropic (Claude)
+node 01_basic_chat_SAMBA.js        # SambaNova
+node 01_basic_chat_DEMETERICS.js   # Via Demeterics proxy
+
+# Other examples (currently Groq only)
 node 02_system_prompt.js
 node 03_vision.js
 node 04_safety_check.js
