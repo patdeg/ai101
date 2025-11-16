@@ -19,7 +19,7 @@ Usage:
     go run 06_image_safety_check.go
 
 Environment:
-    GROQ_API_KEY - Your Groq API key
+    DEMETERICS_API_KEY - Your Demeterics Managed LLM Key
 */
 
 import (
@@ -92,9 +92,9 @@ type ChatResponse struct {
 // checkImageSafety checks if an image is safe using LlamaGuard Vision
 func checkImageSafety(imagePath string) (*ChatResponse, error) {
 	// Step 1: Check API key
-	apiKey := os.Getenv("GROQ_API_KEY")
+	apiKey := os.Getenv("DEMETERICS_API_KEY")
 	if apiKey == "" {
-		return nil, fmt.Errorf("GROQ_API_KEY environment variable not set")
+		return nil, fmt.Errorf("DEMETERICS_API_KEY environment variable not set")
 	}
 
 	// Step 2: Load and encode the image
@@ -145,7 +145,7 @@ func checkImageSafety(imagePath string) (*ChatResponse, error) {
 	// Step 4: Make the API request
 	fmt.Println("\nChecking image safety with LlamaGuard...")
 
-	req, err := http.NewRequest("POST", "https://api.groq.com/openai/v1/chat/completions", bytes.NewBuffer(jsonData))
+	req, err := http.NewRequest("POST", "https://api.demeterics.com/groq/v1/chat/completions", bytes.NewBuffer(jsonData))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}

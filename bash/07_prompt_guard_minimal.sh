@@ -2,9 +2,9 @@
 # Detect prompt injection and jailbreak attempts
 # Usage: ./06_prompt_guard_minimal.sh
 
-curl -s https://api.groq.com/openai/v1/chat/completions \
+curl -s https://api.demeterics.com/groq/v1/chat/completions \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $GROQ_API_KEY" \
+  -H "Authorization: Bearer $DEMETERICS_API_KEY" \
   -d '{
     "model": "meta-llama/llama-prompt-guard-2-86m",
     "messages": [

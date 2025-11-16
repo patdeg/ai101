@@ -25,7 +25,7 @@ Examples:
     go run 03_prompt_template.go "Technology" "Artificial Intelligence"
 
 Environment:
-    GROQ_API_KEY - Your Groq API key (required)
+    DEMETERICS_API_KEY - Your Demeterics Managed LLM Key (required)
 */
 
 import (
@@ -44,7 +44,7 @@ import (
 
 // Configuration constants
 const (
-	API_URL       = "https://api.groq.com/openai/v1/chat/completions"
+	API_URL       = "https://api.demeterics.com/groq/v1/chat/completions"
 	MODEL         = "meta-llama/llama-4-scout-17b-16e-instruct"
 	TEMPLATE_DIR  = "../templates"
 	TEMPLATE_FILE = "essay_writer.txt"
@@ -236,7 +236,7 @@ func processTemplate(data TemplateData) (string, error) {
 	return buf.String(), nil
 }
 
-// makeAPIRequest sends a request to the Groq API
+// makeAPIRequest sends a request to the Demeterics Groq proxy
 func makeAPIRequest(systemPrompt, userPrompt, apiKey string) (*ChatResponse, error) {
 	// Prepare request data
 	request := ChatRequest{
@@ -348,10 +348,10 @@ func main() {
 	fmt.Printf("Topic: %s\n", topic)
 
 	// Check for API key
-	apiKey := os.Getenv("GROQ_API_KEY")
+	apiKey := os.Getenv("DEMETERICS_API_KEY")
 	if apiKey == "" {
-		fmt.Println("\n❌ Error: GROQ_API_KEY environment variable not set")
-		fmt.Println("Set it with: export GROQ_API_KEY='your-api-key-here'")
+		fmt.Println("\n❌ Error: DEMETERICS_API_KEY environment variable not set")
+		fmt.Println("Set it with: export DEMETERICS_API_KEY='your-api-key-here'")
 		os.Exit(1)
 	}
 

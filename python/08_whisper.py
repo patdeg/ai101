@@ -17,7 +17,7 @@ WHAT YOU'LL LEARN:
 
 PREREQUISITES:
     - Python 3.6 or higher
-    - GROQ_API_KEY environment variable set
+    - DEMETERICS_API_KEY environment variable set
     - Audio file gettysburg.mp3 in the repository root
 
 EXPECTED OUTPUT:
@@ -40,11 +40,11 @@ import time         # For measuring latency
 # ==============================================================================
 
 # Retrieve API key from environment variable
-api_key = os.environ.get('GROQ_API_KEY')
+api_key = os.environ.get('DEMETERICS_API_KEY')
 
 # Exit if API key is missing
 if not api_key:
-    print("Error: GROQ_API_KEY not set")
+    print("Error: DEMETERICS_API_KEY not set")
     exit(1)
 
 # ==============================================================================
@@ -118,8 +118,8 @@ body = b'\r\n'.join(body_parts)
 # Step 4: Make the API request
 # ==============================================================================
 
-# Create secure connection to Groq API
-conn = http.client.HTTPSConnection("api.groq.com")
+# Create secure connection to Demeterics Groq proxy
+conn = http.client.HTTPSConnection("api.demeterics.com")
 
 # Set up required headers for multipart form data
 headers = {
@@ -131,7 +131,7 @@ headers = {
 start_time = time.time()
 
 # Make the API request to transcribe audio
-conn.request("POST", "/openai/v1/audio/transcriptions", body, headers)
+conn.request("POST", "/groq/v1/audio/transcriptions", body, headers)
 
 # Get the response from the server
 response = conn.getresponse()
@@ -219,12 +219,12 @@ print(json.dumps(response_data, indent=2))
 #       body = create_multipart_body(audio_data, boundary)
 #
 #       # Make API request
-#       conn = http.client.HTTPSConnection("api.groq.com")
+#       conn = http.client.HTTPSConnection("api.demeterics.com")
 #       headers = {
 #           'Authorization': f'Bearer {api_key}',
 #           'Content-Type': f'multipart/form-data; boundary={boundary}'
 #       }
-#       conn.request("POST", "/openai/v1/audio/transcriptions", body, headers)
+#       conn.request("POST", "/groq/v1/audio/transcriptions", body, headers)
 #
 #       # Get response
 #       response = conn.getresponse()

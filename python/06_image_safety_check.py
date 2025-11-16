@@ -18,7 +18,7 @@ Usage:
     python 06_image_safety_check.py
 
 Environment:
-    GROQ_API_KEY - Your Groq API key
+    DEMETERICS_API_KEY - Your Demeterics Managed LLM Key
 """
 
 import os
@@ -38,9 +38,9 @@ def check_image_safety(image_path):
         dict: API response with safety assessment
     """
     # Step 1: Check API key
-    api_key = os.getenv('GROQ_API_KEY')
+    api_key = os.getenv('DEMETERICS_API_KEY')
     if not api_key:
-        raise ValueError("GROQ_API_KEY environment variable not set")
+        raise ValueError("DEMETERICS_API_KEY environment variable not set")
 
     # Step 2: Load and encode the image
     print(f"Loading image: {image_path}")
@@ -87,7 +87,7 @@ def check_image_safety(image_path):
     # Step 4: Make the API request
     print("\nChecking image safety with LlamaGuard...")
 
-    conn = http.client.HTTPSConnection("api.groq.com")
+    conn = http.client.HTTPSConnection("api.demeterics.com")
 
     headers = {
         'Authorization': f'Bearer {api_key}',
@@ -98,7 +98,7 @@ def check_image_safety(image_path):
     json_data = json.dumps(request_data)
 
     # Send request
-    conn.request("POST", "/openai/v1/chat/completions", json_data, headers)
+    conn.request("POST", "/groq/v1/chat/completions", json_data, headers)
 
     # Get response
     response = conn.getresponse()

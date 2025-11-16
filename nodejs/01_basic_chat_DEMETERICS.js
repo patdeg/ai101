@@ -57,11 +57,11 @@ const data = JSON.stringify({
 });
 
 // Step 3: Configure the Demeterics proxy request
-// Note: Different hostname, same API path as Groq
+// Note: Same payload as Groq, just different hostname
 const options = {
-  hostname: 'demeterics.uc.r.appspot.com',     // Demeterics proxy server
+  hostname: 'api.demeterics.com',              // Demeterics proxy server
   port: 443,
-  path: '/api/groq/v1/chat/completions',       // Groq endpoint via proxy
+  path: '/groq/v1/chat/completions',           // Groq endpoint via proxy
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
@@ -69,10 +69,6 @@ const options = {
     'Content-Length': Buffer.byteLength(data)
   }
 };
-
-// Optional: If you have both Demeterics AND Groq keys, you can use combined format:
-// 'Authorization': `Bearer ${process.env.DEMETERICS_API_KEY};${process.env.GROQ_API_KEY}`
-// This enables advanced features like fallback and provider switching
 
 // Step 4: Create and send the request
 const req = https.request(options, (res) => {

@@ -24,7 +24,7 @@ Examples:
     python 03_prompt_template.py "Technology" "Artificial Intelligence"
 
 Environment:
-    GROQ_API_KEY - Your Groq API key (required)
+    DEMETERICS_API_KEY - Your Demeterics Managed LLM Key (required)
 """
 
 import os
@@ -37,8 +37,8 @@ import http.client
 from typing import Dict, Any, Tuple, Optional
 
 # Configuration
-API_URL = "api.groq.com"
-API_PATH = "/openai/v1/chat/completions"
+API_URL = "api.demeterics.com"
+API_PATH = "/groq/v1/chat/completions"
 MODEL = "meta-llama/llama-4-scout-17b-16e-instruct"
 
 # Template configuration
@@ -256,7 +256,7 @@ class TemplateProcessor:
         return text.strip()
 
 def make_api_request(system_prompt: str, user_prompt: str, api_key: str) -> Dict[str, Any]:
-    """Make request to Groq API.
+    """Make request to Demeterics Groq proxy.
 
     Args:
         system_prompt: System message content
@@ -366,10 +366,10 @@ def main():
     print(f"Topic: {topic}")
 
     # Check for API key
-    api_key = os.getenv('GROQ_API_KEY')
+    api_key = os.getenv('DEMETERICS_API_KEY')
     if not api_key:
-        print("\n❌ Error: GROQ_API_KEY environment variable not set")
-        print("Set it with: export GROQ_API_KEY='your-api-key-here'")
+        print("\n❌ Error: DEMETERICS_API_KEY environment variable not set")
+        print("Set it with: export DEMETERICS_API_KEY='your-api-key-here'")
         sys.exit(1)
 
     # Create template if it doesn't exist

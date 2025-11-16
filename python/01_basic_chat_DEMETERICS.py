@@ -82,7 +82,7 @@ payload_json = json.dumps(payload)
 # ==============================================================================
 
 # Demeterics proxy endpoint (routes to Groq)
-conn = http.client.HTTPSConnection("demeterics.uc.r.appspot.com")
+conn = http.client.HTTPSConnection("api.demeterics.com")
 
 # ==============================================================================
 # Step 4: Send request through Demeterics
@@ -95,7 +95,7 @@ headers = {
 
 try:
     # Use Groq endpoint path, but through Demeterics proxy
-    conn.request("POST", "/api/groq/v1/chat/completions", payload_json, headers)
+    conn.request("POST", "/groq/v1/chat/completions", payload_json, headers)
 
     # Get the response
     response = conn.getresponse()

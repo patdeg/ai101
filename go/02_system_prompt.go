@@ -111,12 +111,12 @@ type Usage struct {
 func main() {
 	// Step 1: Get API key from environment variable
 	// Same as in basic_chat - we need authentication
-	apiKey := os.Getenv("GROQ_API_KEY")
+	apiKey := os.Getenv("DEMETERICS_API_KEY")
 
 	// Verify API key is set
 	if apiKey == "" {
-		fmt.Println("Error: GROQ_API_KEY environment variable not set")
-		fmt.Println("Run: export GROQ_API_KEY='your_key_here'")
+		fmt.Println("Error: DEMETERICS_API_KEY environment variable not set")
+		fmt.Println("Run: export DEMETERICS_API_KEY='your_key_here'")
 		os.Exit(1)
 	}
 
@@ -160,7 +160,7 @@ func main() {
 	// Build the POST request to send to the API
 	req, err := http.NewRequest(
 		"POST",                                            // HTTP method
-		"https://api.groq.com/openai/v1/chat/completions", // API endpoint (same for all examples)
+		"https://api.demeterics.com/groq/v1/chat/completions", // API endpoint (same for all examples)
 		bytes.NewBuffer(jsonData),                         // Request body containing our 2 messages
 	)
 

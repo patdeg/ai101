@@ -27,10 +27,10 @@ Each example comes in **two flavors** to suit different needs:
 Different providers require different API keys:
 
 ```bash
-# Groq (default for most examples)
-export GROQ_API_KEY="gsk_..."
+# Demeterics (default Groq proxy for most examples)
+export DEMETERICS_API_KEY="dmt_..."
 
-# OpenAI
+# OpenAI (used for TTS example)
 export OPENAI_API_KEY="sk-..."
 
 # Anthropic (Claude)
@@ -38,10 +38,9 @@ export ANTHROPIC_API_KEY="sk-ant-..."
 
 # SambaNova
 export SAMBANOVA_API_KEY="..."
-
-# Demeterics (Universal instrumentation proxy)
-export DEMETERICS_API_KEY="..."
 ```
+
+> `DEMETERICS_API_KEY` is your Managed LLM Key from the Demeterics dashboard. One key unlocks Groq, Gemini, OpenAI, and Anthropic through the proxy with full observability.
 
 ### Option 1: Minimal (Just Works™)
 ```bash
@@ -109,22 +108,21 @@ export DEMETERICS_API_KEY="..."
 
 | Provider | API Endpoint | Key Models | Best For |
 |----------|-------------|------------|----------|
-| **Groq** | `api.groq.com` | Llama 4, Mixtral | Fast inference, cost-effective |
-| **OpenAI** | `api.openai.com` | GPT-5-nano, GPT-4o | Advanced reasoning, function calling |
-| **Anthropic** | `api.anthropic.com` | Claude Haiku 4.5, Sonnet, Opus | Long context, nuanced responses |
+| **Demeterics (Default)** | `api.demeterics.com/groq` | Groq's Llama 4 family | Speed + observability |
+| **OpenAI** | `api.openai.com` | GPT-4o, GPT-5 mini | Advanced reasoning, TTS |
+| **Anthropic** | `api.anthropic.com` | Claude Haiku/Sonnet/Opus | Long context, policy-aware |
 | **SambaNova** | `api.sambanova.ai` | Llama 3.1 variants | Open models, enterprise focus |
-| **Demeterics** | `demeterics.uc.r.appspot.com` | All Groq models | Analytics, observability, instrumentation |
 
 ### About Demeterics
 
-Demeterics is a universal observability layer that acts as a reverse proxy to major AI providers. It adds Google Analytics-style instrumentation to every API call, allowing you to:
-- Track token usage and costs across all providers
-- Monitor performance and latency
-- Analyze prompt effectiveness
-- Debug production issues
-- Generate compliance reports
+Demeterics is a universal observability layer that sits in front of Groq, Gemini, OpenAI, and Anthropic. Every request goes to `https://api.demeterics.com/<provider>/v1/...` with your **Managed LLM Key** (`DEMETERICS_API_KEY`). Benefits:
+- Track token usage and costs across providers in one dashboard
+- Monitor performance/latency and compare models
+- Analyze prompt effectiveness with metadata + prompt comments
+- Debug production issues with request/response replay
+- Generate compliance reports with audit-ready exports
 
-The Demeterics examples use the same API format as Groq but route through their proxy for added observability.
+All Groq-focused scripts in this folder now call `https://api.demeterics.com/groq/v1/...`, so you keep Groq's speed with Demeterics observability.
 
 ## 💡 Example Comparison
 
@@ -186,7 +184,7 @@ Cost Breakdown:
 
 ### For Minimal Scripts:
 - `curl` (usually pre-installed)
-- `GROQ_API_KEY` environment variable
+- `DEMETERICS_API_KEY` environment variable
 
 ### For Full Scripts (additional):
 - `jq` for JSON parsing
@@ -211,13 +209,13 @@ choco install jq
 
 ## 🔑 Getting Your API Key
 
-1. Go to [console.groq.com](https://console.groq.com)
-2. Sign up (free!)
-3. Navigate to API Keys
-4. Create a new key
+1. Go to [demeterics.com](https://demeterics.com)
+2. Sign up (100 free credits!)
+3. Open **Managed LLM Keys** in the dashboard
+4. Create a new key (looks like `dmt_...`)
 5. Export it:
    ```bash
-   export GROQ_API_KEY="gsk_your_key_here"
+   export DEMETERICS_API_KEY="dmt_your_key_here"
    ```
 
 ## 📖 Learning Path
@@ -261,8 +259,8 @@ choco install jq
 - Solution: Install `jq` or use the `*_minimal.sh` version
 
 ### "Unauthorized" or 401 error
-- Your `GROQ_API_KEY` is not set or invalid
-- Solution: `export GROQ_API_KEY="gsk_..."`
+- Your `DEMETERICS_API_KEY` is not set or invalid
+- Solution: `export DEMETERICS_API_KEY="dmt_..."`
 
 ### "curl: command not found"
 - Rare, but curl might not be installed
@@ -299,7 +297,7 @@ Each exercise includes progressive challenges, real-world applications, and refl
 
 ## 📚 Additional Resources
 
-- [Groq API Documentation](https://console.groq.com/docs)
+- [Demeterics Docs](https://demeterics.com/docs)
 - [jq Manual](https://jqlang.github.io/jq/manual/)
 - [cURL Documentation](https://curl.se/docs/)
 

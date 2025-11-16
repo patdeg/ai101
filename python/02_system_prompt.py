@@ -16,7 +16,7 @@ WHAT YOU'LL LEARN:
 
 PREREQUISITES:
     - Python 3.6 or higher
-    - GROQ_API_KEY environment variable set
+    - DEMETERICS_API_KEY environment variable set
     - Understanding of basic chat (see 01_basic_chat.py)
 
 EXPECTED OUTPUT:
@@ -37,11 +37,11 @@ import os           # For environment variables
 # ==============================================================================
 
 # Retrieve API key from environment variable
-api_key = os.environ.get('GROQ_API_KEY')
+api_key = os.environ.get('DEMETERICS_API_KEY')
 
 # Exit early if API key is missing
 if not api_key:
-    print("Error: GROQ_API_KEY not set")
+    print("Error: DEMETERICS_API_KEY not set")
     exit(1)
 
 # ==============================================================================
@@ -76,8 +76,8 @@ payload = {
 # Step 3: Establish HTTPS connection to the API
 # ==============================================================================
 
-# Create secure connection to Groq API
-conn = http.client.HTTPSConnection("api.groq.com")
+# Create secure connection to Demeterics Groq proxy
+conn = http.client.HTTPSConnection("api.demeterics.com")
 
 # ==============================================================================
 # Step 4: Prepare authentication headers
@@ -95,7 +95,7 @@ headers = {
 
 # Make the API request with both system and user messages
 # The system message will guide how the AI responds to the user message
-conn.request("POST", "/openai/v1/chat/completions", json.dumps(payload), headers)
+conn.request("POST", "/groq/v1/chat/completions", json.dumps(payload), headers)
 
 # ==============================================================================
 # Step 6: Receive and parse the response

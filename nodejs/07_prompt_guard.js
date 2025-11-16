@@ -19,7 +19,7 @@
  *
  * PREREQUISITES:
  * - Completed all previous examples (01-04)
- * - GROQ_API_KEY environment variable set
+ * - DEMETERICS_API_KEY environment variable set
  * - Understanding of AI security concepts from 04_safety_check.js
  *
  * EXPECTED OUTPUT:
@@ -59,13 +59,13 @@ function checkMessageWithPromptGuard(message, testName, callback) {
 
   // Configure the HTTPS request options
   const options = {
-    hostname: 'api.groq.com',
+    hostname: 'api.demeterics.com',
     port: 443,
-    path: '/openai/v1/chat/completions',
+    path: '/groq/v1/chat/completions',
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+      'Authorization': `Bearer ${process.env.DEMETERICS_API_KEY}`,
       'Content-Length': Buffer.byteLength(data)
     }
   };

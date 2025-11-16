@@ -50,12 +50,12 @@ type TranscriptionResponse struct {
 //
 func main() {
 	// Step 1: Get API key from environment variable
-	apiKey := os.Getenv("GROQ_API_KEY")
+	apiKey := os.Getenv("DEMETERICS_API_KEY")
 
 	// Verify API key exists
 	if apiKey == "" {
-		fmt.Println("Error: GROQ_API_KEY environment variable not set")
-		fmt.Println("Run: export GROQ_API_KEY='your_key_here'")
+		fmt.Println("Error: DEMETERICS_API_KEY environment variable not set")
+		fmt.Println("Run: export DEMETERICS_API_KEY='your_key_here'")
 		os.Exit(1)
 	}
 
@@ -134,7 +134,7 @@ func main() {
 	// Step 4: Create HTTP request
 	req, err := http.NewRequest(
 		"POST",
-		"https://api.groq.com/openai/v1/audio/transcriptions",
+		"https://api.demeterics.com/groq/v1/audio/transcriptions",
 		&requestBody,
 	)
 
@@ -267,7 +267,7 @@ func main() {
 //       // Create request
 //       req, err := http.NewRequest(
 //           "POST",
-//           "https://api.groq.com/openai/v1/audio/transcriptions",
+//           "https://api.demeterics.com/groq/v1/audio/transcriptions",
 //           &body,
 //       )
 //       if err != nil {

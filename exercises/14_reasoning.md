@@ -322,8 +322,8 @@ ask_question() {
   local question="$1"
 
   # Optimal ordering: system -> resume -> question
-  curl -s -X POST "https://api.groq.com/openai/v1/chat/completions" \
-    -H "Authorization: Bearer $GROQ_API_KEY" \
+  curl -s -X POST "https://api.demeterics.com/groq/v1/chat/completions" \
+    -H "Authorization: Bearer $DEMETERICS_API_KEY" \
     -H "Content-Type: application/json" \
     -d @- <<EOF | jq -r '.choices[0].message.content'
 {

@@ -13,11 +13,10 @@
 
 | Provider | Example File | API Endpoint | Best For |
 |----------|-------------|--------------|----------|
-| **Groq** | `01_basic_chat.py` | `api.groq.com` | Fast inference, cost-effective |
+| **Demeterics (Default Groq proxy)** | `01_basic_chat.py` | `api.demeterics.com/groq` | Fast inference + observability |
 | **OpenAI** | `01_basic_chat_OPENAI.py` | `api.openai.com` | Advanced reasoning, GPT models |
 | **Anthropic** | `01_basic_chat_ANTHROPIC.py` | `api.anthropic.com` | Claude models, nuanced responses |
 | **SambaNova** | `01_basic_chat_SAMBA.py` | `api.sambanova.ai` | Open models, enterprise focus |
-| **Demeterics** | `01_basic_chat_DEMETERICS.py` | `demeterics.uc.r.appspot.com` | Analytics, observability proxy |
 
 ## Prerequisites
 
@@ -28,10 +27,10 @@ python3 --version  # Should be 3.6 or higher
 
 **2. Set API keys (based on provider):**
 ```bash
-# Groq (default for most examples)
-export GROQ_API_KEY="gsk_..."
+# Demeterics (default Groq proxy)
+export DEMETERICS_API_KEY="dmt_..."
 
-# OpenAI
+# OpenAI (TTS + optional examples)
 export OPENAI_API_KEY="sk-..."
 
 # Anthropic (Claude)
@@ -39,22 +38,20 @@ export ANTHROPIC_API_KEY="sk-ant-..."
 
 # SambaNova
 export SAMBANOVA_API_KEY="..."
-
-# Demeterics (observability proxy)
-export DEMETERICS_API_KEY="..."
 ```
 
 **3. Verify setup:**
 ```bash
-echo $GROQ_API_KEY
+echo $DEMETERICS_API_KEY
 python3 -c "import http.client, json, os, base64; print('All modules OK')"
 ```
+> `DEMETERICS_API_KEY` is your Managed LLM Key from the Demeterics dashboard. It unlocks the proxy endpoints for Groq, Gemini, OpenAI, and Anthropic with built-in observability.
 
 ## Running the Examples
 
 ```bash
 # Basic chat with different providers
-python3 01_basic_chat.py              # Groq (default)
+python3 01_basic_chat.py              # Demeterics Groq proxy (default)
 python3 01_basic_chat_OPENAI.py       # OpenAI
 python3 01_basic_chat_ANTHROPIC.py    # Anthropic (Claude)
 python3 01_basic_chat_SAMBA.py        # SambaNova
@@ -607,7 +604,7 @@ if os.path.exists('file.txt'):
 ```python
 def call_groq_api(model, messages, **kwargs):
     """
-    Call Groq API with any model and messages.
+    Call Demeterics Groq proxy with any model and messages.
 
     Args:
         model (str): Model ID
@@ -627,13 +624,13 @@ def call_groq_api(model, messages, **kwargs):
         **kwargs
     }
 
-    conn = http.client.HTTPSConnection("api.groq.com")
+    conn = http.client.HTTPSConnection("api.demeterics.com")
     headers = {
         'Content-Type': 'application/json',
-        'Authorization': f'Bearer {os.environ["GROQ_API_KEY"]}'
+        'Authorization': f'Bearer {os.environ["DEMETERICS_API_KEY"]}'
     }
 
-    conn.request("POST", "/openai/v1/chat/completions",
+    conn.request("POST", "/groq/v1/chat/completions",
                  json.dumps(payload), headers)
     response = conn.getresponse()
     data = json.loads(response.read().decode('utf-8'))
@@ -670,13 +667,13 @@ def chat(messages):
         "temperature": 0.7
     })
 
-    conn = http.client.HTTPSConnection("api.groq.com")
+    conn = http.client.HTTPSConnection("api.demeterics.com")
     headers = {
         'Content-Type': 'application/json',
-        'Authorization': f'Bearer {os.environ["GROQ_API_KEY"]}'
+        'Authorization': f'Bearer {os.environ["DEMETERICS_API_KEY"]}'
     }
 
-    conn.request("POST", "/openai/v1/chat/completions", payload, headers)
+    conn.request("POST", "/groq/v1/chat/completions", payload, headers)
     response = json.loads(conn.getresponse().read().decode('utf-8'))
     conn.close()
 

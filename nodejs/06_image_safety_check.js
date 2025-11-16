@@ -18,7 +18,7 @@
  *     node 06_image_safety_check.js
  *
  * Environment:
- *     GROQ_API_KEY - Your Groq API key
+ *     DEMETERICS_API_KEY - Your Demeterics Managed LLM Key
  */
 
 const https = require('https');
@@ -32,9 +32,9 @@ const path = require('path');
  */
 async function checkImageSafety(imagePath) {
     // Step 1: Check API key
-    const apiKey = process.env.GROQ_API_KEY;
+    const apiKey = process.env.DEMETERICS_API_KEY;
     if (!apiKey) {
-        throw new Error('GROQ_API_KEY environment variable not set');
+        throw new Error('DEMETERICS_API_KEY environment variable not set');
     }
 
     // Step 2: Load and encode the image
@@ -84,9 +84,9 @@ async function checkImageSafety(imagePath) {
 
     return new Promise((resolve, reject) => {
         const options = {
-            hostname: 'api.groq.com',
+            hostname: 'api.demeterics.com',
             port: 443,
-            path: '/openai/v1/chat/completions',
+            path: '/groq/v1/chat/completions',
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${apiKey}`,

@@ -84,7 +84,7 @@ Expected output:
 ```javascript
 // Step 1: Get API key from environment variable
 // The API key is sensitive, so we use environment variables
-const apiKey = process.env.GROQ_API_KEY;
+const apiKey = process.env.DEMETERICS_API_KEY;
 
 // Step 2: Create the request payload
 // This defines what we're sending to the API
@@ -164,8 +164,8 @@ const data = JSON.stringify({
 
 **Endpoints:**
 ```
-POST https://api.groq.com/openai/v1/chat/completions (chat, vision, safety, prompt guard, tool use, reasoning, code execution)
-POST https://api.groq.com/openai/v1/audio/transcriptions (whisper)
+POST https://api.demeterics.com/groq/v1/chat/completions (chat, vision, safety, prompt guard, tool use, reasoning, code execution)
+POST https://api.demeterics.com/groq/v1/audio/transcriptions (whisper)
 POST https://api.tavily.com/search (web search - examples 08, 11)
 POST https://api.tavily.com/extract (content extraction - example 09)
 POST https://api.openai.com/v1/audio/speech (text-to-speech - example 14)
@@ -173,7 +173,7 @@ POST https://api.openai.com/v1/audio/speech (text-to-speech - example 14)
 
 **Authentication:**
 ```
-Groq API:   Authorization: Bearer $GROQ_API_KEY
+Demeterics Groq proxy:   Authorization: Bearer $DEMETERICS_API_KEY
 Tavily API: Authorization: Bearer $TAVILY_API_KEY
 OpenAI API: Authorization: Bearer $OPENAI_API_KEY
 ```
@@ -337,12 +337,13 @@ Before committing changes to examples:
 
 All examples expect:
 ```bash
-export GROQ_API_KEY="gsk_your_api_key_here"
+export DEMETERICS_API_KEY="dmt_your_api_key_here"
 ```
+This is your **Demeterics Managed LLM Key**. One key authenticates through the Demeterics proxy and routes calls to Groq, Gemini, OpenAI, and Anthropic with full observability.
 
 Arduino examples use constants instead:
 ```cpp
-const char* GROQ_API_KEY = "your_key_here";
+const char* DEMETERICS_API_KEY = "your_key_here";
 ```
 
 ## Response Format Examples
@@ -414,11 +415,12 @@ or
 
 ## Resources
 
-- **Groq Console:** https://console.groq.com
-- **API Documentation:** https://console.groq.com/docs
-- **Model Information:** https://console.groq.com/docs/models
-- **Vision API Guide:** https://console.groq.com/docs/vision
-- **Tool Use Guide:** https://console.groq.com/docs/tool-use
+- **Demeterics Docs:** https://demeterics.com/docs
+- **Demeterics Prompt Guide:** https://demeterics.com/docs/prompt
+- **Demeterics AI 101 mirror:** https://demeterics.com/docs/ai101
+- **Groq Model Catalog:** https://console.groq.com/docs/models
+- **Groq Vision Guide:** https://console.groq.com/docs/vision
+- **Groq Tool Use Guide:** https://console.groq.com/docs/tool-use
 - **Tavily API:** https://tavily.com
 - **Tavily Documentation:** https://docs.tavily.com
 

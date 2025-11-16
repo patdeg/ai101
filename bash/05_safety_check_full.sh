@@ -15,7 +15,7 @@
 #   - How to build a safety pipeline for your app
 #
 # Prerequisites:
-#   - GROQ_API_KEY environment variable must be set
+#   - DEMETERICS_API_KEY environment variable must be set
 #   - Understanding of basic API calls (Example 1)
 #
 # Expected output:
@@ -28,7 +28,7 @@
 ################################################################################
 
 # Store the API endpoint URL
-API_URL="https://api.groq.com/openai/v1/chat/completions"
+API_URL="https://api.demeterics.com/groq/v1/chat/completions"
 
 # STEP 1: Define TWO messages - one SAFE and one UNSAFE
 # We'll check both to demonstrate how LlamaGuard works
@@ -50,7 +50,7 @@ echo ""
 # STEP 2: Send the SAFE message to LlamaGuard for safety analysis
 RESPONSE_SAFE=$(curl -s "$API_URL" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $GROQ_API_KEY" \
+  -H "Authorization: Bearer $DEMETERICS_API_KEY" \
   -d '{
     "model": "meta-llama/llama-guard-4-12b",
     "messages": [
@@ -95,7 +95,7 @@ echo ""
 # STEP 4: Send the UNSAFE message to LlamaGuard for safety analysis
 RESPONSE_UNSAFE=$(curl -s "$API_URL" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $GROQ_API_KEY" \
+  -H "Authorization: Bearer $DEMETERICS_API_KEY" \
   -d '{
     "model": "meta-llama/llama-guard-4-12b",
     "messages": [

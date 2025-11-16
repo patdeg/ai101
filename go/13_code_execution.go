@@ -12,7 +12,7 @@ What you'll learn:
   - Retrieving executed code and outputs (when provided)
 
 Prerequisites:
-  - GROQ_API_KEY set
+  - DEMETERICS_API_KEY set
 
 Expected output:
   - Final answer content
@@ -61,10 +61,10 @@ type Resp struct {
 }
 
 func main() {
-    apiKey := os.Getenv("GROQ_API_KEY")
+    apiKey := os.Getenv("DEMETERICS_API_KEY")
     if apiKey == "" {
-        fmt.Fprintln(os.Stderr, "Error: GROQ_API_KEY not set")
-        fmt.Fprintln(os.Stderr, "Run: export GROQ_API_KEY=\"gsk_your_api_key_here\"")
+        fmt.Fprintln(os.Stderr, "Error: DEMETERICS_API_KEY not set")
+        fmt.Fprintln(os.Stderr, "Run: export DEMETERICS_API_KEY=\"dmt_your_api_key_here\"")
         os.Exit(1)
     }
 
@@ -88,7 +88,7 @@ func main() {
         os.Exit(1)
     }
 
-    req, err := http.NewRequest("POST", "https://api.groq.com/openai/v1/chat/completions", bytes.NewBuffer(b))
+    req, err := http.NewRequest("POST", "https://api.demeterics.com/groq/v1/chat/completions", bytes.NewBuffer(b))
     if err != nil {
         fmt.Fprintf(os.Stderr, "request error: %v\n", err)
         os.Exit(1)

@@ -17,7 +17,7 @@
 #   - How to verify the AI followed your instructions
 #
 # Prerequisites:
-#   - GROQ_API_KEY environment variable must be set
+#   - DEMETERICS_API_KEY environment variable must be set
 #   - jq command installed (see README.md for installation)
 #   - Understanding of Example 1 (basic chat)
 #
@@ -31,14 +31,14 @@
 ################################################################################
 
 # Store the API endpoint URL
-API_URL="https://api.groq.com/openai/v1/chat/completions"
+API_URL="https://api.demeterics.com/groq/v1/chat/completions"
 
 # STEP 1: Make the API call with BOTH system and user messages
 # The system message comes first to set the AI's behavior
 echo "Sending request to AI with system prompt..."
 RESPONSE=$(curl -s "$API_URL" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $GROQ_API_KEY" \
+  -H "Authorization: Bearer $DEMETERICS_API_KEY" \
   -d '{
     "model": "meta-llama/llama-4-scout-17b-16e-instruct",
     "messages": [

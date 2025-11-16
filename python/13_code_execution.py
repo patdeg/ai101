@@ -11,7 +11,7 @@ What you'll learn:
   - Retrieving executed code and outputs (when provided)
 
 Prerequisites:
-  - GROQ_API_KEY set
+  - DEMETERICS_API_KEY set
 
 Expected output:
   - Final answer content
@@ -25,10 +25,10 @@ import json
 import os
 import sys
 
-api_key = os.environ.get('GROQ_API_KEY')
+api_key = os.environ.get('DEMETERICS_API_KEY')
 if not api_key:
-    print('Error: GROQ_API_KEY not set', file=sys.stderr)
-    print('Run: export GROQ_API_KEY="gsk_your_api_key_here"', file=sys.stderr)
+    print('Error: DEMETERICS_API_KEY not set', file=sys.stderr)
+    print('Run: export DEMETERICS_API_KEY="dmt_your_api_key_here"', file=sys.stderr)
     sys.exit(1)
 
 payload = {
@@ -46,14 +46,14 @@ payload = {
 }
 
 try:
-    conn = http.client.HTTPSConnection('api.groq.com')
+    conn = http.client.HTTPSConnection('api.demeterics.com')
     headers = {
         'Authorization': f'Bearer {api_key}',
         'Content-Type': 'application/json'
     }
 
     body = json.dumps(payload)
-    conn.request('POST', '/openai/v1/chat/completions', body, headers)
+    conn.request('POST', '/groq/v1/chat/completions', body, headers)
     res = conn.getresponse()
     data = res.read().decode('utf-8')
     conn.close()

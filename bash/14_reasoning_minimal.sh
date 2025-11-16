@@ -22,18 +22,18 @@
 ################################################################################
 
 # Check for API key
-if [ -z "$GROQ_API_KEY" ]; then
-  echo "Error: GROQ_API_KEY not set" >&2
+if [ -z "$DEMETERICS_API_KEY" ]; then
+  echo "Error: DEMETERICS_API_KEY not set" >&2
   exit 1
 fi
 
 # API endpoint
-API_URL="https://api.groq.com/openai/v1/chat/completions"
+API_URL="https://api.demeterics.com/groq/v1/chat/completions"
 
 # Example query requiring reasoning
 curl -s -X POST "$API_URL" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $GROQ_API_KEY" \
+  -H "Authorization: Bearer $DEMETERICS_API_KEY" \
   -d @- <<'EOF'
 {
   "model": "openai/gpt-oss-20b",

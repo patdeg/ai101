@@ -52,7 +52,7 @@ Each example has its own exercise file with challenges ranging from basic parame
 ## Prerequisites
 
 - Complete the basic examples in your language of choice ([bash/](../bash/), [nodejs/](../nodejs/), [python/](../python/), [go/](../go/))
-- Have your `GROQ_API_KEY` environment variable set
+- Have your `DEMETERICS_API_KEY` environment variable set
 - Basic understanding of JSON and API requests
 
 ## Educational Philosophy

@@ -5,9 +5,9 @@
 # Base64 encode an image
 IMAGE_BASE64=$(base64 -w 0 image.jpg 2>/dev/null || base64 -i image.jpg)
 
-curl -s https://api.groq.com/openai/v1/chat/completions \
+curl -s https://api.demeterics.com/groq/v1/chat/completions \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $GROQ_API_KEY" \
+  -H "Authorization: Bearer $DEMETERICS_API_KEY" \
   -d @- <<EOF
 {
   "model": "meta-llama/llama-guard-4-12b",

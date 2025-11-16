@@ -2,7 +2,8 @@
  * 01_basic_chat.ino - Basic Chat Example for XIAO ESP32-S3 Sense
  *
  * WHAT THIS EXAMPLE DEMONSTRATES:
- * This Arduino sketch shows you how to make a basic chat request to Groq's AI API
+ * This Arduino sketch shows you how to make a basic chat request to Groq's AI models
+ * through the Demeterics observability proxy
  * using the XIAO ESP32-S3 Sense board with WiFi. It's the simplest possible
  * example - just send a question and get a response back.
  *
@@ -22,7 +23,7 @@
  *
  * HOW TO USE:
  * 1. Update WIFI_SSID and WIFI_PASSWORD with your WiFi credentials
- * 2. Update GROQ_API_KEY with your Groq API key from https://console.groq.com
+ * 2. Update DEMETERICS_API_KEY with your Demeterics Managed LLM Key from https://demeterics.com
  * 3. Upload to your ESP32 board
  * 4. Open Serial Monitor at 115200 baud to see output
  *
@@ -52,25 +53,25 @@
 // ============================================================================
 const char* WIFI_SSID = "YOUR_WIFI_SSID";         // Replace with your WiFi network name
 const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD"; // Replace with your WiFi password
-const char* GROQ_API_KEY = "YOUR_GROQ_API_KEY";   // Replace with your Groq API key
+const char* DEMETERICS_API_KEY = "YOUR_DEMETERICS_API_KEY";   // Replace with your Demeterics Managed LLM Key
 
 // API endpoint configuration
-const char* GROQ_HOST = "api.groq.com";
+const char* DEMETERICS_HOST = "api.demeterics.com";
 const int HTTPS_PORT = 443;
-const char* API_PATH = "/openai/v1/chat/completions";
+const char* API_PATH = "/groq/v1/chat/completions";
 
 // ============================================================================
 // HELPER FUNCTIONS
 // ============================================================================
 
 // ----------------------------------------------------------------------------
-// checkGroqConnection() - Diagnose network connectivity to Groq API
+// checkGroqConnection() - Diagnose network connectivity to Demeterics Groq proxy
 // ----------------------------------------------------------------------------
 // This function performs a series of diagnostic tests to verify we can reach
-// the Groq API servers. It's useful for troubleshooting connection problems.
+// the Demeterics Groq proxy servers. It's useful for troubleshooting connection problems.
 //
 // WHAT IT TESTS:
-// 1. DNS resolution - Can we convert "api.groq.com" to an IP address?
+// 1. DNS resolution - Can we convert "api.demeterics.com" to an IP address?
 // 2. TLS connection - Can we establish an encrypted HTTPS connection?
 // 3. HTTP layer - Can we send a simple request and get a response?
 //
@@ -89,10 +90,10 @@ bool checkGroqConnection() {
   // This is called DNS resolution (Domain Name System)
   IPAddress ip;
   Serial.print("Testing DNS resolution for ");
-  Serial.print(GROQ_HOST);
+  Serial.print(DEMETERICS_HOST);
   Serial.print("... ");
 
-  if (!WiFi.hostByName(GROQ_HOST, ip)) {
+  if (!WiFi.hostByName(DEMETERICS_HOST, ip)) {
     Serial.println("FAILED");
     Serial.println("ERROR: DNS lookup failed. Check your internet connection.");
     return false;
@@ -111,10 +112,10 @@ bool checkGroqConnection() {
   testClient.setHandshakeTimeout(30); // Wait up to 30 seconds for TLS handshake
 
   Serial.print("Testing TLS connection to ");
-  Serial.print(GROQ_HOST);
+  Serial.print(DEMETERICS_HOST);
   Serial.print(":443... ");
 
-  if (!testClient.connect(GROQ_HOST, HTTPS_PORT)) {
+  if (!testClient.connect(DEMETERICS_HOST, HTTPS_PORT)) {
     Serial.println("FAILED");
     Serial.println("ERROR: Cannot establish TLS connection.");
     Serial.println("Possible causes:");
@@ -134,7 +135,7 @@ bool checkGroqConnection() {
   Serial.print("Testing HTTP layer... ");
 
   testClient.print(String("HEAD / HTTP/1.1\r\n") +
-                   "Host: " + GROQ_HOST + "\r\n" +
+                   "Host: " + DEMETERICS_HOST + "\r\n" +
                    "Connection: close\r\n\r\n");
 
   // Wait for response (up to 5 seconds)
@@ -157,7 +158,7 @@ bool checkGroqConnection() {
 }
 
 // ----------------------------------------------------------------------------
-// groqRequest() - Send a chat request to Groq API and return the response
+// groqRequest() - Send a chat request to Demeterics Groq proxy and return the response
 // ----------------------------------------------------------------------------
 // This function handles the entire API request/response cycle:
 // 1. Establish HTTPS connection
@@ -177,9 +178,9 @@ String groqRequest(const char* prompt) {
   client.setHandshakeTimeout(30); // 30 second timeout for TLS handshake
   WiFi.setSleep(false);           // Disable WiFi power saving (prevents connection stalls)
 
-  // Step 1: Connect to Groq API server
-  Serial.println("Connecting to Groq API...");
-  if (!client.connect(GROQ_HOST, HTTPS_PORT)) {
+  // Step 1: Connect to Demeterics Groq proxy server
+  Serial.println("Connecting to Demeterics Groq proxy...");
+  if (!client.connect(DEMETERICS_HOST, HTTPS_PORT)) {
     Serial.println("ERROR: Connection failed!");
     return "";
   }
@@ -226,9 +227,9 @@ String groqRequest(const char* prompt) {
 
   String httpRequest =
     String("POST ") + API_PATH + " HTTP/1.1\r\n" +
-    "Host: " + GROQ_HOST + "\r\n" +
+    "Host: " + DEMETERICS_HOST + "\r\n" +
     "Content-Type: application/json\r\n" +
-    "Authorization: Bearer " + GROQ_API_KEY + "\r\n" +
+    "Authorization: Bearer " + DEMETERICS_API_KEY + "\r\n" +
     "Content-Length: " + requestBody.length() + "\r\n" +
     "Connection: close\r\n" +
     "\r\n" +  // Blank line separates headers from body
@@ -272,7 +273,7 @@ String groqRequest(const char* prompt) {
 
   // Step 7: Extract the AI's message from the response
   // ---------------------------------------------------
-  // Groq API response structure:
+  // Demeterics Groq proxy response structure:
   // {
   //   "choices": [
   //     {
@@ -310,7 +311,7 @@ void setup() {
   Serial.begin(115200);
   delay(1000);  // Small delay to let serial connection stabilize
 
-  Serial.println("\n\n=== Groq API Basic Chat Example ===");
+  Serial.println("\n\n=== Demeterics Groq proxy Basic Chat Example ===");
   Serial.println("XIAO ESP32-S3 Sense\n");
 
   // Step 2: Connect to WiFi
@@ -347,7 +348,7 @@ void setup() {
 
   // Step 3: Run network diagnostics
   // ---------------------------------------------------
-  // Test DNS, TLS, and HTTP connectivity to Groq API
+  // Test DNS, TLS, and HTTP connectivity to Demeterics Groq proxy
   // This helps identify connection problems early
   if (!checkGroqConnection()) {
     Serial.println("\nWARNING: Diagnostics failed, but continuing anyway...");

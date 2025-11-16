@@ -18,7 +18,7 @@ WHAT YOU'LL LEARN:
 
 PREREQUISITES:
     - Python 3.6 or higher
-    - GROQ_API_KEY environment variable set
+    - DEMETERICS_API_KEY environment variable set
     - Understanding of basic chat (see 01_basic_chat.py)
 
 EXPECTED OUTPUT:
@@ -38,11 +38,11 @@ import os           # For environment variables
 # ==============================================================================
 
 # Retrieve API key from environment variable
-api_key = os.environ.get('GROQ_API_KEY')
+api_key = os.environ.get('DEMETERICS_API_KEY')
 
 # Exit if API key is missing
 if not api_key:
-    print("Error: GROQ_API_KEY not set")
+    print("Error: DEMETERICS_API_KEY not set")
     exit(1)
 
 # ==============================================================================
@@ -72,8 +72,8 @@ def check_message_safety(message, test_name):
         "max_tokens": 100  # Safety results are very short
     }
 
-    # Create secure connection to Groq API
-    conn = http.client.HTTPSConnection("api.groq.com")
+    # Create secure connection to Demeterics Groq proxy
+    conn = http.client.HTTPSConnection("api.demeterics.com")
 
     # Set up required headers
     headers = {
@@ -82,7 +82,7 @@ def check_message_safety(message, test_name):
     }
 
     # Make the API request to check message safety
-    conn.request("POST", "/openai/v1/chat/completions", json.dumps(payload), headers)
+    conn.request("POST", "/groq/v1/chat/completions", json.dumps(payload), headers)
 
     # Get the response from the server
     response = conn.getresponse()

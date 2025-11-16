@@ -16,7 +16,7 @@
 #   - Calculating transcription costs and duration
 #
 # Prerequisites:
-#   - GROQ_API_KEY environment variable must be set
+#   - DEMETERICS_API_KEY environment variable must be set
 #   - Audio file gettysburg.mp3 in the repository root
 #
 # Expected output:
@@ -31,7 +31,7 @@
 ################################################################################
 
 # Store the API endpoint URL
-API_URL="https://api.groq.com/openai/v1/audio/transcriptions"
+API_URL="https://api.demeterics.com/groq/v1/audio/transcriptions"
 
 # Path to the audio file
 AUDIO_FILE="../gettysburg.mp3"
@@ -47,7 +47,7 @@ echo ""
 START_TIME=$(date +%s%3N)
 
 RESPONSE=$(curl -s "$API_URL" \
-  -H "Authorization: Bearer $GROQ_API_KEY" \
+  -H "Authorization: Bearer $DEMETERICS_API_KEY" \
   -F "file=@$AUDIO_FILE" \
   -F "model=whisper-large-v3-turbo" \
   -F "response_format=verbose_json")

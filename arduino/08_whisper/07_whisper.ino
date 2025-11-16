@@ -35,7 +35,7 @@
  *   1. Install "esp32" board support (v3.0.0+) in Arduino IDE
  *   2. Install "ESP32_I2S_PDM_Mic" library from Library Manager
  *   3. Copy secrets_template.h to secrets.h
- *   4. Fill in your WiFi credentials and Groq API key
+ *   4. Fill in your WiFi credentials and Demeterics Managed LLM Key
  *   5. Select Board: "XIAO_ESP32S3"
  *   6. Set PSRAM: "OPI PSRAM"
  *   7. Upload and open Serial Monitor at 115200 baud
@@ -63,7 +63,7 @@
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <driver/i2s.h>
-#include "secrets.h"  // Contains WIFI_SSID, WIFI_PASSWORD, GROQ_API_KEY
+#include "secrets.h"  // Contains WIFI_SSID, WIFI_PASSWORD, DEMETERICS_API_KEY
 
 // ============================================================================
 // CONFIGURATION - Pin Definitions for XIAO ESP32-S3 Sense
@@ -366,9 +366,9 @@ void stopRecording() {
 void sendToWhisper() {
   Serial.println("📤 Sending audio to Whisper API...");
 
-  // Connect to Groq API
-  if (!client.connect("api.groq.com", 443)) {
-    Serial.println("ERROR: Connection to api.groq.com failed!");
+  // Connect to Demeterics Groq proxy
+  if (!client.connect("api.demeterics.com", 443)) {
+    Serial.println("ERROR: Connection to api.demeterics.com failed!");
     return;
   }
 
@@ -399,10 +399,10 @@ void sendToWhisper() {
   int contentLength = formStart.length() + totalWavSize + formModel.length() + formEnd.length();
 
   // Send HTTP POST request
-  client.println("POST /openai/v1/audio/transcriptions HTTP/1.1");
-  client.println("Host: api.groq.com");
+  client.println("POST /groq/v1/audio/transcriptions HTTP/1.1");
+  client.println("Host: api.demeterics.com");
   client.print("Authorization: Bearer ");
-  client.println(GROQ_API_KEY);
+  client.println(DEMETERICS_API_KEY);
   client.print("Content-Type: multipart/form-data; boundary=");
   client.println(boundary);
   client.print("Content-Length: ");

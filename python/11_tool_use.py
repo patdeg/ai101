@@ -17,10 +17,10 @@ import os
 import sys
 
 # Check for API keys
-if not os.environ.get('GROQ_API_KEY') or not os.environ.get('TAVILY_API_KEY'):
-    print('Error: Both GROQ_API_KEY and TAVILY_API_KEY must be set', file=sys.stderr)
-    print('Get Groq key: https://console.groq.com', file=sys.stderr)
-    print('Get Tavily key: https://tavily.com', file=sys.stderr)
+if not os.environ.get('DEMETERICS_API_KEY') or not os.environ.get('TAVILY_API_KEY'):
+    print('Error: Both DEMETERICS_API_KEY and TAVILY_API_KEY must be set', file=sys.stderr)
+    print('Get your Demeterics Managed LLM Key: https://demeterics.com', file=sys.stderr)
+    print('Get a Tavily key: https://tavily.com', file=sys.stderr)
     sys.exit(1)
 
 # Tool functions
@@ -79,11 +79,11 @@ def execute_tool(function_name, arguments):
         raise ValueError(f'Unknown function: {function_name}')
 
 def call_groq(messages, tools=None):
-    """Call Groq API"""
-    conn = http.client.HTTPSConnection('api.groq.com')
+    """Call Demeterics Groq proxy"""
+    conn = http.client.HTTPSConnection('api.demeterics.com')
     headers = {
         'Content-Type': 'application/json',
-        'Authorization': f'Bearer {os.environ["GROQ_API_KEY"]}'
+        'Authorization': f'Bearer {os.environ["DEMETERICS_API_KEY"]}'
     }
 
     request_data = {
@@ -97,7 +97,7 @@ def call_groq(messages, tools=None):
 
     body = json.dumps(request_data)
 
-    conn.request('POST', '/openai/v1/chat/completions', body, headers)
+    conn.request('POST', '/groq/v1/chat/completions', body, headers)
     response = conn.getresponse()
     data = response.read().decode('utf-8')
     conn.close()

@@ -13,11 +13,10 @@
 
 | Provider | Example File | API Endpoint | Best For |
 |----------|-------------|--------------|----------|
-| **Groq** | `01_basic_chat.js` | `api.groq.com` | Fast inference, cost-effective |
+| **Demeterics (Default Groq proxy)** | `01_basic_chat.js` | `api.demeterics.com/groq` | Fast inference + observability |
 | **OpenAI** | `01_basic_chat_OPENAI.js` | `api.openai.com` | Advanced reasoning, GPT models |
 | **Anthropic** | `01_basic_chat_ANTHROPIC.js` | `api.anthropic.com` | Claude models, nuanced responses |
 | **SambaNova** | `01_basic_chat_SAMBA.js` | `api.sambanova.ai` | Open models, enterprise focus |
-| **Demeterics** | `01_basic_chat_DEMETERICS.js` | `demeterics.uc.r.appspot.com` | Analytics, observability proxy |
 
 ## Prerequisites
 
@@ -35,10 +34,10 @@ node --version
 
 **2. Set API keys (based on provider):**
 ```bash
-# Groq (default for most examples)
-export GROQ_API_KEY="gsk_..."
+# Demeterics (default Groq proxy)
+export DEMETERICS_API_KEY="dmt_..."
 
-# OpenAI
+# OpenAI (TTS + optional examples)
 export OPENAI_API_KEY="sk-..."
 
 # Anthropic (Claude)
@@ -46,14 +45,13 @@ export ANTHROPIC_API_KEY="sk-ant-..."
 
 # SambaNova
 export SAMBANOVA_API_KEY="..."
-
-# Demeterics (observability proxy)
-export DEMETERICS_API_KEY="..."
 ```
+
+> The `DEMETERICS_API_KEY` is your Managed LLM Key from the Demeterics dashboard. One key unlocks Groq, Gemini, OpenAI, and Anthropic through the proxy with full observability.
 
 **3. Verify setup:**
 ```bash
-echo $GROQ_API_KEY
+echo $DEMETERICS_API_KEY
 node --version  # Should be v14+ or higher
 ```
 
@@ -61,7 +59,7 @@ node --version  # Should be v14+ or higher
 
 ```bash
 # Basic chat with different providers
-node 01_basic_chat.js              # Groq (default)
+node 01_basic_chat.js              # Demeterics Groq proxy (default)
 node 01_basic_chat_OPENAI.js       # OpenAI
 node 01_basic_chat_ANTHROPIC.js    # Anthropic (Claude)
 node 01_basic_chat_SAMBA.js        # SambaNova
@@ -470,11 +468,11 @@ if (error.code === 'ENOENT') {
 
 ```javascript
 // Read environment variable
-const apiKey = process.env.GROQ_API_KEY;
+const apiKey = process.env.DEMETERICS_API_KEY;
 
 // Check if it's set
-if (!process.env.GROQ_API_KEY) {
-  console.error('GROQ_API_KEY not set!');
+if (!process.env.DEMETERICS_API_KEY) {
+  console.error('DEMETERICS_API_KEY not set!');
   process.exit(1);
 }
 
@@ -545,12 +543,12 @@ function callGroqAPI(model, messages, options = {}) {
     });
 
     const requestOptions = {
-      hostname: 'api.groq.com',
-      path: '/openai/v1/chat/completions',
+      hostname: 'api.demeterics.com',
+      path: '/groq/v1/chat/completions',
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+        'Authorization': `Bearer ${process.env.DEMETERICS_API_KEY}`,
         'Content-Length': Buffer.byteLength(data)
       }
     };

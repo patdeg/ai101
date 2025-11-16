@@ -261,8 +261,8 @@ if [ $CONTENT_LENGTH -gt 20000 ]; then
 fi
 
 # 2. Send to Groq for summarization
-SUMMARY_RESPONSE=$(curl -s -X POST "https://api.groq.com/openai/v1/chat/completions" \
-  -H "Authorization: Bearer $GROQ_API_KEY" \
+SUMMARY_RESPONSE=$(curl -s -X POST "https://api.demeterics.com/groq/v1/chat/completions" \
+  -H "Authorization: Bearer $DEMETERICS_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "model": "meta-llama/llama-4-scout-17b-16e-instruct",

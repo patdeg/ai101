@@ -218,11 +218,11 @@ EOF
 
 ## Resources
 
-- **Groq Console:** https://console.groq.com
-- **API Documentation:** https://console.groq.com/docs
-- **Model Information:** https://console.groq.com/docs/models
-- **Vision API Guide:** https://console.groq.com/docs/vision
-- **Tool Use Guide:** https://console.groq.com/docs/tool-use
+- **Demeterics Docs:** https://demeterics.com/docs
+- **Demeterics Prompt Guide:** https://demeterics.com/docs/prompt
+- **Groq Model Information:** https://console.groq.com/docs/models
+- **Groq Vision API Guide:** https://console.groq.com/docs/vision
+- **Groq Tool Use Guide:** https://console.groq.com/docs/tool-use
 - **Tavily API:** https://tavily.com
 - **Tavily Documentation:** https://docs.tavily.com
 - **XIAO ESP32-S3 Sense:** https://www.seeedstudio.com/XIAO-ESP32S3-Sense-p-5639.html

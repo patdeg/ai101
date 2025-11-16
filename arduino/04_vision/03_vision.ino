@@ -35,7 +35,7 @@
  *   1. Make sure camera module is ATTACHED to the board
  *   2. Install "esp32" board support (v3.0.0+) in Arduino IDE
  *   3. Copy secrets_template.h to secrets.h
- *   4. Fill in your WiFi credentials and Groq API key
+ *   4. Fill in your WiFi credentials and Demeterics Managed LLM Key
  *   5. Select Board: "XIAO_ESP32S3"
  *   6. Set PSRAM: "OPI PSRAM"
  *   7. Upload and open Serial Monitor at 115200 baud
@@ -320,7 +320,7 @@ void captureAndAnalyze() {
 void sendToVisionAPI(String base64Image) {
   Serial.println("📤 Sending to Vision API...");
 
-  if (!client.connect("api.groq.com", 443)) {
+  if (!client.connect("api.demeterics.com", 443)) {
     Serial.println("ERROR: Connection failed!");
     return;
   }
@@ -340,10 +340,10 @@ void sendToVisionAPI(String base64Image) {
   payload += "}";
 
   // Send HTTP request
-  client.println("POST /openai/v1/chat/completions HTTP/1.1");
-  client.println("Host: api.groq.com");
+  client.println("POST /groq/v1/chat/completions HTTP/1.1");
+  client.println("Host: api.demeterics.com");
   client.print("Authorization: Bearer ");
-  client.println(GROQ_API_KEY);
+  client.println(DEMETERICS_API_KEY);
   client.println("Content-Type: application/json");
   client.print("Content-Length: ");
   client.println(payload.length());

@@ -23,7 +23,7 @@
 #     ./03_prompt_template_full.sh "Technology" "Artificial Intelligence"
 #
 # Environment:
-#     GROQ_API_KEY - Your Groq API key (required)
+#     DEMETERICS_API_KEY - Your Demeterics Managed LLM Key (required)
 #
 # Dependencies:
 #     - curl: HTTP client for API requests
@@ -39,7 +39,7 @@ set -euo pipefail  # Exit on error, undefined variables, pipe failures
 #------------------------------------------------------------------------------
 
 # API configuration
-readonly API_URL="https://api.groq.com/openai/v1/chat/completions"
+readonly API_URL="https://api.demeterics.com/groq/v1/chat/completions"
 readonly MODEL="meta-llama/llama-4-scout-17b-16e-instruct"
 
 # Template configuration
@@ -97,9 +97,9 @@ check_dependencies() {
 
 # Validate environment
 validate_environment() {
-    if [ -z "${GROQ_API_KEY:-}" ]; then
-        print_color "$RED" "Error: GROQ_API_KEY environment variable not set"
-        print_color "$YELLOW" "Set it with: export GROQ_API_KEY='your-api-key-here'"
+    if [ -z "${DEMETERICS_API_KEY:-}" ]; then
+        print_color "$RED" "Error: DEMETERICS_API_KEY environment variable not set"
+        print_color "$YELLOW" "Set it with: export DEMETERICS_API_KEY='your-api-key-here'"
         exit 1
     fi
 
@@ -195,7 +195,7 @@ EOF
     # Make API request
     local response
     response=$(curl -s -X POST "$API_URL" \
-        -H "Authorization: Bearer $GROQ_API_KEY" \
+        -H "Authorization: Bearer $DEMETERICS_API_KEY" \
         -H "Content-Type: application/json" \
         -d "$request_json")
 

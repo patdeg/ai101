@@ -83,7 +83,7 @@ func main() {
 	}
 
 	// Step 4: Create HTTP request
-	req, err := http.NewRequest("POST", "https://demeterics.uc.r.appspot.com/api/groq/v1/chat/completions", bytes.NewBuffer(jsonData))
+	req, err := http.NewRequest("POST", "https://api.demeterics.com/groq/v1/chat/completions", bytes.NewBuffer(jsonData))
 	if err != nil {
 		fmt.Printf("Error creating request: %v\n", err)
 		os.Exit(1)

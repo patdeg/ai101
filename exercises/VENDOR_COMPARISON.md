@@ -210,7 +210,7 @@ Note: Prices change frequently. Check provider websites for current pricing.
 ### From OpenAI to Others
 
 **To Groq:**
-- Change endpoint to `api.groq.com/openai/v1/chat/completions`
+- Change endpoint to `api.demeterics.com/groq/v1/chat/completions`
 - Update model names (e.g., `meta-llama/llama-4-scout-17b-16e-instruct`)
 - Same request format works
 
@@ -232,15 +232,21 @@ Use the provided examples to test all providers with the same question:
 
 ```bash
 # Set all API keys
-export GROQ_API_KEY="..."
+export DEMETERICS_API_KEY="..."
 export OPENAI_API_KEY="..."
 export ANTHROPIC_API_KEY="..."
 export SAMBANOVA_API_KEY="..."
-export DEMETERICS_API_KEY="..."
 
 # Run comparison
 for provider in "" "_OPENAI" "_ANTHROPIC" "_SAMBA" "_DEMETERICS"; do
-    echo "Testing ${provider:-Groq}..."
+    case "$provider" in
+      "") label="Demeterics Groq";;
+      "_OPENAI") label="OpenAI";;
+      "_ANTHROPIC") label="Anthropic";;
+      "_SAMBA") label="SambaNova";;
+      "_DEMETERICS") label="Demeterics (demo file)";;
+    esac
+    echo "Testing $label..."
     time ./bash/01_basic_chat${provider}_minimal.sh
     echo "---"
 done

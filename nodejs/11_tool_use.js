@@ -14,10 +14,10 @@
 const https = require('https');
 
 // Check for API keys
-if (!process.env.GROQ_API_KEY || !process.env.TAVILY_API_KEY) {
-  console.error('Error: Both GROQ_API_KEY and TAVILY_API_KEY must be set');
-  console.error('Get Groq key: https://console.groq.com');
-  console.error('Get Tavily key: https://tavily.com');
+if (!process.env.DEMETERICS_API_KEY || !process.env.TAVILY_API_KEY) {
+  console.error('Error: Both DEMETERICS_API_KEY and TAVILY_API_KEY must be set');
+  console.error('Get your Demeterics Managed LLM Key: https://demeterics.com');
+  console.error('Get a Tavily key: https://tavily.com');
   process.exit(1);
 }
 
@@ -99,7 +99,7 @@ async function executeTool(functionName, args) {
   }
 }
 
-// Call Groq API
+// Call Demeterics Groq proxy
 async function callGroq(messages, tools) {
   return new Promise((resolve, reject) => {
     const data = JSON.stringify({
@@ -110,12 +110,12 @@ async function callGroq(messages, tools) {
     });
 
     const options = {
-      hostname: 'api.groq.com',
-      path: '/openai/v1/chat/completions',
+      hostname: 'api.demeterics.com',
+      path: '/groq/v1/chat/completions',
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+        'Authorization': `Bearer ${process.env.DEMETERICS_API_KEY}`,
         'Content-Length': Buffer.byteLength(data)
       }
     };

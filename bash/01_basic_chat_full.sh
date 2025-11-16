@@ -17,7 +17,7 @@
 #   - How to extract specific fields from JSON with jq
 #
 # Prerequisites:
-#   - GROQ_API_KEY environment variable must be set
+#   - DEMETERICS_API_KEY environment variable must be set
 #   - curl command installed (usually pre-installed on Linux/Mac)
 #   - jq command installed (see README.md for installation)
 #
@@ -31,7 +31,7 @@
 
 # Store the API endpoint URL in a variable for easy reference
 # This is Groq's chat completions endpoint (OpenAI-compatible)
-API_URL="https://api.groq.com/openai/v1/chat/completions"
+API_URL="https://api.demeterics.com/groq/v1/chat/completions"
 
 # STEP 1: Make the API call and capture the response in a variable
 # We're using curl to send an HTTP POST request
@@ -39,7 +39,7 @@ API_URL="https://api.groq.com/openai/v1/chat/completions"
 echo "Sending request to AI..."
 RESPONSE=$(curl -s "$API_URL" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $GROQ_API_KEY" \
+  -H "Authorization: Bearer $DEMETERICS_API_KEY" \
   -d '{
     "model": "meta-llama/llama-4-scout-17b-16e-instruct",
     "messages": [
@@ -134,9 +134,9 @@ echo ""
 # -H "Content-Type: application/json"
 #   Tells the server we're sending JSON data
 #
-# -H "Authorization: Bearer $GROQ_API_KEY"
+# -H "Authorization: Bearer $DEMETERICS_API_KEY"
 #   Proves we have permission to use the API
-#   $GROQ_API_KEY is read from your environment variable
+#   $DEMETERICS_API_KEY is read from your environment variable
 #
 # -d '{...}'
 #   The data we're sending (the -d flag means "data")

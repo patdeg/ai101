@@ -1,7 +1,7 @@
 #!/bin/sh
 # Basic chat with Demeterics (Groq-compatible) - Ask a question and get an answer
 # Usage: ./01_basic_chat_DEMETERICS_minimal.sh
-curl -s https://demeterics.uc.r.appspot.com/api/groq/v1/chat/completions \
+curl -s https://api.demeterics.com/groq/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $DEMETERICS_API_KEY" \
   -d '{
@@ -20,4 +20,3 @@ curl -s https://demeterics.uc.r.appspot.com/api/groq/v1/chat/completions \
 # messages - Array of conversation messages (role: user/assistant/system)
 # temperature - Randomness (0.0 = focused, 2.0 = creative)
 # max_tokens - Maximum response length
-

@@ -11,7 +11,7 @@
 #   - How to inspect code that was run and its outputs (when provided)
 #
 # Prerequisites:
-#   - GROQ_API_KEY set
+#   - DEMETERICS_API_KEY set
 #   - curl + jq installed
 #
 # Expected output:
@@ -24,13 +24,13 @@ set -euo pipefail
 
 if ! command -v curl >/dev/null; then echo "curl required" 1>&2; exit 1; fi
 if ! command -v jq >/dev/null; then echo "jq required" 1>&2; exit 1; fi
-if [ -z "${GROQ_API_KEY:-}" ]; then
-  echo "Error: GROQ_API_KEY not set" 1>&2
-  echo "Run: export GROQ_API_KEY=\"gsk_your_api_key_here\"" 1>&2
+if [ -z "${DEMETERICS_API_KEY:-}" ]; then
+  echo "Error: DEMETERICS_API_KEY not set" 1>&2
+  echo "Run: export DEMETERICS_API_KEY=\"dmt_your_api_key_here\"" 1>&2
   exit 1
 fi
 
-API_URL="https://api.groq.com/openai/v1/chat/completions"
+API_URL="https://api.demeterics.com/groq/v1/chat/completions"
 
 PAYLOAD=$(cat <<'JSON'
 {
@@ -55,7 +55,7 @@ echo "========================================"
 echo
 
 RESPONSE=$(curl -sS -X POST "$API_URL" \
-  -H "Authorization: Bearer $GROQ_API_KEY" \
+  -H "Authorization: Bearer $DEMETERICS_API_KEY" \
   -H "Content-Type: application/json" \
   -d "$PAYLOAD")
 

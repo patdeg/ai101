@@ -11,7 +11,7 @@
  *  - How to view executed code and outputs (if provided)
  *
  * Prerequisites:
-  *  - GROQ_API_KEY environment variable set
+  *  - DEMETERICS_API_KEY environment variable set
   *  - Node.js v14+
   *
   * Exercises: exercises/12_code_execution.md
@@ -19,9 +19,9 @@
 
 const https = require('https');
 
-if (!process.env.GROQ_API_KEY) {
-  console.error('Error: GROQ_API_KEY not set');
-  console.error('Run: export GROQ_API_KEY="gsk_your_api_key_here"');
+if (!process.env.DEMETERICS_API_KEY) {
+  console.error('Error: DEMETERICS_API_KEY not set');
+  console.error('Run: export DEMETERICS_API_KEY="dmt_your_api_key_here"');
   process.exit(1);
 }
 
@@ -40,11 +40,11 @@ const payload = JSON.stringify({
 
 // Step 2: Configure HTTPS request
 const options = {
-  hostname: 'api.groq.com',
-  path: '/openai/v1/chat/completions',
+  hostname: 'api.demeterics.com',
+  path: '/groq/v1/chat/completions',
   method: 'POST',
   headers: {
-    'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+    'Authorization': `Bearer ${process.env.DEMETERICS_API_KEY}`,
     'Content-Type': 'application/json',
     'Content-Length': Buffer.byteLength(payload)
   }

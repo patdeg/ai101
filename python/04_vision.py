@@ -19,7 +19,7 @@ WHAT YOU'LL LEARN:
 
 PREREQUISITES:
     - Python 3.6 or higher
-    - GROQ_API_KEY environment variable set
+    - DEMETERICS_API_KEY environment variable set
     - A test image file (test_image.jpg)
     - Vision-capable AI model
 
@@ -42,11 +42,11 @@ import base64       # For encoding binary image data to text
 # ==============================================================================
 
 # Retrieve API key from environment variable
-api_key = os.environ.get('GROQ_API_KEY')
+api_key = os.environ.get('DEMETERICS_API_KEY')
 
 # Validate API key exists
 if not api_key:
-    print("Error: GROQ_API_KEY not set")
+    print("Error: DEMETERICS_API_KEY not set")
     exit(1)
 
 # ==============================================================================
@@ -156,8 +156,8 @@ payload = {
 # Step 7: Establish HTTPS connection to the API
 # ==============================================================================
 
-# Create secure connection to Groq API
-conn = http.client.HTTPSConnection("api.groq.com")
+# Create secure connection to Demeterics Groq proxy
+conn = http.client.HTTPSConnection("api.demeterics.com")
 
 # ==============================================================================
 # Step 8: Prepare authentication headers
@@ -174,7 +174,7 @@ headers = {
 # ==============================================================================
 
 # Make the API request (this may take longer due to image processing)
-conn.request("POST", "/openai/v1/chat/completions", json.dumps(payload), headers)
+conn.request("POST", "/groq/v1/chat/completions", json.dumps(payload), headers)
 
 # ==============================================================================
 # Step 10: Receive and parse the response

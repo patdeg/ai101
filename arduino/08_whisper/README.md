@@ -98,9 +98,9 @@ Perfect for:
    ```cpp
    #define WIFI_SSID "YourWiFiName"
    #define WIFI_PASSWORD "YourWiFiPassword"
-   #define GROQ_API_KEY "gsk_your_api_key_here"
+   #define DEMETERICS_API_KEY "dmt_your_api_key_here"
    ```
-3. Get a free Groq API key at [console.groq.com](https://console.groq.com)
+3. Get a free Demeterics Managed LLM Key at [demeterics.com](https://demeterics.com)
 
 ### 5. Upload the Code
 1. Connect XIAO to your computer via USB-C

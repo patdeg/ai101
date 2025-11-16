@@ -17,7 +17,7 @@
 # Prerequisites:
 # - jq (for JSON parsing)
 # - bc (for cost calculations)
-# - GROQ_API_KEY environment variable
+# - DEMETERICS_API_KEY environment variable
 #
 ################################################################################
 
@@ -36,12 +36,12 @@ if ! command -v jq > /dev/null 2>&1; then
 fi
 
 # Check for API key
-if [ -z "$GROQ_API_KEY" ]; then
-  echo -e "${RED}Error: GROQ_API_KEY not set${NC}"
+if [ -z "$DEMETERICS_API_KEY" ]; then
+  echo -e "${RED}Error: DEMETERICS_API_KEY not set${NC}"
   exit 1
 fi
 
-API_URL="https://api.groq.com/openai/v1/chat/completions"
+API_URL="https://api.demeterics.com/groq/v1/chat/completions"
 
 echo -e "${BLUE}========================================${NC}"
 echo -e "${BLUE}Reasoning with openai/gpt-oss-20b${NC}"
@@ -65,7 +65,7 @@ echo ""
 
 RESPONSE_RAW=$(curl -s -X POST "$API_URL" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $GROQ_API_KEY" \
+  -H "Authorization: Bearer $DEMETERICS_API_KEY" \
   -d @- <<EOF
 {
   "model": "openai/gpt-oss-20b",
@@ -110,7 +110,7 @@ echo ""
 
 RESPONSE_PARSED=$(curl -s -X POST "$API_URL" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $GROQ_API_KEY" \
+  -H "Authorization: Bearer $DEMETERICS_API_KEY" \
   -d @- <<EOF
 {
   "model": "openai/gpt-oss-20b",
@@ -150,7 +150,7 @@ echo ""
 
 RESPONSE_HIDDEN=$(curl -s -X POST "$API_URL" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $GROQ_API_KEY" \
+  -H "Authorization: Bearer $DEMETERICS_API_KEY" \
   -d @- <<EOF
 {
   "model": "openai/gpt-oss-20b",

@@ -20,13 +20,13 @@ Note: Uses Node.js built-in modules only (https, process)
 const https = require('https');
 
 // Check for API key
-if (!process.env.GROQ_API_KEY) {
-  console.error('Error: GROQ_API_KEY environment variable not set');
-  console.error('Get your key from: https://console.groq.com');
+if (!process.env.DEMETERICS_API_KEY) {
+  console.error('Error: DEMETERICS_API_KEY environment variable not set');
+  console.error('Get your Managed LLM Key from: https://demeterics.com');
   process.exit(1);
 }
 
-// Function to call Groq API with reasoning model
+// Function to call Demeterics Groq proxy with reasoning model
 function callReasoning(messages, format = null, effort = 'medium') {
   const requestData = {
     model: 'openai/gpt-oss-20b',
@@ -43,13 +43,13 @@ function callReasoning(messages, format = null, effort = 'medium') {
   const data = JSON.stringify(requestData);
 
   const options = {
-    hostname: 'api.groq.com',
+    hostname: 'api.demeterics.com',
     port: 443,
-    path: '/openai/v1/chat/completions',
+    path: '/groq/v1/chat/completions',
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+      'Authorization': `Bearer ${process.env.DEMETERICS_API_KEY}`,
       'Content-Length': Buffer.byteLength(data)
     }
   };

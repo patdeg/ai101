@@ -42,13 +42,13 @@ func callReasoning(messages []interface{}, formatType *string, effort string) (m
 
 	requestBody, _ := json.Marshal(requestData)
 
-	req, err := http.NewRequest("POST", "https://api.groq.com/openai/v1/chat/completions", bytes.NewBuffer(requestBody))
+	req, err := http.NewRequest("POST", "https://api.demeterics.com/groq/v1/chat/completions", bytes.NewBuffer(requestBody))
 	if err != nil {
 		return nil, err
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", os.Getenv("GROQ_API_KEY")))
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", os.Getenv("DEMETERICS_API_KEY")))
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -66,9 +66,9 @@ func callReasoning(messages []interface{}, formatType *string, effort string) (m
 
 func main() {
 	// Check for API key
-	if os.Getenv("GROQ_API_KEY") == "" {
-		fmt.Fprintln(os.Stderr, "Error: GROQ_API_KEY not set")
-		fmt.Fprintln(os.Stderr, "Get your key from: https://console.groq.com")
+	if os.Getenv("DEMETERICS_API_KEY") == "" {
+		fmt.Fprintln(os.Stderr, "Error: DEMETERICS_API_KEY not set")
+		fmt.Fprintln(os.Stderr, "Get your Managed LLM Key from: https://demeterics.com")
 		os.Exit(1)
 	}
 

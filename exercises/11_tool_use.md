@@ -23,7 +23,7 @@ This creates AI "agents" that can interact with the real world through APIs, dat
 
 You need both API keys:
 ```bash
-export GROQ_API_KEY='gsk-your-key'
+export DEMETERICS_API_KEY='dmt-your-key'
 export TAVILY_API_KEY='tvly-your-key'
 ```
 
@@ -497,6 +497,6 @@ Congratulations! You've completed all 10 core exercises. You now know how to:
 **See also:**
 - [Exercise 8: Tavily Search](08_tavily_search.md) - Web search tool
 - [Exercise 9: Tavily Extract](09_tavily_extract.md) - Content extraction tool
-- [Exercise 1: Basic Chat](01_basic_chat.md) - Groq API fundamentals
+- [Exercise 1: Basic Chat](01_basic_chat.md) - Demeterics Groq proxy fundamentals
 
 [← Previous: Tavily Extract](09_tavily_extract.md) | [Back to Exercises](README.md) | [Next: Web Search (Groq) →](11_web_search.md)

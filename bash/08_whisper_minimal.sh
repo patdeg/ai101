@@ -2,8 +2,8 @@
 # Transcribe audio to text with Whisper
 # Usage: ./07_whisper_minimal.sh
 
-curl -s https://api.groq.com/openai/v1/audio/transcriptions \
-  -H "Authorization: Bearer $GROQ_API_KEY" \
+curl -s https://api.demeterics.com/groq/v1/audio/transcriptions \
+  -H "Authorization: Bearer $DEMETERICS_API_KEY" \
   -F "file=@../gettysburg.mp3" \
   -F "model=whisper-large-v3-turbo" \
   -F "response_format=verbose_json"

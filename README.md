@@ -96,40 +96,36 @@ Each language folder contains the same 15 examples implemented in that language 
 
 ### Primary Provider API Keys
 
-Example 01 (Basic Chat) now supports multiple AI providers. Choose one or more:
+Example 01 (Basic Chat) supports multiple AI providers, but **everything in this repo defaults to the Demeterics proxy**. One Managed LLM Key unlocks Groq, OpenAI, Gemini, and Anthropic with full observability.
 
-**Groq (Default - Used in examples 2-15):**
-1. Go to https://console.groq.com
-2. Sign up for a free account
-3. Navigate to API Keys
-4. Create a new API key
-5. Save as `GROQ_API_KEY`
+**Demeterics Managed LLM Key (Default - powers Groq examples 2-15):**
+1. Go to https://demeterics.com
+2. Sign up and open the dashboard
+3. Click **Managed LLM Keys** → **Create Key**
+4. Copy the key (looks like `dmt_xxx...`)
+5. Save/export as `DEMETERICS_API_KEY`
+6. View analytics and traces at https://demeterics.com/dashboard
 
-**OpenAI:**
+**OpenAI (used directly for text-to-speech and optional variants):**
 1. Go to https://platform.openai.com
 2. Sign up for an account
 3. Create a new API key
 4. Save as `OPENAI_API_KEY`
 
-**Anthropic (Claude):**
+**Anthropic (Claude, optional advanced examples):**
 1. Go to https://console.anthropic.com
 2. Sign up for an account
 3. Navigate to API Keys
 4. Create a new API key
 5. Save as `ANTHROPIC_API_KEY`
 
-**SambaNova:**
+**SambaNova (optional open-model provider):**
 1. Go to https://sambanova.ai
 2. Sign up for an account
 3. Get your API key
 4. Save as `SAMBANOVA_API_KEY`
 
-**Demeterics (Observability Proxy):**
-1. Go to https://demeterics.com
-2. Sign up for an account
-3. Get your API key
-4. Save as `DEMETERICS_API_KEY`
-5. See analytics at https://demeterics.com/dashboard
+> 💡 Already have Groq/OpenAI keys? Add them inside Demeterics → Settings → API Keys so every request inherits your BYOK credentials plus centralized observability.
 
 ### Additional API Keys
 
@@ -147,13 +143,13 @@ Example 01 (Basic Chat) now supports multiple AI providers. Choose one or more:
 cp .env.example .env
 
 # Edit .env and add your API key
-# GROQ_API_KEY=gsk_your_actual_key_here
+# DEMETERICS_API_KEY=dmt_your_actual_key_here
 ```
 
 **Option 2: Export to shell (for bash/curl examples)**
 ```bash
 # Add to your ~/.bashrc or ~/.zshrc
-export GROQ_API_KEY="gsk_your_api_key_here"
+export DEMETERICS_API_KEY="dmt_your_api_key_here"
 
 # Reload your shell
 source ~/.bashrc
@@ -180,16 +176,18 @@ After running the basic examples, head to [**exercises/**](exercises/) for hands
 ### Endpoint
 
 ```
-POST https://api.groq.com/openai/v1/chat/completions
+POST https://api.demeterics.com/groq/v1/chat/completions
 ```
 
 ### Authentication
 
 ```
-Authorization: Bearer YOUR_API_KEY
+Authorization: Bearer $DEMETERICS_API_KEY   # Managed LLM Key from Demeterics
 ```
 
 ### Models Used
+
+Demeterics mirrors the Groq OpenAI-compatible catalog, so model names, capabilities, and pricing come directly from Groq. Use Demeterics for routing/observability, and reference Groq docs for model deep dives.
 
 **Full documentation:** https://console.groq.com/docs/models
 
@@ -331,7 +329,7 @@ Authorization: Bearer YOUR_API_KEY
 ## Common Issues
 
 **"Unauthorized" error:**
-- Check your API key is set: `echo $GROQ_API_KEY`
+- Check your API key is set: `echo $DEMETERICS_API_KEY`
 - Make sure you exported it in your current shell
 
 **"Model not found" error:**
@@ -350,11 +348,12 @@ Authorization: Bearer YOUR_API_KEY
 
 ## Resources
 
-- **Groq Console:** https://console.groq.com
-- **API Docs:** https://console.groq.com/docs
-- **Model List:** https://console.groq.com/docs/models
-- **Vision Guide:** https://console.groq.com/docs/vision
-- **Audio Guide:** https://console.groq.com/docs/speech-text
+- **Demeterics Docs:** https://demeterics.com/docs
+- **Demeterics Prompt Guide:** https://demeterics.com/docs/prompt
+- **Demeterics AI 101 companion:** https://demeterics.com/docs/ai101
+- **Groq Model Catalog:** https://console.groq.com/docs/models
+- **Groq Vision Guide:** https://console.groq.com/docs/vision
+- **Groq Audio Guide:** https://console.groq.com/docs/speech-text
 
 ## Hands-On Practice
 

@@ -24,7 +24,7 @@
  *     node 03_prompt_template.js "Technology" "Artificial Intelligence"
  *
  * Environment:
- *     GROQ_API_KEY - Your Groq API key (required)
+ *     DEMETERICS_API_KEY - Your Demeterics Managed LLM Key (required)
  */
 
 const https = require('https');
@@ -32,8 +32,8 @@ const fs = require('fs');
 const path = require('path');
 
 // Configuration
-const API_HOST = 'api.groq.com';
-const API_PATH = '/openai/v1/chat/completions';
+const API_HOST = 'api.demeterics.com';
+const API_PATH = '/groq/v1/chat/completions';
 const MODEL = 'meta-llama/llama-4-scout-17b-16e-instruct';
 
 // Template configuration
@@ -359,10 +359,10 @@ async function main() {
     console.log(`Topic: ${topic}`);
 
     // Check for API key
-    const apiKey = process.env.GROQ_API_KEY;
+    const apiKey = process.env.DEMETERICS_API_KEY;
     if (!apiKey) {
-        console.log('\n❌ Error: GROQ_API_KEY environment variable not set');
-        console.log("Set it with: export GROQ_API_KEY='your-api-key-here'");
+        console.log('\n❌ Error: DEMETERICS_API_KEY environment variable not set');
+        console.log("Set it with: export DEMETERICS_API_KEY='your-api-key-here'");
         process.exit(1);
     }
 

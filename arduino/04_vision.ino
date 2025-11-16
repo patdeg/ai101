@@ -32,7 +32,7 @@
  *
  * HOW TO USE:
  * 1. Update WIFI_SSID and WIFI_PASSWORD
- * 2. Update GROQ_API_KEY
+ * 2. Update DEMETERICS_API_KEY
  * 3. Upload to ESP32/ESP8266
  * 4. Open Serial Monitor at 115200 baud
  *
@@ -62,11 +62,11 @@
 // ============================================================================
 const char* WIFI_SSID = "YOUR_WIFI_SSID";
 const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";
-const char* GROQ_API_KEY = "YOUR_GROQ_API_KEY";
+const char* DEMETERICS_API_KEY = "YOUR_DEMETERICS_API_KEY";
 
-const char* GROQ_HOST = "api.groq.com";
+const char* DEMETERICS_HOST = "api.demeterics.com";
 const int HTTPS_PORT = 443;
-const char* API_PATH = "/openai/v1/chat/completions";
+const char* API_PATH = "/groq/v1/chat/completions";
 
 // ============================================================================
 // DEMO IMAGE: 1x1 pixel red PNG encoded as base64
@@ -96,7 +96,7 @@ void setup() {
   // Brief delay to allow serial connection to stabilize
   delay(1000);
 
-  Serial.println("\n\n=== Groq API Vision Example ===");
+  Serial.println("\n\n=== Demeterics Groq proxy Vision Example ===");
   Serial.println("Analyzing an image using vision models\n");
 
   // Print memory info (ESP32 only)
@@ -144,14 +144,14 @@ void setup() {
     client.setInsecure();
   #endif
 
-  Serial.println("\nConnecting to Groq API...");
+  Serial.println("\nConnecting to Demeterics Groq proxy...");
 
-  if (!client.connect(GROQ_HOST, HTTPS_PORT)) {
-    Serial.println("ERROR: Connection to Groq API failed!");
+  if (!client.connect(DEMETERICS_HOST, HTTPS_PORT)) {
+    Serial.println("ERROR: Connection to Demeterics Groq proxy failed!");
     return;
   }
 
-  Serial.println("Connected to Groq API!");
+  Serial.println("Connected to Demeterics Groq proxy!");
 
   // ------------------------------------------------------------------------
   // STEP 3: Build JSON request with IMAGE content
@@ -226,9 +226,9 @@ void setup() {
   // STEP 4: Send HTTP POST request
   // ------------------------------------------------------------------------
   String request = String("POST ") + API_PATH + " HTTP/1.1\r\n";
-  request += String("Host: ") + GROQ_HOST + "\r\n";
+  request += String("Host: ") + DEMETERICS_HOST + "\r\n";
   request += "Content-Type: application/json\r\n";
-  request += String("Authorization: Bearer ") + GROQ_API_KEY + "\r\n";
+  request += String("Authorization: Bearer ") + DEMETERICS_API_KEY + "\r\n";
   request += String("Content-Length: ") + requestBody.length() + "\r\n";
   request += "Connection: close\r\n";
   request += "\r\n";

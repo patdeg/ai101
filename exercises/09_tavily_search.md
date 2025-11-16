@@ -261,8 +261,8 @@ Please create a concise executive summary (3-4 sentences) highlighting the most 
 
 ```bash
 # Send to Groq for summarization
-SUMMARY=$(curl -s -X POST "https://api.groq.com/openai/v1/chat/completions" \
-  -H "Authorization: Bearer $GROQ_API_KEY" \
+SUMMARY=$(curl -s -X POST "https://api.demeterics.com/groq/v1/chat/completions" \
+  -H "Authorization: Bearer $DEMETERICS_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "model": "meta-llama/llama-4-scout-17b-16e-instruct",
@@ -318,8 +318,8 @@ ARTICLES=$(echo "$TAVILY_RESULTS" | jq -r '.results[] | "- \(.title)"' | head -3
 PROMPT="Recent news summary: $ANSWER\n\nKey articles:\n$ARTICLES\n\nCreate a 3-sentence executive summary."
 
 # 4. Get Groq summary
-SUMMARY=$(curl -s -X POST "https://api.groq.com/openai/v1/chat/completions" \
-  -H "Authorization: Bearer $GROQ_API_KEY" \
+SUMMARY=$(curl -s -X POST "https://api.demeterics.com/groq/v1/chat/completions" \
+  -H "Authorization: Bearer $DEMETERICS_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "model": "meta-llama/llama-4-scout-17b-16e-instruct",

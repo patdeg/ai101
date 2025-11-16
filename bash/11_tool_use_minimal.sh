@@ -3,10 +3,10 @@
 # Minimal version - demonstrates tool use flow with bash functions
 
 # Check for required environment variables
-if [ -z "$GROQ_API_KEY" ] || [ -z "$TAVILY_API_KEY" ]; then
-  echo "Error: Both GROQ_API_KEY and TAVILY_API_KEY must be set"
-  echo "Get Groq key: https://console.groq.com"
-  echo "Get Tavily key: https://tavily.com"
+if [ -z "$DEMETERICS_API_KEY" ] || [ -z "$TAVILY_API_KEY" ]; then
+  echo "Error: Both DEMETERICS_API_KEY and TAVILY_API_KEY must be set"
+  echo "Get your Demeterics Managed LLM Key: https://demeterics.com"
+  echo "Get a Tavily key: https://tavily.com"
   exit 1
 fi
 
@@ -36,8 +36,8 @@ tavily_extract() {
 }
 
 # Step 1: Send initial request to Groq with tool definitions
-INITIAL_RESPONSE=$(curl -s -X POST "https://api.groq.com/openai/v1/chat/completions" \
-  -H "Authorization: Bearer $GROQ_API_KEY" \
+INITIAL_RESPONSE=$(curl -s -X POST "https://api.demeterics.com/groq/v1/chat/completions" \
+  -H "Authorization: Bearer $DEMETERICS_API_KEY" \
   -H "Content-Type: application/json" \
   -d @- <<'EOF'
 {
@@ -114,8 +114,8 @@ MESSAGES=$(jq -n \
     }
   ]')
 
-FINAL_RESPONSE=$(curl -s -X POST "https://api.groq.com/openai/v1/chat/completions" \
-  -H "Authorization: Bearer $GROQ_API_KEY" \
+FINAL_RESPONSE=$(curl -s -X POST "https://api.demeterics.com/groq/v1/chat/completions" \
+  -H "Authorization: Bearer $DEMETERICS_API_KEY" \
   -H "Content-Type: application/json" \
   -d @- <<EOF
 {

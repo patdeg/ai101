@@ -27,14 +27,15 @@ go version
 
 **2. Set API key:**
 ```bash
-export GROQ_API_KEY="gsk_your_key_here"
+export DEMETERICS_API_KEY="dmt_your_key_here"
 ```
 
 **3. Verify setup:**
 ```bash
-echo $GROQ_API_KEY
+echo $DEMETERICS_API_KEY
 go version  # Should be 1.16 or higher
 ```
+`DEMETERICS_API_KEY` is your Managed LLM Key from https://demeterics.com. One key unlocks Groq, Gemini, OpenAI, and Anthropic through the proxy.
 
 ## Running the Examples
 
@@ -699,7 +700,7 @@ type GroqClient struct {
 func NewGroqClient(apiKey string) *GroqClient {
     return &GroqClient{
         APIKey:  apiKey,
-        BaseURL: "https://api.groq.com/openai/v1",
+        BaseURL: "https://api.demeterics.com/groq/v1",
         Client:  &http.Client{},
     }
 }
@@ -761,7 +762,7 @@ func (c *GroqClient) Chat(model string, messages []Message, options map[string]i
 
 // Usage
 func main() {
-    client := NewGroqClient(os.Getenv("GROQ_API_KEY"))
+    client := NewGroqClient(os.Getenv("DEMETERICS_API_KEY"))
 
     response, err := client.Chat(
         "meta-llama/llama-4-scout-17b-16e-instruct",
@@ -836,7 +837,7 @@ func (bot *Chatbot) Chat(userMessage string) (string, error) {
 }
 
 func main() {
-    bot := NewChatbot(os.Getenv("GROQ_API_KEY"))
+    bot := NewChatbot(os.Getenv("DEMETERICS_API_KEY"))
     scanner := bufio.NewScanner(os.Stdin)
 
     fmt.Println("Chatbot started. Type 'quit' to exit.\n")
@@ -954,7 +955,7 @@ func chatHandler(w http.ResponseWriter, r *http.Request) {
     }
 
     // Call AI (simplified)
-    client := NewGroqClient(os.Getenv("GROQ_API_KEY"))
+    client := NewGroqClient(os.Getenv("DEMETERICS_API_KEY"))
     response, err := client.Chat(
         "meta-llama/llama-4-scout-17b-16e-instruct",
         []Message{{Role: "user", Content: req.Message}},
@@ -1019,7 +1020,7 @@ func main() {
         os.Exit(1)
     }
 
-    client := NewGroqClient(os.Getenv("GROQ_API_KEY"))
+    client := NewGroqClient(os.Getenv("DEMETERICS_API_KEY"))
 
     response, err := client.Chat(
         *model,

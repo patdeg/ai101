@@ -18,7 +18,7 @@
  *
  * PREREQUISITES:
  * - Completed 01_basic_chat.js and 02_system_prompt.js
- * - GROQ_API_KEY environment variable set
+ * - DEMETERICS_API_KEY environment variable set
  * - A test image file (or use the curl command below to download one)
  *
  * EXPECTED OUTPUT:
@@ -110,13 +110,13 @@ const data = JSON.stringify({
 
 // Step 7: Configure the HTTPS request options
 const options = {
-  hostname: 'api.groq.com',
+  hostname: 'api.demeterics.com',
   port: 443,
-  path: '/openai/v1/chat/completions',
+  path: '/groq/v1/chat/completions',
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+    'Authorization': `Bearer ${process.env.DEMETERICS_API_KEY}`,
     'Content-Length': Buffer.byteLength(data)
   }
 };

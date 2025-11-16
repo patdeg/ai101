@@ -18,7 +18,7 @@
  *
  * PREREQUISITES:
  * - Node.js installed
- * - GROQ_API_KEY environment variable set
+ * - DEMETERICS_API_KEY environment variable set
  * - Audio file gettysburg.mp3 in the repository root
  *
  * EXPECTED OUTPUT:
@@ -91,12 +91,12 @@ const requestBody = Buffer.concat([header, audioData, footer]);
 
 // Step 4: Configure the HTTPS request
 const options = {
-  hostname: 'api.groq.com',
+  hostname: 'api.demeterics.com',
   port: 443,
-  path: '/openai/v1/audio/transcriptions',
+  path: '/groq/v1/audio/transcriptions',
   method: 'POST',
   headers: {
-    'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+    'Authorization': `Bearer ${process.env.DEMETERICS_API_KEY}`,
     'Content-Type': `multipart/form-data; boundary=${boundary}`,
     'Content-Length': requestBody.length
   }
@@ -214,12 +214,12 @@ req.end();
 //
 //       // Configure request
 //       const options = {
-//         hostname: 'api.groq.com',
+//         hostname: 'api.demeterics.com',
 //         port: 443,
-//         path: '/openai/v1/audio/transcriptions',
+//         path: '/groq/v1/audio/transcriptions',
 //         method: 'POST',
 //         headers: {
-//           'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+//           'Authorization': `Bearer ${process.env.DEMETERICS_API_KEY}`,
 //           'Content-Type': `multipart/form-data; boundary=${boundary}`,
 //           'Content-Length': body.length
 //         }

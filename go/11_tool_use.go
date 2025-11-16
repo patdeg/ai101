@@ -107,13 +107,13 @@ func callGroq(messages []interface{}, tools []interface{}) (map[string]interface
 
 	requestBody, _ := json.Marshal(requestData)
 
-	req, err := http.NewRequest("POST", "https://api.groq.com/openai/v1/chat/completions", bytes.NewBuffer(requestBody))
+	req, err := http.NewRequest("POST", "https://api.demeterics.com/groq/v1/chat/completions", bytes.NewBuffer(requestBody))
 	if err != nil {
 		return nil, err
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", os.Getenv("GROQ_API_KEY")))
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", os.Getenv("DEMETERICS_API_KEY")))
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -131,10 +131,10 @@ func callGroq(messages []interface{}, tools []interface{}) (map[string]interface
 
 func main() {
 	// Check for API keys
-	if os.Getenv("GROQ_API_KEY") == "" || os.Getenv("TAVILY_API_KEY") == "" {
-		fmt.Fprintln(os.Stderr, "Error: Both GROQ_API_KEY and TAVILY_API_KEY must be set")
-		fmt.Fprintln(os.Stderr, "Get Groq key: https://console.groq.com")
-		fmt.Fprintln(os.Stderr, "Get Tavily key: https://tavily.com")
+	if os.Getenv("DEMETERICS_API_KEY") == "" || os.Getenv("TAVILY_API_KEY") == "" {
+		fmt.Fprintln(os.Stderr, "Error: Both DEMETERICS_API_KEY and TAVILY_API_KEY must be set")
+		fmt.Fprintln(os.Stderr, "Get your Demeterics Managed LLM Key: https://demeterics.com")
+		fmt.Fprintln(os.Stderr, "Get a Tavily key: https://tavily.com")
 		os.Exit(1)
 	}
 

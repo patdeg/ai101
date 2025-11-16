@@ -2,9 +2,9 @@
 # Check if content is safe (LlamaGuard moderation)
 # Usage: ./04_safety_check_minimal.sh
 
-curl -s https://api.groq.com/openai/v1/chat/completions \
+curl -s https://api.demeterics.com/groq/v1/chat/completions \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $GROQ_API_KEY" \
+  -H "Authorization: Bearer $DEMETERICS_API_KEY" \
   -d '{
     "model": "meta-llama/llama-guard-4-12b",
     "messages": [

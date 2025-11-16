@@ -18,7 +18,7 @@ WHAT YOU'LL LEARN:
 
 PREREQUISITES:
     - Python 3.6 or higher
-    - GROQ_API_KEY environment variable set
+    - DEMETERICS_API_KEY environment variable set
     - Internet connection
 
 EXPECTED OUTPUT:
@@ -39,12 +39,12 @@ import os           # For accessing environment variables
 
 # Get API key from environment variable (more secure than hardcoding)
 # This keeps your API key out of your source code
-api_key = os.environ.get('GROQ_API_KEY')
+api_key = os.environ.get('DEMETERICS_API_KEY')
 
 # Validate that the API key exists before proceeding
 if not api_key:
-    print("Error: GROQ_API_KEY environment variable not set")
-    print("Run: export GROQ_API_KEY='your_key_here'")
+    print("Error: DEMETERICS_API_KEY environment variable not set")
+    print("Run: export DEMETERICS_API_KEY='your_key_here'")
     exit(1)
 
 # ==============================================================================
@@ -78,9 +78,9 @@ payload_json = json.dumps(payload)
 # Step 3: Establish HTTPS connection to the API
 # ==============================================================================
 
-# Create HTTPS connection to Groq API server
+# Create HTTPS connection to Demeterics Groq proxy server
 # HTTPS ensures encrypted communication for security
-conn = http.client.HTTPSConnection("api.groq.com")
+conn = http.client.HTTPSConnection("api.demeterics.com")
 
 # ==============================================================================
 # Step 4: Prepare HTTP headers for authentication and content type
@@ -103,7 +103,7 @@ headers = {
 # - Path: OpenAI-compatible endpoint
 # - Body: Our JSON payload with the question
 # - Headers: Authentication and content type
-conn.request("POST", "/openai/v1/chat/completions", payload_json, headers)
+conn.request("POST", "/groq/v1/chat/completions", payload_json, headers)
 
 # ==============================================================================
 # Step 6: Receive and read the HTTP response
@@ -164,7 +164,7 @@ print(f"  Total: {response_json['usage']['total_tokens']}")
 #   Built-in module for OS operations (like environment variables)
 #
 # os.environ.get('VAR_NAME')
-#   Gets environment variable (like $GROQ_API_KEY in bash)
+#   Gets environment variable (like $DEMETERICS_API_KEY in bash)
 #   Returns None if not set
 #
 # json.dumps(dict)

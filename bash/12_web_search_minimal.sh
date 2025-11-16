@@ -12,7 +12,7 @@
 #   - How to structure a basic chat completion request
 #
 # Prerequisites:
-#   - GROQ_API_KEY environment variable set
+#   - DEMETERICS_API_KEY environment variable set
 #   - curl installed
 #
 # Expected output:
@@ -20,9 +20,9 @@
 #   - Optionally, extra fields like message.reasoning or executed tool info
 ###############################################################################
 
-if [ -z "$GROQ_API_KEY" ]; then
-  echo "Error: GROQ_API_KEY not set" 1>&2
-  echo "Run: export GROQ_API_KEY=\"gsk_your_api_key_here\"" 1>&2
+if [ -z "$DEMETERICS_API_KEY" ]; then
+  echo "Error: DEMETERICS_API_KEY not set" 1>&2
+  echo "Run: export DEMETERICS_API_KEY=\"dmt_your_api_key_here\"" 1>&2
   exit 1
 fi
 
@@ -31,8 +31,8 @@ fi
 # when to call it. No special tool config is required for this minimal demo.
 
 curl -sS \
-  -X POST "https://api.groq.com/openai/v1/chat/completions" \
-  -H "Authorization: Bearer $GROQ_API_KEY" \
+  -X POST "https://api.demeterics.com/groq/v1/chat/completions" \
+  -H "Authorization: Bearer $DEMETERICS_API_KEY" \
   -H "Content-Type: application/json" \
   -d @- <<'EOF'
 {

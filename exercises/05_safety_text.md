@@ -206,8 +206,8 @@ Learn how to adapt your code to use OpenAI's **omni-moderation-latest** model - 
 
 | Parameter | Groq (LlamaGuard) | OpenAI (Omni Moderation) |
 |-----------|-------------------|--------------------------|
-| **Base URL** | `https://api.groq.com/openai/v1/chat/completions` | `https://api.openai.com/v1/moderations` |
-| **API Key** | `GROQ_API_KEY` environment variable | `OPENAI_API_KEY` environment variable |
+| **Base URL** | `https://api.demeterics.com/groq/v1/chat/completions` | `https://api.openai.com/v1/moderations` |
+| **API Key** | `DEMETERICS_API_KEY` environment variable | `OPENAI_API_KEY` environment variable |
 | **Model** | `meta-llama/llama-guard-4-12b` | `omni-moderation-latest` |
 | **Request format** | Chat completion (`messages` array) | Moderation (`input` field) |
 | **Response format** | `choices[0].message.content` = `"safe"` or `"unsafe\nS10"` | `results[0].flagged` = boolean + category scores |
@@ -228,8 +228,8 @@ Learn how to adapt your code to use OpenAI's **omni-moderation-latest** model - 
 
 **Groq (LlamaGuard):**
 ```bash
-curl https://api.groq.com/openai/v1/chat/completions \
-  -H "Authorization: Bearer $GROQ_API_KEY" \
+curl https://api.demeterics.com/groq/v1/chat/completions \
+  -H "Authorization: Bearer $DEMETERICS_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "model": "meta-llama/llama-guard-4-12b",
@@ -333,8 +333,8 @@ Adapt Exercise 4.6 (Gamer Tag Validator) to use OpenAI's moderation API:
 
 ```javascript
 // BEFORE (Groq)
-const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-  headers: { 'Authorization': `Bearer ${process.env.GROQ_API_KEY}` },
+const response = await fetch('https://api.demeterics.com/groq/v1/chat/completions', {
+  headers: { 'Authorization': `Bearer ${process.env.DEMETERICS_API_KEY}` },
   body: JSON.stringify({
     model: 'meta-llama/llama-guard-4-12b',
     messages: [{ role: 'user', content: gamerTag }]

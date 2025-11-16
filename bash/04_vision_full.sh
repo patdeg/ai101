@@ -17,7 +17,7 @@
 #   - Vision requests use more tokens (image + text + response)
 #
 # Prerequisites:
-#   - GROQ_API_KEY environment variable must be set
+#   - DEMETERICS_API_KEY environment variable must be set
 #   - jq command installed (see README.md for installation)
 #   - base64 command (pre-installed on Linux/Mac)
 #   - test_image.jpg in parent directory
@@ -32,7 +32,7 @@
 ################################################################################
 
 # Store the API endpoint URL
-API_URL="https://api.groq.com/openai/v1/chat/completions"
+API_URL="https://api.demeterics.com/groq/v1/chat/completions"
 
 # STEP 1: Set the path to the image we want to analyze
 # Using the shared test image from the root directory
@@ -62,7 +62,7 @@ echo "Sending image to AI for analysis..."
 echo ""
 RESPONSE=$(curl -s "$API_URL" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $GROQ_API_KEY" \
+  -H "Authorization: Bearer $DEMETERICS_API_KEY" \
   -d '{
     "model": "meta-llama/llama-4-scout-17b-16e-instruct",
     "messages": [

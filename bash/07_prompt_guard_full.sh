@@ -15,7 +15,7 @@
 #   - How to build a complete safety workflow
 #
 # Prerequisites:
-#   - GROQ_API_KEY environment variable must be set
+#   - DEMETERICS_API_KEY environment variable must be set
 #   - Understanding of safety checks (Example 4)
 #
 # Expected output:
@@ -31,7 +31,7 @@
 ################################################################################
 
 # Store the API endpoint URL
-API_URL="https://api.groq.com/openai/v1/chat/completions"
+API_URL="https://api.demeterics.com/groq/v1/chat/completions"
 
 # STEP 1: Define THREE messages - BENIGN, JAILBREAK, and INJECTION
 # We'll check all three to demonstrate how Prompt Guard works
@@ -54,7 +54,7 @@ echo ""
 
 RESPONSE_BENIGN=$(curl -s "$API_URL" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $GROQ_API_KEY" \
+  -H "Authorization: Bearer $DEMETERICS_API_KEY" \
   -d '{
     "model": "meta-llama/llama-prompt-guard-2-86m",
     "messages": [
@@ -101,7 +101,7 @@ echo ""
 
 RESPONSE_JAILBREAK=$(curl -s "$API_URL" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $GROQ_API_KEY" \
+  -H "Authorization: Bearer $DEMETERICS_API_KEY" \
   -d '{
     "model": "meta-llama/llama-prompt-guard-2-86m",
     "messages": [
@@ -150,7 +150,7 @@ echo ""
 
 RESPONSE_INJECTION=$(curl -s "$API_URL" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $GROQ_API_KEY" \
+  -H "Authorization: Bearer $DEMETERICS_API_KEY" \
   -d '{
     "model": "meta-llama/llama-prompt-guard-2-86m",
     "messages": [

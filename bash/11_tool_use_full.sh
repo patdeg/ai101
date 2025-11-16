@@ -50,8 +50,8 @@ if ! command -v jq > /dev/null 2>&1; then
 fi
 
 # Check for API keys
-if [ -z "$GROQ_API_KEY" ]; then
-  echo -e "${RED}Error: GROQ_API_KEY not set${NC}"
+if [ -z "$DEMETERICS_API_KEY" ]; then
+  echo -e "${RED}Error: DEMETERICS_API_KEY not set${NC}"
   exit 1
 fi
 
@@ -135,8 +135,8 @@ echo -e "${CYAN}Step 1: Sending query to AI with tool definitions...${NC}"
 echo ""
 
 # Step 1: Initial request with tool definitions
-INITIAL_RESPONSE=$(curl -s -X POST "https://api.groq.com/openai/v1/chat/completions" \
-  -H "Authorization: Bearer $GROQ_API_KEY" \
+INITIAL_RESPONSE=$(curl -s -X POST "https://api.demeterics.com/groq/v1/chat/completions" \
+  -H "Authorization: Bearer $DEMETERICS_API_KEY" \
   -H "Content-Type: application/json" \
   -d @- <<EOF
 {
@@ -265,8 +265,8 @@ MESSAGES_JSON=$(jq -n \
     $tool_msgs[]
   ]')
 
-FINAL_RESPONSE=$(curl -s -X POST "https://api.groq.com/openai/v1/chat/completions" \
-  -H "Authorization: Bearer $GROQ_API_KEY" \
+FINAL_RESPONSE=$(curl -s -X POST "https://api.demeterics.com/groq/v1/chat/completions" \
+  -H "Authorization: Bearer $DEMETERICS_API_KEY" \
   -H "Content-Type: application/json" \
   -d @- <<EOF
 {
