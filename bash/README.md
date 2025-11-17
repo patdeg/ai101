@@ -38,6 +38,9 @@ export ANTHROPIC_API_KEY="sk-ant-..."
 
 # SambaNova
 export SAMBANOVA_API_KEY="..."
+
+# Google Gemini
+export GEMINI_API_KEY="..."
 ```
 
 > `DEMETERICS_API_KEY` is your Managed LLM Key from the Demeterics dashboard. One key unlocks Groq, Gemini, OpenAI, and Anthropic through the proxy with full observability.
@@ -50,6 +53,7 @@ export SAMBANOVA_API_KEY="..."
 ./01_basic_chat_ANTHROPIC_minimal.sh # Anthropic
 ./01_basic_chat_SAMBA_minimal.sh     # SambaNova
 ./01_basic_chat_DEMETERICS_minimal.sh # Demeterics proxy
+./01_basic_chat_GEMINI_minimal.sh    # Google Gemini 2.5 Flash
 ```
 
 ### Option 2: Full (Beautiful Output)
@@ -71,6 +75,7 @@ export SAMBANOVA_API_KEY="..."
 | **01 Basic Chat - OpenAI** | `01_basic_chat_OPENAI_minimal.sh` | - | Ask AI a question (OpenAI) |
 | **01 Basic Chat - Anthropic** | `01_basic_chat_ANTHROPIC_minimal.sh` | - | Ask AI a question (Claude) |
 | **01 Basic Chat - SambaNova** | `01_basic_chat_SAMBA_minimal.sh` | - | Ask AI a question (SambaNova) |
+| **01 Basic Chat - Gemini** | `01_basic_chat_GEMINI_minimal.sh` | - | Ask AI a question (Google Gemini 2.5 Flash) |
 | **01 Basic Chat - Demeterics** | `01_basic_chat_DEMETERICS_minimal.sh` | - | Ask AI a question (via proxy) |
 | **02 System Prompt** | `02_system_prompt_minimal.sh` | `02_system_prompt_full.sh` | Control AI behavior with instructions |
 | **03 Vision** | `03_vision_minimal.sh` | `03_vision_full.sh` | Analyze images with AI |
@@ -112,6 +117,7 @@ export SAMBANOVA_API_KEY="..."
 | **OpenAI** | `api.openai.com` | GPT-4o, GPT-5 mini | Advanced reasoning, TTS |
 | **Anthropic** | `api.anthropic.com` | Claude Haiku/Sonnet/Opus | Long context, policy-aware |
 | **SambaNova** | `api.sambanova.ai` | Llama 3.1 variants | Open models, enterprise focus |
+| **Google Gemini** | `generativelanguage.googleapis.com` | Gemini 2.0/2.5 Flash & Pro | Classroom-friendly multimodal prompts |
 
 ### About Demeterics
 
