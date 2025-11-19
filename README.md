@@ -77,6 +77,31 @@ Each provider has its own example file (e.g., `01_basic_chat_OPENAI.py`) showing
 14. **Reasoning** - Step-by-step thinking with openai/gpt-oss-20b + prompt caching
 15. **Text-to-Speech** - Voice synthesis with OpenAI gpt-4o-mini-tts
 
+## 🎮 Featured Project: Alfred the Minecraft AI Counselor
+
+**Want to see all these concepts come together in one epic project?**
+
+Check out **[minecraft/mcchatbot](minecraft/mcchatbot/)** - an AI-powered Minecraft assistant that demonstrates:
+
+- **🎭 System Prompts**: A 96-line personality that makes Alfred kind, helpful, and fun
+- **🛠️ Tool Use**: 12 functions the AI can call (teleport, weather, Easter eggs like floating cats!)
+- **⚡ AI Safety with Flair**: When kids use bad language, they get a friendly message... AND a dramatic lightning bolt strikes nearby!
+
+```
+Player: "You're so stupid Alfred!"
+[💥 LIGHTNING BOLT strikes 3 blocks ahead 💥]
+Alfred: Let's keep the chat kind. Adventures are better when everyone feels welcome.
+```
+
+**Why it's perfect for learning**:
+- Combines chat, tool calling, and moderation in one project
+- Visual feedback makes AI concepts concrete (watching AI teleport players is magic!)
+- Safety moderation that's memorable (lightning strikes!) but educational
+- Full audit logs for parent/educator review
+- Kids can modify Alfred's personality by editing the system prompt
+
+**[→ Check out the full Alfred project](minecraft/mcchatbot/)**
+
 ## Repository Structure
 
 ```
@@ -403,5 +428,7 @@ After completing these examples and exercises, you can:
 - Build a voice transcription app
 - Add streaming responses
 - Combine multiple API calls (e.g., audio transcription → safety check → AI response)
+
+**Ready for a full project?** Check out **[minecraft/mcchatbot](minecraft/mcchatbot/)** - an AI-powered Minecraft assistant that demonstrates system prompts, tool calling, and AI safety with dramatic lightning strikes for moderation! It's the most fun way to see everything you've learned come together.
 
 **Pick a language folder and start coding!**
