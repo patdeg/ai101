@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-This is `ai101` - an educational repository teaching **responsible AI development** across 5 languages/platforms. This is a **training project** for beginners (starting with a 14-year-old student named Victor), where **code clarity, educational value, and AI safety are the top priorities**.
+This is `ai101` - an educational repository teaching **responsible AI development** across 7 languages/platforms. This is a **training project** for beginners (starting with a 14-year-old student named Victor), where **code clarity, educational value, and AI safety are the top priorities**.
 
 ### Primary Goal
 Create a "Rosetta Stone" of AI API examples that teach programming fundamentals while demonstrating practical AI integration **with safety built in from day one**. Every learner should understand not just what they *can* build, but what they *should* build responsibly.
@@ -15,6 +15,8 @@ Create a "Rosetta Stone" of AI API examples that teach programming fundamentals 
 - `nodejs/` - Node.js examples (15 examples, built-in modules only)
 - `python/` - Python examples (15 examples, standard library only)
 - `go/` - Go examples (15 examples, standard library only)
+- `c/` - C examples (15 examples, libcurl + cJSON)
+- `cpp/` - C++ examples (15 examples, libcurl + nlohmann/json)
 - `arduino/` - Arduino/ESP32 examples (for XIAO ESP32-S3 Sense board, examples 1-8 only)
 - `exercises/` - Hands-on practice exercises (15 files, one per example)
 
@@ -62,11 +64,13 @@ Each bash example has **two versions**:
 - Explain WHY, not just WHAT
 - Use step-by-step numbered comments
 
-### 2. No External Dependencies (Except Arduino)
+### 2. No External Dependencies (Except Arduino, C, C++)
 - **bash/**: Pure bash and curl (minimal), or bash + jq + bc (full)
 - **nodejs/**: Only built-in modules (`https`, `fs`, `path`, `os`)
 - **python/**: Only standard library (`http.client`, `json`, `os`, `base64`)
 - **go/**: Only standard library packages
+- **c/**: libcurl (HTTP) + cJSON (JSON) - both widely available, cJSON can be bundled
+- **cpp/**: libcurl (HTTP) + nlohmann/json (JSON) - header-only JSON lib can be bundled
 - **arduino/**: ArduinoJson, WiFiClientSecure, ESP32 camera/audio libraries
 
 ### 3. JSON Handling in Shell Scripts
@@ -159,18 +163,20 @@ EOF
 
 ## File Naming Conventions
 
-- Examples: `01_basic_chat.{sh,js,py,go,ino}`
-- Bash minimal: `01_basic_chat_minimal.sh` (and 02-14)
-- Bash full: `01_basic_chat_full.sh` (and 02-14)
+- Examples: `01_basic_chat.{sh,js,py,go,c,cpp,ino}`
+- Bash minimal: `01_basic_chat_minimal.sh` (and 02-15)
+- Bash full: `01_basic_chat_full.sh` (and 02-15)
+- C examples: `01_basic_chat.c` (and 02-15)
+- C++ examples: `01_basic_chat.cpp` (and 02-15)
 - Arduino: `01_basic_chat/01_basic_chat.ino` (in subdirectories, examples 01-07 only)
 - README files: `README.md` (one per language directory, plus `exercises/README.md`)
-- Exercise files: `exercises/01_basic_chat.md` (and 02-14)
+- Exercise files: `exercises/01_basic_chat.md` (and 02-15)
 - Test resources: `test_image.jpg`, `gettysburg.mp3` (root level)
 - Documentation: `*.md` (root level)
 
 ## Common Pitfalls to Avoid
 
-1. ❌ **Don't use external libraries** (except Arduino necessities)
+1. ❌ **Don't use external libraries** (except Arduino, C, C++ necessities)
 2. ❌ **Don't hardcode API keys** (always use environment variables)
 3. ❌ **Don't skip error handling** (educational opportunity!)
 4. ❌ **Don't use `\"` escaping in JSON** (use heredoc instead)
@@ -263,11 +269,12 @@ When working on this repository:
 1. **Safety-first mindset** > Feature completeness
 2. Educational value > Production quality
 3. 80% code/comments > Minimal comments
-4. Standard library > External dependencies
+4. Standard library > External dependencies (except C/C++ which need libcurl + JSON lib)
 5. Heredoc > Escaped JSON
 6. Clarity > Cleverness
 7. Consistency > Innovation
 8. Dual versions for bash (minimal + full)
-9. 14 examples + 14 exercises for complete learning path
+9. 15 examples + 15 exercises for complete learning path
+10. 7 languages: bash, nodejs, python, go, c, cpp, arduino
 
 **Remember**: Victor is 14 and learning AI for the first time. Make every line count as a teaching opportunity. Teach not just what AI *can* do, but what it *should* do responsibly.

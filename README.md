@@ -6,7 +6,7 @@
 
 Teaching kids AI is cool. Teaching them **safe AI** is cooler. 🛡️
 
-This repository is a complete learning journey for anyone starting with AI APIs—especially young developers making the leap from coding lessons to real computer science. Every example runs in **4 languages** (Bash, Node.js, Python, Go) so you can see how the same concepts translate across different programming environments.
+This repository is a complete learning journey for anyone starting with AI APIs—especially young developers making the leap from coding lessons to real computer science. Every example runs in **6 languages** (Bash, Node.js, Python, Go, C, and C++) so you can see how the same concepts translate across different programming environments.
 
 But here's what makes this different: **AI safety is built in from day one.** Alongside chat, vision, and audio examples, you'll learn content moderation with LlamaGuard, prompt injection defense with Prompt Guard, and responsible AI practices throughout.
 
@@ -107,15 +107,19 @@ Alfred: Let's keep the chat kind. Adventures are better when everyone feels welc
 ```
 ai101/
 ├── bash/          # Bash/cURL examples (minimal + full versions)
-├── nodejs/        # Node.js examples
-├── python/        # Python examples
-├── go/            # Go examples
+├── nodejs/        # Node.js examples (built-in modules only)
+├── python/        # Python examples (standard library only)
+├── go/            # Go examples (standard library only)
+├── c/             # C examples (libcurl + cJSON)
+├── cpp/           # C++ examples (libcurl + nlohmann/json)
 ├── arduino/       # Arduino/ESP32 examples
 ├── exercises/     # Hands-on practice exercises
 └── README.md      # This file
 ```
 
 Each language folder contains the same 15 examples implemented in that language (except Arduino has only examples 1-8), plus a detailed README explaining the code.
+
+**Note on C/C++**: These examples use minimal external dependencies: **libcurl** (HTTP requests) and a JSON library (**cJSON** for C, **nlohmann/json** for C++). Both JSON libraries can be bundled directly in the project - see their respective READMEs for setup.
 
 ## Prerequisites
 
@@ -190,6 +194,7 @@ Pick your language and jump in:
 - **Know JavaScript?** Check out `nodejs/`
 - **Python fan?** Head to `python/`
 - **Systems programmer?** Try `go/`
+- **Learning C/C++?** Explore `c/` or `cpp/` for low-level understanding
 - **Building IoT devices?** Explore `arduino/` for ESP32/ESP8266
 
 Each folder has a README with setup instructions and detailed code explanations.
