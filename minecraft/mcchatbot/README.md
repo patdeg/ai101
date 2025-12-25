@@ -1,393 +1,208 @@
-# Alfred the Minecraft AI Counselor ⚡
+# mcchatbot (Alfred)
 
-> **The Most Fun Way to Learn AI System Prompts & Tool Use**
->
-> Watch an AI assistant come to life in your Minecraft server—helping players, moderating chat, and yes, summoning lightning bolts when someone uses bad language! ⚡😱
+> **Educational Project**: This is a teaching example of AI system prompts and tool use, built as part of the [AI 101 course](https://github.com/patdeg/ai101). Perfect for learning how LLMs can interact with real systems!
 
-![Alfred in Action](https://img.shields.io/badge/AI-Powered-blue) ![Go](https://img.shields.io/badge/Go-1.22+-00ADD8) ![Minecraft](https://img.shields.io/badge/Minecraft-Compatible-green)
+Alfred is a small Go service that watches a Minecraft server log, detects when players ask for help, and routes those prompts to an LLM hosted on Demeterics. Approved replies are sent back into the running server via `screen`, so players see a friendly counselor-style response directly in chat.
 
-## 🎮 What Is This?
+## 🧠 What You'll Learn
 
-Alfred is an AI-powered camp counselor that lives inside your Minecraft server. Players can chat with him, ask for help, request teleports, change the weather, and more. But here's the **really cool part**: Alfred demonstrates three cutting-edge AI concepts that power tools like ChatGPT plugins, Claude tools, and GitHub Copilot.
+This project demonstrates three key AI concepts:
 
-**Full source code**: [github.com/patdeg/mcchatbot](https://github.com/patdeg/mcchatbot)
+1. **System Prompts**: How to craft detailed instructions that shape an AI's personality, tone, and behavior (see the 96-line prompt in `config.go`!)
+2. **Tool Use (Function Calling)**: How LLMs can call real-world functions like `/tp` (teleport), `/time set`, and `/weather` commands
+3. **AI Safety with Drama**: When players use bad language, Alfred responds with a calm message... AND summons a safe lightning bolt nearby! ⚡ It's moderation that kids actually remember.
 
-### The Three Superpowers You'll Learn
+Perfect for understanding how ChatGPT plugins, Claude tools, or GitHub Copilot actually work under the hood!
 
-1. **🎭 System Prompts**: The 96-line "instruction manual" that shapes Alfred's entire personality
-2. **🛠️ Tool Use (Function Calling)**: How AI decides to call real functions like `/tp`, `/time set`, and `/weather`
-3. **⚡ AI Safety & Moderation**: Detecting toxic language and responding with both words AND dramatic lightning strikes!
+### The Lightning Strike Moderation 🌩️
 
-## 🎯 What Makes Alfred Epic
-
-### When Players Ask for Help
 ```
-Player: "Alfred how do I make a redstone door?"
-Alfred: Place sticky pistons facing each other, add redstone and a lever. Simple and fun!
-```
+Player: "shut up you idiot"
 
-### When Players Use Tools
-```
-Player: "Alfred can you teleport me to Steve?"
-Alfred: [Calls teleport_player(target="Steve")]
-        ✨ *WHOOSH* ✨
-Alfred: Done! You're now with Steve 🎯
-```
-
-### When Players Misbehave (The Fun Part! 🌩️)
-```
-Player: "You're so stupid Alfred!"
-
-[💥 LIGHTNING BOLT strikes 3 blocks in front of player 💥]
+[💥 LIGHTNING BOLT strikes 3 blocks ahead of player 💥]
 
 Alfred: Let's keep the chat kind. Adventures are better when everyone feels welcome.
 ```
 
-**That's right—Alfred doesn't just talk, he can summon lightning!** But it's safe lightning (no damage, just drama). It's moderation with *flair*.
+**Why this works**:
+- Visual + verbal feedback (kids see AND hear consequences)
+- Logged for parent/educator review in `chat_history.log`
+- Harmless but dramatic (no damage, just theatrics!)
+- Makes AI safety education memorable and fun
 
-## 🧠 The AI Architecture (How It Actually Works)
+## Features
+- Tails the Minecraft log in real time and parses async chat events.
+- Heuristics decide when to answer (name mentions, trigger word, alert keywords, or any question/engage terms).
+- Uses Groq Tool Use to drive `/tp`, `/time`, and `/weather` commands whenever the LLM decides it’s appropriate (teleport to players, coordinates, or spawn).
+- Sends prompts to the configured Demeterics chat-completions model and posts the answer in-game.
+- Fun Easter eggs for morale boosts, including a golem rescue when someone shouts “Alfred to the rescue” or “Alfred, help me!”.
+- Prevents spam with a configurable reply cooldown and trigger words.
+- Records every answered question in `chat_history.log` (or a custom file) for audits.
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                         THE ALFRED LOOP                             │
-└─────────────────────────────────────────────────────────────────────┘
-
-Player types in Minecraft chat
-         ↓
-    "Alfred help!"
-         ↓
-┌────────────────────────┐
-│   Alfred (Go Service)  │  ← Watches log file in real-time
-│                        │  ← Parses: "<Player> message"
-│   Trigger Detection:   │  ← Checks heuristics:
-│   ✓ Name mentioned     │     • Did they say "Alfred"?
-│   ✓ Trigger word (!bot)│     • Did they use !bot?
-│   ✓ Question mark (?)  │     • Is there a question?
-│   ✓ Alert keywords 🚨  │     • Bad language detected?
-└────────────────────────┘
-         ↓
-    Builds AI request:
-    - System Prompt (personality)
-    - User Message
-    - Available Tools (teleport, time, weather, Easter eggs...)
-         ↓
-┌────────────────────────┐
-│   Demeterics API       │
-│   (Groq/Llama 4)       │  ← Receives 96-line personality instruction
-│                        │  ← Sees 12 available tools
-│   AI thinks... 🤔      │  ← Decides: text response? Or call a tool?
-└────────────────────────┘
-         ↓
-    Response options:
-
-    Option A: Text Answer
-    "Place sticky pistons facing each other..."
-
-    Option B: Tool Call
-    {"tool": "teleport_player", "args": {"target": "Steve"}}
-         ↓
-    If tool call → Execute Minecraft command → Loop back to AI
-    If text answer → Send to Minecraft chat
-         ↓
-┌────────────────────────┐
-│   Minecraft Server     │
-│   (via screen)         │  ← Alfred sends: "say [Alfred] ..."
-└────────────────────────┘
-         ↓
-Player sees: "[Alfred] Place sticky pistons facing each other..."
-```
-
-### The Moderation Lightning Strike Flow 🌩️
-
-```
-Player: "shut up you idiot"
-         ↓
-Alert keyword detected! ("shut up", "idiot")
-         ↓
-┌────────────────────────┐
-│  Moderation Actions:   │
-│  1. Summon lightning   │ ← execute at <player> run summon lightning_bolt ^ ^ ^3
-│  2. Log to audit file  │ ← Save to chat_history.log
-│  3. Modify prompt      │ ← "Gently remind about kindness..."
-└────────────────────────┘
-         ↓
-💥 Lightning strikes 3 blocks ahead of player 💥
-         ↓
-AI receives modified prompt: "Gently remind about kindness. Snippet: 'shut up you idiot'"
-         ↓
-Alfred responds with calm, friendly reminder (under 30 words)
-```
-
-**Why this is brilliant**:
-- Visual feedback (lightning) + verbal feedback (AI message)
-- Logged for moderation review (parents/staff can check `chat_history.log`)
-- AI never mentions "alert keywords"—just stays kind and redirects
-- Dramatic but harmless (no damage, just theatrics!)
-
-## 🎓 What You'll Learn
-
-### 1. System Prompts: The AI "Instruction Manual"
-
-Open `config.go` and you'll find a **96-line system prompt** that transforms a generic LLM into Alfred the camp counselor. It defines:
-
-- **Personality**: "upbeat camp counselor", "goofy but kind", "never sarcastic"
-- **Rules**: Max 30 words per response, PG language only, celebrate teamwork
-- **Conflict Handling**: De-escalate without lecturing, redirect negativity
-- **Tool Usage**: Only call tools when explicitly helpful, explain Easter eggs
-- **Safety**: Detect harmful language, encourage breaks/hydration
-
-**Try This**: Change the system prompt to make Alfred a pirate captain or a wizard mentor. Watch how responses change!
-
-### 2. Tool Use (Function Calling): How AI Interacts with Reality
-
-Alfred has **12 tools** he can call:
-
-**Utility Tools**:
-- `teleport_player(target, from?)` - Beam players around
-- `set_time(value)` - Make it day/night/noon/midnight
-- `set_weather(state)` - Clear/rain/thunder
-
-**Easter Eggs** (The Fun Stuff!):
-- `floating_cat(player?)` - Summon a motionless floating cat buddy 🐱
-- `tiny_slime(player?)` - Spawn a tiny wiggling slime companion
-- `skylift_slowfall(player?)` - Whoosh player 200 blocks up with slow falling
-- `drop_cookie(player?)` - Drop a cookie gift at their feet 🍪
-- `villager_sound(player?)` - Play "hmm" sound for comedic effect
-- `mini_firework(player?)` - Safe firework celebration
-- `glowing_aura(player?)` - Make player glow briefly
-- `heart_particles(player?)` - Surround with heart particles 💕
-- `poof_smoke(player?)` - Create cartoon poof cloud
-
-Each tool has three parts (see `llm_tools.go`):
-1. **Definition**: JSON schema describing parameters
-2. **Parser**: Validates arguments from AI
-3. **Executor**: Runs actual Minecraft command via `screen`
-
-**The Tool Loop**:
-```go
-// 1. AI sees tool definitions
-tools := []ToolDefinition{
-    teleportToolDefinition(),
-    timeToolDefinition(),
-    // ... 10 more
-}
-
-// 2. AI decides to call one
-"I'll call teleport_player with target='Steve'"
-
-// 3. We execute it
-exec(ctx, cfg, evt, toolCall)
-// → runs: screen -X stuff "tp Alice Steve\r"
-
-// 4. We tell AI what happened
-"Teleported Alice to Steve"
-
-// 5. AI crafts final response
-"Done! You're now with Steve 🎯"
-```
-
-### 3. AI Safety: Multi-Layer Moderation
-
-Alfred has **150+ alert keywords** organized into categories:
-- Core toxicity: "stupid", "idiot", "trash", "noob"
-- Threats: "kill", "hurt you", "fight me"
-- Self-harm: "i want to die", "i hate myself", "suicide"
-- Profanity: "wtf", "damn", "f u"
-- Harassment: "no one likes you", "get lost"
-- Grooming red flags: "where do you live", "are you alone", "send pics"
-
-**Three-Layer Safety System**:
-
-1. **Pre-response**: Lightning strike for immediate visual feedback
-2. **AI response**: Calm, friendly reminder without mentioning triggers
-3. **Audit log**: JSON entry with full context for moderator review
-
-**Example Log Entry**:
-```json
-{
-  "time": "2024-11-19T14:32:10Z",
-  "player": "Camper123",
-  "question": "shut up you idiot",
-  "response": "Let's keep the chat kind. Adventures are better when everyone feels welcome.",
-  "tools": [
-    {
-      "name": "moderation_safe_lightning",
-      "arguments": "{\"player\":\"Camper123\"}",
-      "output": "Safe lightning triggered ahead of player."
-    }
-  ]
-}
-```
-
-Parents/staff can run `make show` to see last 20 moderation events!
-
-## 🚀 How to Use This Example
-
-### Prerequisites
+## Requirements
 - Go 1.22+
-- Access to a Minecraft server (or create a test setup)
-- Demeterics API key (free tier available)
+- Access to the Minecraft server log and `screen` session running the server.
+- Demeterics API key with access to the chosen model.
+- `rsync` for the deployment step in the Makefile.
 
-### Quick Start
+## Setup
+1. Copy `.env.example` to `.env` and fill in the secrets/paths. Only `DEMETERICS_API_KEY` is mandatory; everything else falls back to sane defaults.
+2. Build locally with `make build` or `go build ./...`.
+3. Run locally with `go run .` or deploy with `make install` (see below).
 
-1. **Clone the full repo**:
-   ```bash
-   git clone https://github.com/patdeg/mcchatbot.git
-   cd mcchatbot
-   ```
+## Configuration
+Environment variables allow the agent to be customized without code edits:
 
-2. **Set up environment**:
-   ```bash
-   cp .env.example .env
-   # Edit .env and add your DEMETERICS_API_KEY
-   ```
+| Variable | Default | Description |
+| --- | --- | --- |
+| `DEMETERICS_API_KEY` | – | Required API token for Demeterics. |
+| `DEMETERICS_MODEL` | `meta-llama/llama-4-scout-17b-16e-instruct` | Override the LLM model ID. |
+| `MCCHATBOT_LOG_PATH` | `/usr/local/games/minecraft_server/MyServer/logs/latest.log` | Path to the Minecraft chat log to watch. |
+| `MCCHATBOT_SCREEN_NAME` | `mc-MyServer` | Name of the `screen` session controlling the server. |
+| `MCCHATBOT_SPAWN_POINT` | `0 80 0` | Coordinates Alfred uses for spawn teleports (`x y z` or comma-delimited). |
+| `MCCHATBOT_SPAWN_DIMENSION` | `minecraft:overworld` | Dimension for the spawn point teleport. |
+| `MCCHATBOT_SYSTEM_PROMPT` | Friendly counselor script | Tune the persona/instructions for Alfred. |
+| `MCCHATBOT_NAME` | `Alfred` | Name Alfred listens for when deciding to answer and prefixes responses with. |
+| `MCCHATBOT_TRIGGER` | `!bot` | Prefix that always causes a response (`!bot how do I fly`). |
+| `MCCHATBOT_REPLY_COOLDOWN` | `30s` | Minimum time between replies to avoid flooding chat. |
+| `MCCHATBOT_ENGAGE_WORDS` | `help,how,where,why,what,can,anyone,tip,idea,question` | Lowercase comma-separated engagement keywords. |
+| `MCCHATBOT_ALERT_WORDS` | `stupid,idiot,hate,kill,dumb,shut up,noob,trash,bully` | Lowercase comma-separated alert words that trigger a kindness reminder. |
+| `MCCHATBOT_ENABLE_NAME_TRIGGER` | `true` | Respond when someone mentions the bot’s name. |
+| `MCCHATBOT_ENABLE_PREFIX_TRIGGER` | `true` | Respond to the configured trigger prefix (e.g., `!bot`). |
+| `MCCHATBOT_ENABLE_QUESTION_TRIGGER` | `true` | Respond to questions (`?`) or configured engage words. |
+| `MCCHATBOT_ENABLE_ALERT_TRIGGER` | `true` | Send kindness reminders when alert words show up. |
+| `MCCHATBOT_ENABLE_TOOL_USE` | `true` | Allow Groq Tool Use across teleport/time/weather helpers. |
+| `MCCHATBOT_ENABLE_WORLD_TOOL` | `true` | Permit Alfred to call the `/time` and `/weather` helpers (via Tool Use) when campers politely ask for daytime, rain, etc. |
+| `MCCHATBOT_ENABLE_EASTER_EGGS` | `true` | Toggle the fun Easter-egg commands (floating cat, firework, heart particles, etc.). |
+| `MCCHATBOT_RESPONSE_LOG` | `chat_history.log` | File (relative or absolute) where JSONL interaction logs are written. Set empty to disable logging. |
 
-3. **Run locally** (testing mode):
-   ```bash
-   # Create fake log for testing
-   touch test.log
-
-   # In .env, set:
-   # MCCHATBOT_LOG_PATH=./test.log
-
-   go run .
-
-   # In another terminal, simulate chat:
-   echo '[12:34:56] [Async Chat Thread - #1/INFO]: <TestPlayer> Alfred how do I fly?' >> test.log
-   ```
-
-4. **Watch Alfred respond**! Check the terminal output.
-
-5. **Try moderation**:
-   ```bash
-   echo '[12:35:10] [Async Chat Thread - #1/INFO]: <TestPlayer> you are so dumb' >> test.log
-   ```
-   Watch the lightning strike attempt (will fail without real Minecraft, but you'll see the log)
-
-### Testing Ideas
-
-**Experiment with System Prompts**:
-```go
-// In config.go, change defaultSystemPrompt to:
-"You are a pirate captain helping young sailors navigate Minecraft seas.
-Talk like a friendly pirate. Max 30 words. Arr!"
+## Interaction Log
+Every successful response appends a JSON line to `MCCHATBOT_RESPONSE_LOG`. Example entry:
+```json
+{"time":"2024-06-01T12:34:56Z","player":"Camper123","question":"Alfred how do I build a redstone door?","response":"Place sticky pistons facing each other, add redstone and a lever. Simple and fun!"}
 ```
+Keep or rotate this file as needed for moderation reviews.
 
-**Add a New Tool**:
-```go
-// In llm_tools.go, create:
-func complimentToolDefinition() ToolDefinition {
-    return ToolDefinition{
-        Type: "function",
-        Function: ToolFunctionDefinition{
-            Name: "give_compliment",
-            Description: "Give a genuine, specific compliment to a player",
-            // ... parameters
-        },
-    }
-}
-```
-
-**Adjust Alert Keywords**:
+## Build & Deploy
+### Local build
 ```bash
-# In .env:
-MCCHATBOT_ALERT_WORDS=mean,rude,unkind
+make build
+```
+This runs `go vet ./...` and `go build ./...`.
+
+### Deploy via systemd
+```bash
+make install
+```
+Performs the following:
+1. Runs the `build` target.
+2. Stops `mcchatbot.service` (ignoring failures if it was not running).
+3. `rsync`s the repo (including `.env`) into `/usr/local/games/mcchatbot` (override with `TARGET_DIR=...`).
+4. `chown -R minecraft:minecraft` on the target directory.
+5. Restarts `mcchatbot.service`.
+
+> Requires sudo access because it manipulates files in `/usr/local/games` and controls the systemd service.
+
+### Systemd unit
+`mcchatbot.service` expects the binary and `.env` inside `/usr/local/games/mcchatbot`. Enable/start it on boot:
+```bash
+sudo cp mcchatbot.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now mcchatbot.service
 ```
 
-**Change Response Length**:
-```go
-// In system prompt, change:
-"ALWAYS keep responses under 30 words"
-// to:
-"ALWAYS keep responses under 50 words"
+## Running manually
+For troubleshooting you can run the bot in the foreground:
+```bash
+source .env
+go run .
+```
+Press `Ctrl+C` to exit; the service will continue tailing the log and posting replies through the configured `screen` session.
+
+## 🎮 How It Works (The Fun Part!)
+
+```
+Player in Minecraft                     Alfred (Go Service)                    Demeterics LLM
+─────────────────                      ───────────────────                    ───────────────
+
+"Alfred how do I                       Watches log file
+make a redstone door?"    ──────>      Parses chat event
+
+                                       Checks triggers:
+                                       ✓ Name mentioned!
+
+                                       Builds request:
+                                       - System prompt (personality)
+                                       - User message
+                                       - Available tools      ──────>      "You are Alfred..."
+                                                                           + Tool definitions
+
+                                                                           Thinks... 🤔
+
+                                                              <──────      "Place sticky pistons..."
+
+                                       Sends to Minecraft:
+                                       screen -X stuff "say ..."
+
+"[Alfred] Place sticky   <──────       Logs to chat_history.log
+pistons facing each
+other..."
 ```
 
-## 🎯 Learning Exercises
+**Easter Egg Example** (when tools are involved):
+```
+Player: "Alfred can you make it daytime?"
+Alfred: Calls set_time("day") tool → Minecraft runs `/time set day`
+Response: "Sure thing! ☀️ Daytime activated for building adventures!"
+```
 
-### Beginner
-1. Read the system prompt in `config.go` and identify the 5 personality traits
-2. Find the "easter egg" tools in `llm_tools.go` and explain what each does
-3. Run `make show` and analyze the JSON log format
+## 🔧 Development Notes
 
-### Intermediate
-4. Modify the system prompt to make Alfred talk like a wizard
-5. Add a new alert keyword and test the lightning strike
-6. Change the cooldown from 30s to 10s and observe spam behavior
+**Quick Tips for Learners:**
+- Read `config.go` first to see the massive system prompt—it's the "instruction manual" for Alfred's personality
+- Check `llm_tools.go` to see how tools are defined (JSON schema) and executed (actual Minecraft commands)
+- Run `make show` to see the conversation history and understand what Alfred is actually doing
 
-### Advanced
-7. Create a new tool that spawns a specific mob (e.g., `summon_chicken`)
-8. Implement a "compliment mode" trigger that makes Alfred extra encouraging
-9. Add a safety check that prevents Alfred from responding to requests for personal info
+**For Contributors:**
+- Format with `gofmt -w *.go` before committing
+- Update `.env.example` when adding new configuration knobs
+- Interaction logging happens in the working directory; ensure the service user has write permissions
 
-## 📚 Deep Dive: File-by-File Guide
+## Learn More
 
-- **`main.go`**: Event loop, goroutines, channels, rate limiting
-- **`config.go`**: Environment variables, the 96-line system prompt, defaults
-- **`server.go`**: Log watching, chat parsing, trigger heuristics
-- **`llm_tools.go`**: Tool calling loop, 12 tool definitions, command execution
+This project pairs with [AI 101](https://github.com/patdeg/ai101) to teach:
+- How system prompts work (the "personality" of an AI)
+- How function calling/tools let AIs interact with the real world
+- How to build safe, moderated AI experiences for kids
 
-Start with `main.go` for the big picture, then dive into `llm_tools.go` to see tool calling in action!
+Want to experiment? Try:
+1. Modify the system prompt in `config.go` to change Alfred's personality
+2. Add a new tool in `llm_tools.go` (maybe a joke command or compliment generator?)
+3. Adjust trigger words to make Alfred more/less chatty
 
-## 🎨 Why This Is Cool for Kids
+## 🐛 Troubleshooting for Learners
 
-**It's Minecraft**: They're already playing it. Now they're *programming* it.
+**"Alfred isn't responding!"**
+- Check if your trigger is working: type `Alfred hello` or `!bot test`
+- Look at logs: `journalctl -u mcchatbot.service -f` (production) or just watch terminal output
+- Verify cooldown hasn't kicked in (default 30s between replies)
 
-**Immediate Feedback**: Change code → restart Alfred → see new behavior in-game.
+**"I want to test locally without a real Minecraft server"**
+- Create a fake log file: `touch test.log`
+- Set `MCCHATBOT_LOG_PATH=./test.log` in `.env`
+- Manually append chat lines: `echo '[12:34:56] [Async Chat Thread - #1/INFO]: <TestPlayer> Alfred help' >> test.log`
+- Alfred will detect and respond (though screen commands will fail - that's OK for learning!)
 
-**Safe Experimentation**: Can't break anything—worst case, restart the bot!
+**"What's this 'screen' thing?"**
+- `screen` is a Linux tool that keeps programs running in the background
+- Minecraft servers often run in screen so you can attach/detach from them
+- Alfred uses `screen -X stuff` to send commands to the running server
+- Think of it like "remote control" for the server console
 
-**Moderation Is Fun**: The lightning strike makes safety education memorable.
+**"How do I see what Alfred is actually sending to the AI?"**
+- Check the logs - every prompt is logged before sending
+- Use `make show` to see `chat_history.log` with full conversation records
+- Add more `log.Printf()` statements in the code to see everything!
 
-**Tool Use Is Magic**: Watching AI decide to teleport someone feels like actual magic.
-
-**Parent-Friendly**: Full audit logs mean parents can review every interaction.
-
-## 🔗 Resources
-
-- **Full Code**: [github.com/patdeg/mcchatbot](https://github.com/patdeg/mcchatbot)
-- **AI 101 Course**: [github.com/patdeg/ai101](https://github.com/patdeg/ai101)
-- **System Prompt Engineering**: Read `config.go` lines 15-96
-- **Tool Calling Deep Dive**: Read `llm_tools.go` lines 124-205
-
-## 🎓 Teaching Notes (For Parents/Educators)
-
-**Age Appropriateness**: Designed for ages 12-16, but the concepts scale up/down.
-
-**Time Commitment**:
-- Quick demo: 30 minutes
-- Full understanding: 3-5 hours
-- Custom modifications: Ongoing learning!
-
-**Prerequisites**:
-- Basic programming in any language
-- Comfort with terminal/command line
-- Understanding of functions and loops
-
-**Safety**:
-- API key management (teach secrets handling)
-- Content moderation (real-world AI safety)
-- Audit logs (transparency in AI systems)
-
-**Extension Projects**:
-- Add more tools (weather effects, mob spawning, item drops)
-- Multi-language support (Alfred speaks French/Spanish)
-- Personality modes (switch between counselor/pirate/wizard)
-- Advanced moderation (positive reinforcement systems)
-
----
-
-## 🌟 Success Stories
-
-> "I changed the system prompt to make Alfred a space explorer and it actually worked! He started saying 'greetings earthling' instead of 'hey camper!' This is so cool!" - Victor, age 14
-
-> "The lightning strike moderation is genius. My son understands AI safety way better now because he saw it in action. Plus it's just really funny when it happens." - Parent feedback
-
-> "We added a tool that spawns chickens when players are nice to each other. Alfred now rewards kindness with chickens. Best. Project. Ever." - Minecraft camp instructor
-
----
-
-**Ready to build your own AI-powered Minecraft counselor?**
-
-Start with the [full repository](https://github.com/patdeg/mcchatbot), read the code comments (they're designed for learning!), and remember: the best way to learn AI is to **build something fun with it**.
-
-⚡ Happy coding, and may your lightning strikes always be safe! ⚡
+## License
+MIT-style license (add one if needed).
