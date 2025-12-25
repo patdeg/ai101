@@ -45,24 +45,54 @@ brew install cjson
 export DEMETERICS_API_KEY="your-api-key-here"
 ```
 
+## Quick Start
+
+```bash
+# 1. Install libcurl (required)
+sudo apt-get install libcurl4-openssl-dev  # Ubuntu/Debian
+# or: brew install curl                     # macOS
+
+# 2. Install cJSON library
+make install
+
+# 3. Build all examples
+make
+
+# 4. Run an example
+./bin/01_basic_chat
+```
+
 ## Compiling Examples
 
-### If cJSON is in lib/ folder:
+Executables are placed in the `bin/` folder (which is gitignored).
+
+### Using Make (Recommended):
 ```bash
-gcc -o 01_basic_chat 01_basic_chat.c lib/cJSON.c -lcurl -I lib/
-./01_basic_chat
+make          # Build all examples
+make install  # Download cJSON library to lib/
+make clean    # Remove all executables
+make 01       # Build just example 01
+make run-01   # Build and run example 01
+make help     # Show all available targets
+```
+
+### Manual compilation (if cJSON is in lib/ folder):
+```bash
+gcc -o bin/01_basic_chat 01_basic_chat.c lib/cJSON.c -lcurl -I lib/
+./bin/01_basic_chat
 ```
 
 ### If cJSON is installed system-wide:
 ```bash
-gcc -o 01_basic_chat 01_basic_chat.c -lcurl -lcjson
-./01_basic_chat
+gcc -o bin/01_basic_chat 01_basic_chat.c -lcurl -lcjson
+./bin/01_basic_chat
 ```
 
-### Compile all examples (with lib/):
+### Compile all examples manually:
 ```bash
+mkdir -p bin
 for f in *.c; do
-    gcc -o "${f%.c}" "$f" lib/cJSON.c -lcurl -I lib/ 2>/dev/null && echo "Built: ${f%.c}"
+    gcc -o "bin/${f%.c}" "$f" lib/cJSON.c -lcurl -I lib/ 2>/dev/null && echo "Built: ${f%.c}"
 done
 ```
 

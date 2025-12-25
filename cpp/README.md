@@ -44,24 +44,54 @@ brew install nlohmann-json
 export DEMETERICS_API_KEY="your-api-key-here"
 ```
 
+## Quick Start
+
+```bash
+# 1. Install libcurl (required)
+sudo apt-get install libcurl4-openssl-dev  # Ubuntu/Debian
+# or: brew install curl                     # macOS
+
+# 2. Install nlohmann/json library
+make install
+
+# 3. Build all examples
+make
+
+# 4. Run an example
+./bin/01_basic_chat
+```
+
 ## Compiling Examples
 
-### If json.hpp is in lib/ folder:
+Executables are placed in the `bin/` folder (which is gitignored).
+
+### Using Make (Recommended):
 ```bash
-g++ -std=c++17 -o 01_basic_chat 01_basic_chat.cpp -lcurl -I lib/
-./01_basic_chat
+make          # Build all examples
+make install  # Download nlohmann/json library to lib/
+make clean    # Remove all executables
+make 01       # Build just example 01
+make run-01   # Build and run example 01
+make help     # Show all available targets
+```
+
+### Manual compilation (if json.hpp is in lib/ folder):
+```bash
+g++ -std=c++17 -o bin/01_basic_chat 01_basic_chat.cpp -lcurl -I lib/
+./bin/01_basic_chat
 ```
 
 ### If nlohmann/json is installed system-wide:
 ```bash
-g++ -std=c++17 -o 01_basic_chat 01_basic_chat.cpp -lcurl
-./01_basic_chat
+g++ -std=c++17 -o bin/01_basic_chat 01_basic_chat.cpp -lcurl
+./bin/01_basic_chat
 ```
 
-### Compile all examples (with lib/):
+### Compile all examples manually:
 ```bash
+mkdir -p bin
 for f in *.cpp; do
-    g++ -std=c++17 -o "${f%.cpp}" "$f" -lcurl -I lib/ 2>/dev/null && echo "Built: ${f%.cpp}"
+    g++ -std=c++17 -o "bin/${f%.cpp}" "$f" -lcurl -I lib/ 2>/dev/null && echo "Built: ${f%.cpp}"
 done
 ```
 

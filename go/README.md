@@ -37,8 +37,28 @@ go version  # Should be 1.16 or higher
 ```
 `DEMETERICS_API_KEY` is your Managed LLM Key from https://demeterics.com. One key unlocks Groq, Gemini, OpenAI, and Anthropic through the proxy.
 
+## Quick Start
+
+```bash
+# Build all examples
+make
+
+# Run an example
+./bin/01_basic_chat
+```
+
 ## Running the Examples
 
+### Using Make (Recommended):
+```bash
+make          # Build all examples to bin/
+make clean    # Remove all executables
+make 01       # Build just example 01
+make run-01   # Build and run example 01
+make help     # Show all available targets
+```
+
+### Using go run directly:
 ```bash
 go run 01_basic_chat.go
 go run 02_system_prompt.go
@@ -60,10 +80,10 @@ go run 13_reasoning.go        # Step-by-step thinking with prompt caching
 go run 14_text_to_speech.go   # OpenAI TTS with 11 voices
 ```
 
-Or compile first, then run (faster):
+### Manual compilation:
 ```bash
-go build 01_basic_chat.go
-./01_basic_chat
+go build -o bin/01_basic_chat 01_basic_chat.go
+./bin/01_basic_chat
 ```
 
 ---

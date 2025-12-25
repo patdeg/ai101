@@ -539,6 +539,11 @@ id_ed25519.pub
 # PROJECT SPECIFIC
 # ============================================================================
 
+# Compiled executables
+c/bin/
+cpp/bin/
+go/bin/
+
 # Transcription output files
 transcription*.txt
 transcription*.json
