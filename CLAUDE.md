@@ -2,6 +2,42 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+---
+
+## Blue Fermion Brand Alignment
+
+This project is part of the **Blue Fermion Labs** portfolio. As such, it follows the universal prime objectives that govern all Blue Fermion properties.
+
+### Universal Prime Objectives
+
+| # | Objective | Rationale |
+|---|-----------|-----------|
+| **U1** | **Never deploy to production without explicit user permission** | Prevents accidental releases; ensures human-in-the-loop for all production changes |
+| **U2** | **Never destroy user work with git checkout/reset** | Learned from production incident; always preserve uncommitted changes |
+| **U3** | **Documentation in `/docs/` only** | Root folder contains only README.md, CLAUDE.md, AGENTS.md; keeps projects clean |
+| **U4** | **Use the shared common library** | `github.com/patdeg/common` provides logging, utilities, and LLM integration (when applicable) |
+| **U5** | **Use Demeterics for LLM observability** | All LLM calls should be tagged with APP, FLOW, ENV, USER for cost tracking |
+
+### Blue Fermion Labs Objectives (Cross-Product)
+
+| # | Objective | Context |
+|---|-----------|---------|
+| **L1** | **Simplicity First** | Vanilla Bootstrap 5, simple HTMX, basic Go handlers |
+| **L2** | **No Hallucination** | Temperature 0.0 for factual extraction; strict prompts |
+| **L3** | **Fail Gracefully** | Fallback chains (Groq -> OpenAI -> Error message) |
+| **L4** | **Cache Smart** | 15min PDF cache, 30min sessions, use memcache |
+| **L5** | **Security Always** | No PII in keys/logs; validate all inputs |
+
+### Brand Context
+
+- **Parent Entity:** Blue Fermion, LLC
+- **Business Line:** Blue Fermion Labs (SaaS/Educational Products)
+- **Brand Promise:** "Deploy AI with the Rigor of CERN and the Speed of Google"
+- **Primary Color:** Teal (#1DA7A0) with Navy (#123C6B) secondary
+- **Voice:** Rigorous, Direct, Confident, Accessible, Human
+
+---
+
 ## Repository Overview
 
 This is `ai101` - an educational repository teaching **responsible AI development** across 7 languages/platforms. This is a **training project** for beginners (starting with a 14-year-old student named Victor), where **code clarity, educational value, and AI safety are the top priorities**.
@@ -11,16 +47,16 @@ Create a "Rosetta Stone" of AI API examples that teach programming fundamentals 
 
 ## Directory Structure
 
-- `bash/` - Bash/cURL examples (30 files: 15 examples × 2 versions each)
-- `nodejs/` - Node.js examples (15 examples, built-in modules only)
-- `python/` - Python examples (15 examples, standard library only)
-- `go/` - Go examples (15 examples, standard library only)
-- `c/` - C examples (15 examples, libcurl + cJSON)
-- `cpp/` - C++ examples (15 examples, libcurl + nlohmann/json)
+- `bash/` - Bash/cURL examples (32 files: 16 examples × 2 versions each)
+- `nodejs/` - Node.js examples (16 examples, built-in modules only)
+- `python/` - Python examples (16 examples, standard library only)
+- `go/` - Go examples (16 examples, standard library only)
+- `c/` - C examples (16 examples, libcurl + cJSON)
+- `cpp/` - C++ examples (16 examples, libcurl + nlohmann/json)
 - `arduino/` - Arduino/ESP32 examples (for XIAO ESP32-S3 Sense board, examples 1-8 only)
-- `exercises/` - Hands-on practice exercises (15 files, one per example)
+- `exercises/` - Hands-on practice exercises (16 files, one per example)
 
-## The 15 Examples (Repeated Across Languages)
+## The 16 Examples (Repeated Across Languages)
 
 1. **01_basic_chat** - Simple question/answer with AI
 2. **02_system_prompt** - Controlling AI behavior with system messages
@@ -37,6 +73,7 @@ Create a "Rosetta Stone" of AI API examples that teach programming fundamentals 
 13. **13_code_execution** - Python code execution with openai/gpt-oss-20b
 14. **14_reasoning** - Step-by-step thinking with openai/gpt-oss-20b + prompt caching
 15. **15_text_to_speech** - Voice synthesis with OpenAI gpt-4o-mini-tts (11 voices)
+16. **16_podcast** - Multi-speaker podcast generation with Google Gemini TTS (30 voices)
 
 ## Bash Directory: Dual Version Strategy
 
@@ -133,6 +170,14 @@ EOF
 - Output: $12/1M tokens (audio duration-based)
 - 11 voices: alloy, ash, ballad, coral, echo, fable, onyx, nova, sage, shimmer, verse
 
+**Multi-Speaker TTS** (Demeterics): `POST /tts/v1/generate`
+- Single API call generates audio with multiple distinct speakers
+- 30 voices: Puck (upbeat), Kore (firm), Charon (informative), Zephyr (bright),
+  Fenrir (excitable), Leda (youthful), Aoede (breezy), Sulafat (warm), Achird (friendly), etc.
+- Max 2 speakers per request
+- Uses DEMETERICS_API_KEY (same key as other examples)
+- Documentation: https://demeterics.ai/docs/speech
+
 **Tavily API** (for examples 08-09):
 - Web search and content extraction
 - Authentication: `Authorization: Bearer <TAVILY_API_KEY>` header
@@ -164,13 +209,13 @@ EOF
 ## File Naming Conventions
 
 - Examples: `01_basic_chat.{sh,js,py,go,c,cpp,ino}`
-- Bash minimal: `01_basic_chat_minimal.sh` (and 02-15)
-- Bash full: `01_basic_chat_full.sh` (and 02-15)
-- C examples: `01_basic_chat.c` (and 02-15)
-- C++ examples: `01_basic_chat.cpp` (and 02-15)
+- Bash minimal: `01_basic_chat_minimal.sh` (and 02-16)
+- Bash full: `01_basic_chat_full.sh` (and 02-16)
+- C examples: `01_basic_chat.c` (and 02-16)
+- C++ examples: `01_basic_chat.cpp` (and 02-16)
 - Arduino: `01_basic_chat/01_basic_chat.ino` (in subdirectories, examples 01-07 only)
 - README files: `README.md` (one per language directory, plus `exercises/README.md`)
-- Exercise files: `exercises/01_basic_chat.md` (and 02-15)
+- Exercise files: `exercises/01_basic_chat.md` (and 02-16)
 - Test resources: `test_image.jpg`, `gettysburg.mp3` (root level)
 - Documentation: `*.md` (root level)
 
@@ -215,6 +260,7 @@ EOF
 13. Code execution with sandboxing
 14. Reasoning with prompt caching optimization
 15. Text-to-speech with voice synthesis
+16. Multi-speaker podcast generation with Gemini TTS
 
 **Key Principles**:
 - **Safety-first mindset** - AI safety taught in examples 5-7, before advanced features
@@ -238,7 +284,7 @@ EOF
 The `exercises/` directory contains hands-on practice challenges designed using modern educational principles:
 
 - **Progressive difficulty**: Understand → Apply → Analyze → Create
-- **15 exercise files**: One per example (01-15)
+- **16 exercise files**: One per example (01-16)
 - **Safety integration**: Exercises 5-7 focus on content moderation and security
 - **Navigation**: Each file links to previous/next exercise and back to main index
 - **Cross-references**: Exercise files reference related code examples in language directories
@@ -255,6 +301,7 @@ The `exercises/` directory contains hands-on practice challenges designed using 
 - `exercises/13_code_execution.md` - Python code execution
 - `exercises/14_reasoning.md` - Step-by-step thinking with caching
 - `exercises/15_text_to_speech.md` - Voice synthesis with 11 voices
+- `exercises/16_podcast.md` - Multi-speaker podcast generation
 
 Each exercise file includes:
 - What the user learned from the basic example
@@ -274,7 +321,7 @@ When working on this repository:
 6. Clarity > Cleverness
 7. Consistency > Innovation
 8. Dual versions for bash (minimal + full)
-9. 15 examples + 15 exercises for complete learning path
+9. 16 examples + 16 exercises for complete learning path
 10. 7 languages: bash, nodejs, python, go, c, cpp, arduino
 
 **Remember**: Victor is 14 and learning AI for the first time. Make every line count as a teaching opportunity. Teach not just what AI *can* do, but what it *should* do responsibly.

@@ -59,7 +59,7 @@ Example 01 (Basic Chat) demonstrates how to work with **5 different AI providers
 
 Each provider has its own example file (e.g., `01_basic_chat_OPENAI.py`) showing provider-specific authentication and API patterns.
 
-## The 15 Examples
+## The 16 Examples
 
 1. **Basic Chat** - Single question to the AI model (multi-vendor support!)
 2. **System + User Prompts** - Controlling AI behavior with system instructions
@@ -76,6 +76,7 @@ Each provider has its own example file (e.g., `01_basic_chat_OPENAI.py`) showing
 13. **Code Execution** - Python code execution with openai/gpt-oss-20b
 14. **Reasoning** - Step-by-step thinking with openai/gpt-oss-20b + prompt caching
 15. **Text-to-Speech** - Voice synthesis with OpenAI gpt-4o-mini-tts
+16. **Podcast** - Multi-speaker podcast generation with Google Gemini TTS
 
 ## 🎮 Featured Project: Alfred the Minecraft AI Counselor
 
@@ -117,7 +118,7 @@ ai101/
 └── README.md      # This file
 ```
 
-Each language folder contains the same 15 examples implemented in that language (except Arduino has only examples 1-8), plus a detailed README explaining the code.
+Each language folder contains the same 16 examples implemented in that language (except Arduino has only examples 1-8), plus a detailed README explaining the code.
 
 **Note on C/C++**: These examples use minimal external dependencies: **libcurl** (HTTP requests) and a JSON library (**cJSON** for C, **nlohmann/json** for C++). Both JSON libraries can be bundled directly in the project - see their respective READMEs for setup.
 
@@ -403,6 +404,7 @@ Ready to experiment and build? Check out the [**exercises/**](exercises/) direct
 - **[Exercise 12: Code Execution](exercises/12_code_execution.md)** - Python execution with openai/gpt-oss-20b
 - **[Exercise 13: Reasoning](exercises/13_reasoning.md)** - Step-by-step thinking with prompt caching
 - **[Exercise 14: Text-to-Speech](exercises/14_text_to_speech.md)** - Voice synthesis with 11 voices
+- **[Exercise 15: Podcast](exercises/16_podcast.md)** - Multi-speaker podcast generation with Gemini
 
 Each exercise file includes:
 - Progressive difficulty levels

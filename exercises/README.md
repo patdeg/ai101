@@ -32,6 +32,7 @@ Each example has its own exercise file with challenges ranging from basic parame
 | 12 | [Code Execution](12_code_execution.md) | Python execution via `openai/gpt-oss-20b` | Primes, exceptions, parsing, performance |
 | 13 | [Reasoning](13_reasoning.md) | Step-by-step thinking, prompt caching | Formats, effort levels, cache optimization |
 | 14 | [Text-to-Speech](14_text_to_speech.md) | Voice synthesis with OpenAI | 11 voices, instructions, speed, multi-language |
+| 15 | [Podcast](16_podcast.md) | Multi-speaker podcast generation | Voice casting, script writing, bilingual content |
 
 ## How to Use These Exercises
 
