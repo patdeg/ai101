@@ -78,6 +78,9 @@ go run 11_web_search.go       # groq/compound-mini with built-in web search
 go run 12_code_execution.go   # openai/gpt-oss-20b Python execution
 go run 13_reasoning.go        # Step-by-step thinking with prompt caching
 go run 14_text_to_speech.go   # OpenAI TTS with 11 voices
+
+# Computer Vision (requires GoCV: gocv.io/x/gocv)
+go run 18_pose_estimation.go   # Real-time pose estimation with webcam + ONNX
 ```
 
 ### Manual compilation:
@@ -1083,6 +1086,7 @@ Ready to deepen your understanding? Check out the **[exercises/](../exercises/)*
 - **[Exercise 12: Code Execution](../exercises/12_code_execution.md)** - Python execution with openai/gpt-oss-20b
 - **[Exercise 13: Reasoning](../exercises/13_reasoning.md)** - Step-by-step thinking with prompt caching
 - **[Exercise 14: Text-to-Speech](../exercises/14_text_to_speech.md)** - Voice synthesis with 11 voices
+- **[Exercise 18: Pose Estimation](../exercises/18_pose_estimation.md)** - Computer vision, skeleton detection, webcam processing
 
 Each exercise includes progressive challenges, real-world applications, and reflection questions.
 

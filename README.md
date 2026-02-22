@@ -77,6 +77,7 @@ Each provider has its own example file (e.g., `01_basic_chat_OPENAI.py`) showing
 14. **Reasoning** - Step-by-step thinking with openai/gpt-oss-20b + prompt caching
 15. **Text-to-Speech** - Voice synthesis with OpenAI gpt-4o-mini-tts
 16. **Podcast** - Multi-speaker podcast generation with Google Gemini TTS
+18. **Pose Estimation** - Real-time computer vision with webcam skeleton overlay (Python, Go)
 
 ## 🎮 Featured Project: Alfred the Minecraft AI Counselor
 
@@ -405,6 +406,7 @@ Ready to experiment and build? Check out the [**exercises/**](exercises/) direct
 - **[Exercise 13: Reasoning](exercises/13_reasoning.md)** - Step-by-step thinking with prompt caching
 - **[Exercise 14: Text-to-Speech](exercises/14_text_to_speech.md)** - Voice synthesis with 11 voices
 - **[Exercise 15: Podcast](exercises/16_podcast.md)** - Multi-speaker podcast generation with Gemini
+- **[Exercise 18: Pose Estimation](exercises/18_pose_estimation.md)** - Computer vision, blue ball → shapes → ArUco → skeleton
 
 Each exercise file includes:
 - Progressive difficulty levels

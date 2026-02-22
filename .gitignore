@@ -569,6 +569,12 @@ wandb/
 .cache/
 cache/
 
+# AI models (downloaded on first run by Example 18)
+models/
+
+# Generated PDFs (exercises can regenerate these)
+!exercises/*.pdf
+
 # ============================================================================
 # END OF .gitignore
 # ============================================================================

@@ -17,14 +17,15 @@ GO = go
 BIN_DIR = bin
 
 # All source files (excluding variant files like *_OPENAI.go)
+# Also exclude 18_pose_estimation.go (requires GoCV external dependency)
 SOURCES = $(wildcard [0-9][0-9]_*.go)
-SOURCES := $(filter-out %_ANTHROPIC.go %_OPENAI.go %_DEMETERICS.go %_SAMBA.go,$(SOURCES))
+SOURCES := $(filter-out %_ANTHROPIC.go %_OPENAI.go %_DEMETERICS.go %_SAMBA.go 18_pose_estimation.go,$(SOURCES))
 
 # Generate executable names (strip .go, add bin/ prefix)
 EXECUTABLES = $(patsubst %.go,$(BIN_DIR)/%,$(SOURCES))
 
 # Example numbers for convenience targets
-EXAMPLES = 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15
+EXAMPLES = 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 18
 
 # ============================================================================
 # Main targets
@@ -105,6 +106,14 @@ run-14: 14
 	@./$(BIN_DIR)/14_reasoning
 run-15: 15
 	@./$(BIN_DIR)/15_text_to_speech
+
+# Example 18 requires GoCV (gocv.io/x/gocv) - not included in default build
+18: $(BIN_DIR)/18_pose_estimation
+$(BIN_DIR)/18_pose_estimation: 18_pose_estimation.go | $(BIN_DIR)
+	@echo "Building $@ (requires GoCV)..."
+	@$(GO) build -o $@ $<
+run-18: 18
+	@./$(BIN_DIR)/18_pose_estimation
 
 # ============================================================================
 # Help

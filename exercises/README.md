@@ -32,7 +32,9 @@ Each example has its own exercise file with challenges ranging from basic parame
 | 12 | [Code Execution](12_code_execution.md) | Python execution via `openai/gpt-oss-20b` | Primes, exceptions, parsing, performance |
 | 13 | [Reasoning](13_reasoning.md) | Step-by-step thinking, prompt caching | Formats, effort levels, cache optimization |
 | 14 | [Text-to-Speech](14_text_to_speech.md) | Voice synthesis with OpenAI | 11 voices, instructions, speed, multi-language |
-| 15 | [Podcast](16_podcast.md) | Multi-speaker podcast generation | Voice casting, script writing, bilingual content |
+| 16 | [Podcast](16_podcast.md) | Multi-speaker podcast generation | Voice casting, script writing, bilingual content |
+| 17 | [Council Voting](17_council_voting.md) | Multi-persona content selection | Persona perspectives, consensus metrics, iterative refinement |
+| 18 | [Pose Estimation](18_pose_estimation.md) | Computer vision, webcam pose detection | Blue ball → shapes → ArUco → face → skeleton → jump analyzer |
 
 ## How to Use These Exercises
 
