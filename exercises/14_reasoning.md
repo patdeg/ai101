@@ -322,8 +322,9 @@ ask_question() {
   local question="$1"
 
   # Optimal ordering: system -> resume -> question
-  curl -s -X POST "https://api.demeterics.com/groq/v1/chat/completions" \
-    -H "Authorization: Bearer $DEMETERICS_API_KEY" \
+  # Direct on Groq (not OpenRouter) - needs Groq's native prompt caching
+  curl -s -X POST "https://api.groq.com/openai/v1/chat/completions" \
+    -H "Authorization: Bearer $GROQ_API_KEY" \
     -H "Content-Type: application/json" \
     -d @- <<EOF | jq -r '.choices[0].message.content'
 {
@@ -421,26 +422,26 @@ Test both models on the same complex question:
 ```javascript
 const question = "A bat and a ball cost $1.10 in total. The bat costs $1.00 more than the ball. How much does the ball cost?";
 
-// Test 1: Regular chat model (llama-4-scout)
-const chatResponse = await callGroq('meta-llama/llama-4-scout-17b-16e-instruct', [
+// Test 1: Same model, reasoning turned OFF (quick, no "thinking" shown)
+const chatResponse = await callOpenRouter('openai/gpt-oss-20b', [
   { role: 'user', content: question }
-]);
+], { reasoning: { enabled: false } });
 
-// Test 2: Reasoning model (gpt-oss-20b)
+// Test 2: Same model, reasoning turned ON (gpt-oss-20b via Groq, from Example 13)
 const reasoningResponse = await callReasoning([
   { role: 'user', content: question }
 ], 'parsed', 'medium');
 
-console.log("Chat model answer:", chatResponse.choices[0].message.content);
-console.log("\nReasoning model:");
+console.log("Reasoning OFF:", chatResponse.choices[0].message.content);
+console.log("\nReasoning ON:");
 console.log("Thinking:", reasoningResponse.choices[0].message.reasoning);
 console.log("Answer:", reasoningResponse.choices[0].message.content);
 ```
 
 **Analyze:**
-- Which model gets the correct answer? (Ball = $0.05, not $0.10!)
+- Which run gets the correct answer? (Ball = $0.05, not $0.10!)
 - How does showing reasoning help verify correctness?
-- What's the cost difference between models?
+- What's the token/cost difference between reasoning off vs on?
 
 ## Reflection Questions
 
@@ -452,7 +453,7 @@ console.log("Answer:", reasoningResponse.choices[0].message.content);
 
 4. **Production Use:** For the agentresume.ai scenario, how would you track which messages are likely to be cached vs not cached?
 
-5. **Cost vs Quality:** At what point does the better accuracy of a reasoning model justify the 5x higher output cost ($0.50/1M vs $0.34/1M for llama-4-scout)?
+5. **Cost vs Quality:** At what point does the better accuracy of showing reasoning justify the extra tokens it costs — reasoning-on output runs through many more tokens (and $0.50/1M on Groq) than a reasoning-off answer on the same model?
 
 ## Real-World Applications
 

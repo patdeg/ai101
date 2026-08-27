@@ -1,28 +1,29 @@
 #!/bin/bash
 
 ################################################################################
-# EXAMPLE 7: WHISPER - AUDIO TRANSCRIPTION WITH WHISPER-LARGE-V3-TURBO
+# EXAMPLE 7: WHISPER - AUDIO TRANSCRIPTION WITH WHISPER-1
 ################################################################################
 #
 # What this demonstrates:
-#   - How to transcribe audio files using Whisper large-v3-turbo
-#   - Uploading multipart form data to the API
-#   - Processing speech-to-text with fast, cost-effective model
+#   - How to transcribe audio files using OpenAI's Whisper-1 model
+#   - Base64-encoding an audio file for a JSON request body
+#   - Processing speech-to-text with a fast, well-known model
 #
 # What you'll learn:
 #   - How to use the Whisper API for audio transcription
-#   - Working with multipart/form-data requests
-#   - Handling audio file uploads
-#   - Calculating transcription costs and duration
+#   - Base64-encoding audio (same trick as Example 4's vision images)
+#   - Working with JSON request bodies instead of multipart/form-data
+#   - Calculating transcription costs
 #
 # Prerequisites:
-#   - DEMETERICS_API_KEY environment variable must be set
+#   - OPENROUTER_API_KEY environment variable must be set
 #   - Audio file gettysburg.mp3 in the repository root
+#   - base64 command (pre-installed on Linux/Mac)
 #
 # Expected output:
 #   - Complete transcription of the Gettysburg Address
 #   - JSON response with transcription text
-#   - Duration and cost information
+#   - Cost information
 #
 # Why this matters:
 #   Whisper enables voice interfaces, meeting transcriptions,
@@ -31,7 +32,7 @@
 ################################################################################
 
 # Store the API endpoint URL
-API_URL="https://api.demeterics.com/groq/v1/audio/transcriptions"
+API_URL="https://openrouter.ai/api/v1/audio/transcriptions"
 
 # Path to the audio file
 AUDIO_FILE="../gettysburg.mp3"
@@ -39,18 +40,37 @@ AUDIO_FILE="../gettysburg.mp3"
 echo "========================================"
 echo "Transcribing Audio with Whisper"
 echo "========================================"
-echo "Model: whisper-large-v3-turbo"
+echo "Model: openai/whisper-1"
 echo "File: $AUDIO_FILE"
 echo ""
 
-# Make the API request with multipart form data and timing
+# Check if the audio file exists
+if [ ! -f "$AUDIO_FILE" ]; then
+  echo "Error: Audio file not found at $AUDIO_FILE"
+  echo "Please make sure gettysburg.mp3 exists in the root directory"
+  exit 1
+fi
+
+# STEP 1: Base64-encode the audio file
+# OpenRouter's /audio/transcriptions endpoint takes a JSON body (unlike the
+# multipart/form-data upload some transcription APIs use), so we base64
+# the file the same way Example 4 (vision) base64-encodes an image.
+echo "Converting audio to base64 format..."
+AUDIO_BASE64=$(base64 -w 0 "$AUDIO_FILE" 2>/dev/null || base64 "$AUDIO_FILE")
+
+# STEP 2: Make the API request with timing
 START_TIME=$(date +%s%3N)
 
 RESPONSE=$(curl -s "$API_URL" \
-  -H "Authorization: Bearer $DEMETERICS_API_KEY" \
-  -F "file=@$AUDIO_FILE" \
-  -F "model=whisper-large-v3-turbo" \
-  -F "response_format=verbose_json")
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $OPENROUTER_API_KEY" \
+  -d '{
+    "model": "openai/whisper-1",
+    "input_audio": {
+      "data": "'"$AUDIO_BASE64"'",
+      "format": "mp3"
+    }
+  }')
 
 END_TIME=$(date +%s%3N)
 LATENCY=$((END_TIME - START_TIME))
@@ -62,22 +82,21 @@ echo ""
 echo "========================================"
 echo ""
 
-# Extract duration from response (in seconds)
-DURATION=$(echo "$RESPONSE" | jq -r '.duration // 0')
-
-# Calculate cost at $0.04 per hour
-# Cost = (duration in seconds / 3600 seconds per hour) * $0.04
-if command -v bc &> /dev/null; then
-  COST=$(echo "scale=6; ($DURATION / 3600) * 0.04" | bc)
-else
-  COST=$(awk -v dur="$DURATION" 'BEGIN { printf "%.6f", (dur / 3600) * 0.04 }')
-fi
-
 echo "Performance Metrics:"
 echo "========================================"
-echo "API Latency:    ${LATENCY}ms"
-echo "Audio Duration: ${DURATION}s"
-echo "Cost:           \$${COST}"
+echo "API Latency: ${LATENCY}ms"
+echo "========================================"
+echo ""
+
+# STEP 3: Whisper-1 is not free — note the per-minute pricing
+# The response above only carries a "text" field (no duration), so unlike
+# the token-based cost math in earlier examples, we can't compute an exact
+# dollar figure here — budget by audio length instead.
+echo "Cost Notes:"
+echo "========================================"
+echo "  openai/whisper-1 pricing: \$0.006 per minute of audio (not free)."
+echo "  This example's gettysburg.mp3 is a few minutes long, so this run"
+echo "  cost a fraction of a cent."
 echo "========================================"
 echo ""
 echo "Full API Response:"
@@ -88,20 +107,19 @@ echo "$RESPONSE" | jq .
 ################################################################################
 #
 # Get just the transcription text:
-#   ./07_whisper.sh | jq -r '.text'
+#   ./08_whisper_full.sh | jq -r '.text'
 #
 # Save transcription to file:
-#   ./07_whisper.sh | jq -r '.text' > transcription.txt
+#   ./08_whisper_full.sh | jq -r '.text' > transcription.txt
 #
 # Check if transcription succeeded:
-#   ./07_whisper.sh | jq -e '.text' > /dev/null && echo "SUCCESS" || echo "FAILED"
+#   ./08_whisper_full.sh | jq -e '.text' > /dev/null && echo "SUCCESS" || echo "FAILED"
 
-# Model: whisper-large-v3-turbo
-#   - Fast, cost-effective speech recognition
+# Model: openai/whisper-1
+#   - Well-known, highly accurate speech recognition
 #   - Supports 99+ languages
-#   - Highly accurate transcription
 #   - Handles various audio formats (mp3, wav, m4a, etc.)
-#   - Pricing: $0.04 per hour of audio
+#   - Pricing: $0.006 per minute of audio
 #
 # Supported audio formats:
 #   - MP3, MP4, MPEG, MPGA, M4A, WAV, WEBM
@@ -115,9 +133,9 @@ echo "$RESPONSE" | jq .
 #   - Voice interfaces
 #   - Call center analytics
 #
-# Pricing examples (at $0.04/hour):
-#   - 1 minute:  $0.000667 (~$0.0007)
-#   - 5 minutes: $0.003333 (~$0.003)
-#   - 30 minutes: $0.02
-#   - 1 hour:     $0.04
-#   - 10 hours:   $0.40
+# Pricing examples (at $0.006/minute):
+#   - 1 minute:   $0.006
+#   - 5 minutes:  $0.03
+#   - 30 minutes: $0.18
+#   - 1 hour:     $0.36
+#   - 10 hours:   $3.60

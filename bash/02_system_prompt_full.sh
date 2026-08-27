@@ -17,7 +17,7 @@
 #   - How to verify the AI followed your instructions
 #
 # Prerequisites:
-#   - DEMETERICS_API_KEY environment variable must be set
+#   - OPENROUTER_API_KEY environment variable must be set
 #   - jq command installed (see README.md for installation)
 #   - Understanding of Example 1 (basic chat)
 #
@@ -31,16 +31,16 @@
 ################################################################################
 
 # Store the API endpoint URL
-API_URL="https://api.demeterics.com/groq/v1/chat/completions"
+API_URL="https://openrouter.ai/api/v1/chat/completions"
 
 # STEP 1: Make the API call with BOTH system and user messages
 # The system message comes first to set the AI's behavior
 echo "Sending request to AI with system prompt..."
 RESPONSE=$(curl -s "$API_URL" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $DEMETERICS_API_KEY" \
+  -H "Authorization: Bearer $OPENROUTER_API_KEY" \
   -d '{
-    "model": "meta-llama/llama-4-scout-17b-16e-instruct",
+    "model": "openai/gpt-oss-20b",
     "messages": [
       {
         "role": "system",
@@ -57,7 +57,7 @@ RESPONSE=$(curl -s "$API_URL" \
 
 # Here's the request body with detailed explanations:
 # {
-#   "model": "meta-llama/llama-4-scout-17b-16e-instruct",
+#   "model": "openai/gpt-oss-20b",
 #     ↑ Which AI model to use (same as Example 1)
 #
 #   "messages": [
@@ -135,39 +135,19 @@ echo "  Completion tokens: $COMPLETION_TOKENS"
 echo "  Total tokens:      $TOTAL_TOKENS"
 
 # STEP 5b: Calculate the cost of this API call
-# Pricing for meta-llama/llama-4-scout-17b-16e-instruct (as of Oct 1, 2025):
-#   Input:  $0.11 per 1M tokens
-#   Output: $0.34 per 1M tokens
+# Pricing for openai/gpt-oss-20b on OpenRouter: $0.03/1M input, $0.13/1M
+# output. Not free, but cheap and reliable.
+INPUT_COST=$(echo "scale=8; $PROMPT_TOKENS * 0.03 / 1000000" | bc)
+OUTPUT_COST=$(echo "scale=8; $COMPLETION_TOKENS * 0.13 / 1000000" | bc)
+TOTAL_COST=$(echo "scale=8; $INPUT_COST + $OUTPUT_COST" | bc)
+
 echo ""
 echo "========================================"
 echo "Cost Breakdown:"
 echo "========================================"
-
-if command -v bc &> /dev/null; then
-  INPUT_COST=$(echo "scale=10; $PROMPT_TOKENS * 0.11 / 1000000" | bc)
-  OUTPUT_COST=$(echo "scale=10; $COMPLETION_TOKENS * 0.34 / 1000000" | bc)
-  TOTAL_COST=$(echo "scale=10; $INPUT_COST + $OUTPUT_COST" | bc)
-else
-  INPUT_COST=$(awk "BEGIN {printf \"%.10f\", $PROMPT_TOKENS * 0.11 / 1000000}")
-  OUTPUT_COST=$(awk "BEGIN {printf \"%.10f\", $COMPLETION_TOKENS * 0.34 / 1000000}")
-  TOTAL_COST=$(awk "BEGIN {printf \"%.10f\", $INPUT_COST + $OUTPUT_COST}")
-fi
-
-echo "  Input cost:  \$$INPUT_COST  ($PROMPT_TOKENS tokens × \$0.11/1M)"
-echo "  Output cost: \$$OUTPUT_COST  ($COMPLETION_TOKENS tokens × \$0.34/1M)"
-echo "  Total cost:  \$$TOTAL_COST"
-echo ""
-echo "  💡 This request cost less than a fraction of a cent!"
-
-# STEP 6: Extract and display timing information
-echo ""
-echo "========================================"
-echo "Timing (seconds):"
-echo "========================================"
-echo "  Queue time:      $(echo "$RESPONSE" | jq '.usage.queue_time')"
-echo "  Prompt time:     $(echo "$RESPONSE" | jq '.usage.prompt_time')"
-echo "  Completion time: $(echo "$RESPONSE" | jq '.usage.completion_time')"
-echo "  Total time:      $(echo "$RESPONSE" | jq '.usage.total_time')"
+echo "  Input:  \$$INPUT_COST"
+echo "  Output: \$$OUTPUT_COST"
+echo "  Total:  \$$TOTAL_COST"
 echo ""
 
 ################################################################################

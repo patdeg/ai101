@@ -8,9 +8,11 @@
 
 In the basic example, you learned how to:
 - Generate podcast audio with **two distinct speakers** in a single API call
-- Format scripts using the `Speaker: text` pattern
-- Configure different voices for each speaker using Demeterics multi-speaker TTS
-- Save audio directly to WAV files (no base64 decoding needed)
+- Format scripts using the `Speaker: text` pattern, converted to Fish Audio's
+  `<|speaker:0|>`/`<|speaker:1|>` tags
+- Configure different voices for each speaker using Fish Audio S2.1 Pro (free tier,
+  via OpenRouter's `/audio/speech` endpoint)
+- Save audio directly to MP3 files
 
 Now let's practice and extend these concepts!
 
@@ -18,15 +20,17 @@ Now let's practice and extend these concepts!
 
 ## Exercise 1: Voice Casting (Understand)
 
-The example uses Aoede (female) and Charon (male). Try different voice pairings:
+Unlike named-voice systems, Fish Audio identifies voices by an opaque `referenceId`
+you pick from its voice library — there's no fixed "Aoede" or "Puck" to reference by
+name, so casting means browsing and swapping IDs.
 
-**Task**: Modify the script to use these alternative pairings and compare the results:
-
-| Pairing | Host 1 | Host 2 | Style |
-|---------|--------|--------|-------|
-| A | Kore | Puck | Friendly, energetic |
-| B | Zephyr | Fenrir | Bright female, deep male |
-| C | Leda | Orus | Classic podcast duo |
+**Task**:
+1. Go to https://fish.audio, browse the voice library, and copy the IDs of 3-4
+   voices you like (aim for a mix — at least one that reads as a different tone or
+   gender pairing than another)
+2. Set `FISH_VOICE_1` and `FISH_VOICE_2` to each pairing in turn and re-run the
+   example
+3. Compare the results
 
 **Questions**:
 1. Which pairing sounds most like NPR's Planet Money?
@@ -121,9 +125,9 @@ Build a complete podcast generation pipeline.
 **Task**: Create a system that:
 
 1. **Takes a topic as input** (e.g., "The French Revolution")
-2. **Generates a script using an LLM** (use Groq from earlier examples)
+2. **Generates a script using an LLM** (use OpenRouter from earlier examples)
 3. **Validates the script** (from Exercise 4)
-4. **Generates audio using Gemini TTS**
+4. **Generates audio using Fish Audio S2.1 Pro**
 5. **Saves with metadata** (topic, duration, voices used)
 
 **Bonus**: Add a "style" parameter:
@@ -135,7 +139,8 @@ Build a complete podcast generation pipeline.
 
 ## Exercise 6: Multi-Language Podcasts (Create)
 
-Gemini TTS supports 24+ languages.
+Fish Audio S2.1 Pro is multilingual — check https://fish.audio for the current
+language list before picking a second language.
 
 **Task**: Create a bilingual podcast where:
 - Host 1 speaks English
@@ -151,7 +156,7 @@ Alex: That's so interesting! Is it true you have coffee after lunch?
 Sam: Si! Siempre tomamos cafe despues de comer. Es una tradicion.
 ```
 
-**Challenge**: Does the same voice (e.g., Aoede) sound natural in both languages, or should you use different voices?
+**Challenge**: Does the same voice sound natural in both languages, or should you use different voices per language?
 
 ---
 
@@ -206,19 +211,14 @@ After completing these exercises, you can build:
 
 ## Voice Reference
 
-| Voice | Description |
-|-------|-------------|
-| Puck | Upbeat, energetic |
-| Kore | Firm, confident |
-| Charon | Informative, clear |
-| Zephyr | Bright, cheerful |
-| Fenrir | Excitable, dynamic |
-| Leda | Youthful, fresh |
-| Aoede | Breezy, warm |
-| Sulafat | Warm, friendly |
-| Achird | Friendly, approachable |
+Fish Audio doesn't ship a fixed named catalog like Gemini's — instead, browse and
+audition voices in the library and copy the `referenceId` of any you like:
 
-[Full list of 30 voices at https://demeterics.ai/docs/speech]
+1. Go to https://fish.audio and open the voice library
+2. Preview voices and note the ones that fit your podcast's tone
+3. Copy each voice's ID and set it as `FISH_VOICE_1` / `FISH_VOICE_2`
+
+[Full API reference at https://docs.fish.audio]
 
 ---
 

@@ -1,19 +1,19 @@
 #!/bin/bash
 ################################################################################
-# Example 11 (Full): Web Search with groq/compound-mini + Tavily
+# Example 11 (Full): Web Search with OpenRouter's ":online" web plugin
 #
 # What this demonstrates:
-#   - Using Groq's web-search-enabled model `groq/compound-mini`
+#   - Using OpenRouter's built-in web-search plugin (the ":online" suffix)
 #   - Pretty-printing and extracting useful fields with jq
-#   - Inspecting optional reasoning and executed tool info
+#   - Inspecting optional reasoning and citation info, if present
 #
 # What you'll learn:
 #   - How to structure a thorough chat completion request
-#   - How to view `message.reasoning` and executed tool results if present
-#   - Where to extend with domain filters and country hints
+#   - How to view `message.reasoning` and any tool/citation results present
+#   - Where to extend with domain filters and result-count controls
 #
 # Prerequisites:
-#   - DEMETERICS_API_KEY environment variable set
+#   - OPENROUTER_API_KEY environment variable set
 #   - curl and jq installed
 #
 # Expected output:
@@ -30,45 +30,48 @@ fi
 if ! command -v jq >/dev/null; then
   echo "Error: jq is required (install with: brew install jq or apt-get install jq)" 1>&2; exit 1
 fi
-if [ -z "${DEMETERICS_API_KEY:-}" ]; then
-  echo "Error: DEMETERICS_API_KEY not set" 1>&2
-  echo "Run: export DEMETERICS_API_KEY=\"dmt_your_api_key_here\"" 1>&2
+if [ -z "${OPENROUTER_API_KEY:-}" ]; then
+  echo "Error: OPENROUTER_API_KEY not set" 1>&2
+  echo "Run: export OPENROUTER_API_KEY=\"sk-or-your_api_key_here\"" 1>&2
   exit 1
 fi
 
-API_URL="https://api.demeterics.com/groq/v1/chat/completions"
+API_URL="https://openrouter.ai/api/v1/chat/completions"
 
 echo "========================================"
-echo "Web Search with groq/compound-mini"
+echo "Web Search with openai/gpt-oss-20b:online"
 echo "========================================"
 echo "Question: Top AI model releases last week with links"
 echo
 
 # Note:
-# - The groq/compound-mini model can use integrated web search.
-# - In many cases, you do not need to pass tool parameters; the model will
-#   decide when/how to search. When it searches, you may see extra fields such as
-#   message.reasoning and message.executed_tools.
-# - Some deployments support optional search controls like include/exclude domains
-#   or country hints. If supported in your account, consult the docs and add them
-#   to the payload (see the EXERCISES section below for guidance).
+# - Appending ":online" to any model slug turns on OpenRouter's built-in web
+#   search plugin (default engine: Exa) for that request.
+# - You do not need to pass tool parameters; the model decides when to
+#   search. When it does, you may see extra fields such as message.reasoning
+#   and message annotations/citations, depending on the model.
+# - Each search costs roughly $0.005 (covers up to 10 results) on top of the
+#   underlying model's normal per-token price.
+# - Optional search controls (max_results, search_prompt, engine) can be
+#   passed via a "plugins" array — see OpenRouter's web search docs (see the
+#   EXERCISES section below for guidance).
 
 PAYLOAD=$(cat <<'JSON'
 {
-  "model": "groq/compound-mini",
+  "model": "openai/gpt-oss-20b:online",
   "messages": [
     {"role": "system", "content": "You are a helpful research assistant. Provide concise answers with source links. If search is needed, use it."},
     {"role": "user",   "content": "What were the top 3 AI model releases last week? Include links and 1-sentence summaries."}
   ],
   "temperature": 0.3,
-  "max_tokens": 600
+  "max_tokens": 1200
 }
 JSON
 )
 
 RESPONSE=$(curl -sS \
   -X POST "$API_URL" \
-  -H "Authorization: Bearer $DEMETERICS_API_KEY" \
+  -H "Authorization: Bearer $OPENROUTER_API_KEY" \
   -H "Content-Type: application/json" \
   -d "$PAYLOAD")
 
@@ -115,26 +118,26 @@ fi
 # EXERCISES (Try these by editing payload and re-running)
 ################################################################################
 # 1) Model size:
-#    Change "model" to "groq/compound" for potentially stronger results.
+#    Change "model" to e.g. "openai/gpt-oss-120b:online" for potentially
+#    stronger results (no longer a ":free" model, so check pricing first).
 #
 # 2) Query logic:
 #    Ask a boolean-style query, e.g.: "(OpenAI OR Meta) AND release notes last 7 days".
 #
-# 3) Domain filters (when supported):
-#    Some deployments allow passing search config (e.g., include/exclude domains, country).
-#    Check the Groq Web Search docs for the latest schema. A common pattern is providing
-#    a configuration object for the integrated search tool. For example, you may find a
-#    vendor-specific field such as:
+# 3) Search controls:
+#    OpenRouter lets you configure the web plugin explicitly instead of just
+#    using the ":online" shorthand — swap "model" back to the plain slug and
+#    add a "plugins" array instead:
 #
-#    "web_search": {
-#      "provider": "tavily",
-#      "include_domains": ["techcrunch.com", "arxiv.org"],
-#      "exclude_domains": ["reddit.com"],
-#      "country": "us"
-#    }
+#    "plugins": [
+#      {
+#        "id": "web",
+#        "max_results": 5,
+#        "search_prompt": "Focus on official announcements, not rumors."
+#      }
+#    ]
 #
-#    IMPORTANT: Only include fields that your account/docs confirm are supported.
-#    If unsupported, the request may fail.
+#    See https://openrouter.ai/docs for the current plugin schema.
 
 # Learn more exercises for this example:
 echo "Exercises: exercises/11_web_search.md"

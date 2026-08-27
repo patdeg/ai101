@@ -48,9 +48,9 @@ static size_t write_callback(void *contents, size_t size, size_t nmemb, void *us
 
 int main(void) {
     /* Step 1: Get API key */
-    const char *api_key = getenv("DEMETERICS_API_KEY");
+    const char *api_key = getenv("GROQ_API_KEY");
     if (api_key == NULL) {
-        fprintf(stderr, "Error: DEMETERICS_API_KEY not set\n");
+        fprintf(stderr, "Error: GROQ_API_KEY not set\n");
         return 1;
     }
 
@@ -114,7 +114,7 @@ int main(void) {
     response.size = 0;
     response.data[0] = '\0';
 
-    curl_easy_setopt(curl, CURLOPT_URL, "https://api.demeterics.com/groq/v1/chat/completions");
+    curl_easy_setopt(curl, CURLOPT_URL, "https://api.groq.com/openai/v1/chat/completions");
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, json_payload);
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);

@@ -111,12 +111,13 @@ type Usage struct {
 func main() {
 	// Step 1: Get API key from environment variable
 	// Same as in basic_chat - we need authentication
-	apiKey := os.Getenv("DEMETERICS_API_KEY")
+	apiKey := os.Getenv("OPENROUTER_API_KEY")
 
 	// Verify API key is set
 	if apiKey == "" {
-		fmt.Println("Error: DEMETERICS_API_KEY environment variable not set")
-		fmt.Println("Run: export DEMETERICS_API_KEY='your_key_here'")
+		fmt.Println("Error: OPENROUTER_API_KEY environment variable not set")
+		fmt.Println("Get a free key at https://openrouter.ai/keys, then:")
+		fmt.Println("Run: export OPENROUTER_API_KEY='your_key_here'")
 		os.Exit(1)
 	}
 
@@ -127,7 +128,7 @@ func main() {
 	//
 	// The order matters! System message should come first
 	request := ChatRequest{
-		Model: "meta-llama/llama-4-scout-17b-16e-instruct",
+		Model: "openai/gpt-oss-20b", // Free model on OpenRouter
 		Messages: []Message{
 			{
 				// First message: System prompt defines AI behavior and constraints
@@ -159,9 +160,9 @@ func main() {
 	// Step 4: Create HTTP request
 	// Build the POST request to send to the API
 	req, err := http.NewRequest(
-		"POST",                                            // HTTP method
-		"https://api.demeterics.com/groq/v1/chat/completions", // API endpoint (same for all examples)
-		bytes.NewBuffer(jsonData),                         // Request body containing our 2 messages
+		"POST",                                          // HTTP method
+		"https://openrouter.ai/api/v1/chat/completions", // API endpoint (same for all examples)
+		bytes.NewBuffer(jsonData),                       // Request body containing our 2 messages
 	)
 
 	// Check if request creation succeeded

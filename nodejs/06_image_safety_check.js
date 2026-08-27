@@ -18,7 +18,7 @@
  *     node 06_image_safety_check.js
  *
  * Environment:
- *     DEMETERICS_API_KEY - Your Demeterics Managed LLM Key
+ *     OPENROUTER_API_KEY - Your OpenRouter API Key
  */
 
 const https = require('https');
@@ -32,9 +32,9 @@ const path = require('path');
  */
 async function checkImageSafety(imagePath) {
     // Step 1: Check API key
-    const apiKey = process.env.DEMETERICS_API_KEY;
+    const apiKey = process.env.OPENROUTER_API_KEY;
     if (!apiKey) {
-        throw new Error('DEMETERICS_API_KEY environment variable not set');
+        throw new Error('OPENROUTER_API_KEY environment variable not set');
     }
 
     // Step 2: Load and encode the image
@@ -84,9 +84,9 @@ async function checkImageSafety(imagePath) {
 
     return new Promise((resolve, reject) => {
         const options = {
-            hostname: 'api.demeterics.com',
+            hostname: 'openrouter.ai',
             port: 443,
-            path: '/groq/v1/chat/completions',
+            path: '/api/v1/chat/completions',
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${apiKey}`,
@@ -245,10 +245,10 @@ async function main() {
             console.log(`Completion tokens: ${(usage.completion_tokens || 0).toLocaleString()}`);
             console.log(`Total tokens: ${(usage.total_tokens || 0).toLocaleString()}`);
 
-            // Calculate approximate cost (LlamaGuard pricing)
-            // $0.20 per 1M tokens (both input and output)
+            // Calculate approximate cost (LlamaGuard pricing on OpenRouter)
+            // $0.18 per 1M tokens (both input and output)
             const totalTokens = usage.total_tokens || 0;
-            const cost = (totalTokens / 1_000_000) * 0.20;
+            const cost = (totalTokens / 1_000_000) * 0.18;
             console.log(`Estimated cost: $${cost.toFixed(6)}`);
         }
 

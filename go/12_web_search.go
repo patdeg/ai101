@@ -1,10 +1,11 @@
 package main
 
 /*
-Example 11: Web Search with groq/compound-mini
+Example 11: Web Search with OpenRouter's :online plugin
 
 What this demonstrates:
-  - Calling a web-search-enabled model (groq/compound-mini)
+  - Appending ":online" to any OpenRouter model slug to get
+    search-augmented generation in a single call (default engine: Exa)
   - OpenAI-compatible chat API
   - Inspecting optional reasoning and executed tool info
 
@@ -13,11 +14,14 @@ What you'll learn:
   - Parsing optional JSON fields safely
 
 Prerequisites:
-  - DEMETERICS_API_KEY environment variable set
+  - OPENROUTER_API_KEY environment variable set (free at https://openrouter.ai/keys)
 
 Expected output:
   - Final answer content
   - Optional reasoning and executed tool info (if search was used)
+
+Note: the ":online" plugin costs about $0.005/request (up to 10 results) on
+top of the underlying model's own token cost, regardless of the model used.
 
 Exercises: exercises/11_web_search.md
 */
@@ -60,21 +64,22 @@ type ChatResponse struct {
 }
 
 func main() {
-    apiKey := os.Getenv("DEMETERICS_API_KEY")
+    apiKey := os.Getenv("OPENROUTER_API_KEY")
     if apiKey == "" {
-        fmt.Fprintln(os.Stderr, "Error: DEMETERICS_API_KEY not set")
-        fmt.Fprintln(os.Stderr, "Run: export DEMETERICS_API_KEY=\"dmt_your_api_key_here\"")
+        fmt.Fprintln(os.Stderr, "Error: OPENROUTER_API_KEY not set")
+        fmt.Fprintln(os.Stderr, "Get a free key at https://openrouter.ai/keys, then:")
+        fmt.Fprintln(os.Stderr, "Run: export OPENROUTER_API_KEY=\"your_api_key_here\"")
         os.Exit(1)
     }
 
     reqBody := ChatRequest{
-        Model: "groq/compound-mini",
+        Model: "openai/gpt-oss-20b:online",
         Messages: []ChatMessage{
             {Role: "system", Content: "You are a helpful research assistant. Provide concise answers with links. Use search when needed."},
             {Role: "user", Content: "What were the top 3 AI model releases last week? Include links and 1-sentence summaries."},
         },
         Temperature: 0.3,
-        MaxTokens:   600,
+        MaxTokens:   1200,
     }
 
     b, err := json.Marshal(reqBody)
@@ -83,7 +88,7 @@ func main() {
         os.Exit(1)
     }
 
-    req, err := http.NewRequest("POST", "https://api.demeterics.com/groq/v1/chat/completions", bytes.NewBuffer(b))
+    req, err := http.NewRequest("POST", "https://openrouter.ai/api/v1/chat/completions", bytes.NewBuffer(b))
     if err != nil {
         fmt.Fprintf(os.Stderr, "request error: %v\n", err)
         os.Exit(1)
@@ -148,10 +153,10 @@ func main() {
     fmt.Println()
 
     // Exercises:
-    // 1) Change model to "groq/compound" for a larger model.
+    // 1) Try a different base model before the ":online" suffix and compare.
     // 2) Ask a boolean-style query: "(OpenAI OR Meta) AND release notes last 7 days".
-    // 3) If your deployment supports web-search parameters (include/exclude domains, country),
-    //    consult docs and add them in the payload.
+    // 3) Explore OpenRouter's web plugin options (max_results, search_prompt,
+    //    engine selection) at https://openrouter.ai/docs/guides/features/web-search
 
     fmt.Println("Exercises: exercises/11_web_search.md")
 }

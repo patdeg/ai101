@@ -204,10 +204,10 @@ Learn how to adapt your code to use OpenAI's **omni-moderation-latest** model - 
 
 **What needs to change:**
 
-| Parameter | Groq (LlamaGuard) | OpenAI (Omni Moderation) |
+| Parameter | LlamaGuard (via OpenRouter) | OpenAI (Omni Moderation) |
 |-----------|-------------------|--------------------------|
-| **Base URL** | `https://api.demeterics.com/groq/v1/chat/completions` | `https://api.openai.com/v1/moderations` |
-| **API Key** | `DEMETERICS_API_KEY` environment variable | `OPENAI_API_KEY` environment variable |
+| **Base URL** | `https://openrouter.ai/api/v1/chat/completions` | `https://api.openai.com/v1/moderations` |
+| **API Key** | `OPENROUTER_API_KEY` environment variable | `OPENAI_API_KEY` environment variable |
 | **Model** | `meta-llama/llama-guard-4-12b` | `omni-moderation-latest` |
 | **Request format** | Chat completion (`messages` array) | Moderation (`input` field) |
 | **Response format** | `choices[0].message.content` = `"safe"` or `"unsafe\nS10"` | `results[0].flagged` = boolean + category scores |
@@ -226,10 +226,10 @@ Learn how to adapt your code to use OpenAI's **omni-moderation-latest** model - 
 
 **Request format comparison:**
 
-**Groq (LlamaGuard):**
+**LlamaGuard (via OpenRouter):**
 ```bash
-curl https://api.demeterics.com/groq/v1/chat/completions \
-  -H "Authorization: Bearer $DEMETERICS_API_KEY" \
+curl https://openrouter.ai/api/v1/chat/completions \
+  -H "Authorization: Bearer $OPENROUTER_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "model": "meta-llama/llama-guard-4-12b",
@@ -250,7 +250,7 @@ curl https://api.openai.com/v1/moderations \
 
 **Response format comparison:**
 
-**Groq response:**
+**LlamaGuard response:**
 ```json
 {
   "choices": [{
@@ -332,9 +332,9 @@ Adapt Exercise 4.6 (Gamer Tag Validator) to use OpenAI's moderation API:
 **Code changes needed (pseudocode):**
 
 ```javascript
-// BEFORE (Groq)
-const response = await fetch('https://api.demeterics.com/groq/v1/chat/completions', {
-  headers: { 'Authorization': `Bearer ${process.env.DEMETERICS_API_KEY}` },
+// BEFORE (LlamaGuard via OpenRouter)
+const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+  headers: { 'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}` },
   body: JSON.stringify({
     model: 'meta-llama/llama-guard-4-12b',
     messages: [{ role: 'user', content: gamerTag }]

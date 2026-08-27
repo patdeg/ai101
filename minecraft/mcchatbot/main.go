@@ -96,7 +96,7 @@ func main() {
 			log.Printf("[BOT] Triggered by %s. Prompt: %s", evt.Player, replyPrompt)
 
 			// 🎓 LEARNING NOTE: This is where the magic happens! callLLM sends the message
-			// to the AI (Demeterics/Groq), which decides how to respond and which tools to use
+			// to the AI (OpenRouter), which decides how to respond and which tools to use
 			resp, toolLogs, err := callLLM(ctx, cfg, evt, replyPrompt)
 			if err != nil {
 				log.Printf("LLM error: %v", err)

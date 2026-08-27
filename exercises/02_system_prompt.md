@@ -50,10 +50,15 @@ This exercise introduces **structured output** using the API's built-in JSON mod
 
 **Important requirement:** When using `response_format: { type: "json_object" }`, the word "JSON" must appear in your system prompt or user message.
 
+**Note:** this uses `google/gemma-4-31b-it` instead of the example's default
+`openai/gpt-oss-20b` — not every free OpenRouter model supports the
+`response_format` parameter, and gemma-4-31b-it does. Check a model's "supported
+parameters" on https://openrouter.ai/models before relying on a feature like this.
+
 **Basic JSON Mode Example:**
 ```json
 {
-  "model": "meta-llama/llama-4-scout-17b-16e-instruct",
+  "model": "google/gemma-4-31b-it",
   "messages": [
     {
       "role": "system",

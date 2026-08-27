@@ -1,13 +1,12 @@
 package main
 
 /*
-Example 14: Text-to-Speech with OpenAI
+Example 15: Text-to-Speech with Fish Audio (via OpenRouter)
 
 Demonstrates:
-- Converting text to spoken audio
-- 11 different voices
-- Instructions and speed parameters
-- Multi-language support
+- Converting text to spoken audio using OpenRouter's /audio/speech endpoint
+- Fish Audio S2.1 Pro Free - a genuinely free TTS model, no card required
+- Picking a voice by reference ID from Fish Audio's voice library
 
 Note: Uses Go standard library only
 */
@@ -21,76 +20,108 @@ import (
 	"os"
 )
 
-func textToSpeech(text, voice string, options map[string]interface{}) ([]byte, error) {
-	requestData := map[string]interface{}{
-		"model": "gpt-4o-mini-tts",
-		"input": text,
-		"voice": voice,
+type fishAudioOptions struct {
+	ReferenceID string `json:"referenceId"`
+}
+
+type providerOptions struct {
+	FishAudio fishAudioOptions `json:"fishAudio"`
+}
+
+type ttsRequest struct {
+	Model           string           `json:"model"`
+	Input           string           `json:"input"`
+	ResponseFormat  string           `json:"response_format"`
+	ProviderOptions *providerOptions `json:"providerOptions,omitempty"`
+}
+
+func textToSpeech(text, referenceID string) ([]byte, error) {
+	request := ttsRequest{
+		Model:          "fish-audio/s2.1-pro-free:free",
+		Input:          text,
+		ResponseFormat: "mp3",
 	}
-	
-	for k, v := range options {
-		requestData[k] = v
+	// Without a referenceId, Fish Audio picks a default voice - good enough
+	// for a first TTS demo. Pass one to pick a specific voice (see Example 16
+	// for the multi-speaker version of this).
+	if referenceID != "" {
+		request.ProviderOptions = &providerOptions{FishAudio: fishAudioOptions{ReferenceID: referenceID}}
 	}
-	
-	requestBody, _ := json.Marshal(requestData)
-	
-	req, err := http.NewRequest("POST", "https://api.openai.com/v1/audio/speech", bytes.NewBuffer(requestBody))
+
+	requestBody, err := json.Marshal(request)
 	if err != nil {
 		return nil, err
 	}
-	
+
+	req, err := http.NewRequest("POST", "https://openrouter.ai/api/v1/audio/speech", bytes.NewBuffer(requestBody))
+	if err != nil {
+		return nil, err
+	}
+
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", os.Getenv("OPENAI_API_KEY")))
-	
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", os.Getenv("OPENROUTER_API_KEY")))
+
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	
-	return io.ReadAll(resp.Body)
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode != 200 {
+		return nil, fmt.Errorf("API Error: HTTP %d\n%s", resp.StatusCode, body)
+	}
+	return body, nil
 }
 
 func main() {
-	if os.Getenv("OPENAI_API_KEY") == "" {
-		fmt.Fprintln(os.Stderr, "Error: OPENAI_API_KEY not set")
-		fmt.Fprintln(os.Stderr, "Get your key from: https://platform.openai.com")
+	if os.Getenv("OPENROUTER_API_KEY") == "" {
+		fmt.Fprintln(os.Stderr, "Error: OPENROUTER_API_KEY not set")
+		fmt.Fprintln(os.Stderr, "Get your key from: https://openrouter.ai/keys")
 		os.Exit(1)
 	}
-	
+
 	fmt.Println("========================================")
-	fmt.Println("Text-to-Speech with OpenAI")
-	fmt.Println("========================================\n")
-	
-	// Demo 1: Basic TTS
-	text := "Hello! This is an example of text-to-speech synthesis using OpenAI's affordable TTS model."
-	audio, err := textToSpeech(text, "alloy", nil)
+	fmt.Println("Text-to-Speech with Fish Audio (OpenRouter)")
+	fmt.Println("========================================")
+	fmt.Println()
+
+	// Demo 1: Basic TTS with the default voice
+	text := "Hello! This is an example of text-to-speech synthesis using Fish Audio's free TTS model."
+	audio, err := textToSpeech(text, "")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
-	
-	os.WriteFile("demo1_alloy.mp3", audio, 0644)
-	fmt.Printf("✓ Audio created: demo1_alloy.mp3 (%d bytes)\n\n", len(audio))
-	
-	// Demo 2: All voices
-	fmt.Println("Generating all 11 voices...\n")
-	voices := []string{"alloy", "ash", "ballad", "coral", "echo", "fable", 
-	                   "onyx", "nova", "sage", "shimmer", "verse"}
-	
-	comparisonText := "Welcome to OpenAI's text-to-speech demonstration."
-	for _, voice := range voices {
-		audio, _ := textToSpeech(comparisonText, voice, nil)
-		filename := fmt.Sprintf("voice_%s.mp3", voice)
-		os.WriteFile(filename, audio, 0644)
-		fmt.Printf("✓ %s: %s\n", voice, filename)
+
+	os.WriteFile("demo1_default_voice.mp3", audio, 0644)
+	fmt.Printf("✓ Audio created: demo1_default_voice.mp3 (%d bytes)\n\n", len(audio))
+
+	// Demo 2: A specific voice, if the learner has picked one
+	if referenceID := os.Getenv("FISH_VOICE_1"); referenceID != "" {
+		comparisonText := "This is the same text, spoken with a voice picked from Fish Audio's library."
+		audio, err := textToSpeech(comparisonText, referenceID)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
+		os.WriteFile("demo2_chosen_voice.mp3", audio, 0644)
+		fmt.Printf("✓ Chosen voice: demo2_chosen_voice.mp3 (%d bytes)\n\n", len(audio))
+	} else {
+		fmt.Println("Tip: set FISH_VOICE_1 to a voice ID from https://fish.audio to")
+		fmt.Println("hear a specific voice instead of the default.")
+		fmt.Println()
 	}
-	
-	fmt.Println("\n========================================")
+
+	fmt.Println("========================================")
 	fmt.Println("Cost Analysis")
-	fmt.Println("========================================\n")
-	fmt.Println("Pricing: $0.60/1M input tokens, $12/1M output tokens")
-	fmt.Printf("This demo: ~%d chars = $%.8f input\n\n", len(text), float64(len(text))*0.60/1000000)
-	fmt.Println("Much more affordable than alternatives!\n")
+	fmt.Println("========================================")
+	fmt.Println()
+	fmt.Println("Pricing: fish-audio/s2.1-pro-free:free costs $0 (rate-limited,")
+	fmt.Println("best-effort availability - meant for learning/prototyping)")
+	fmt.Println()
 }

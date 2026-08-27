@@ -1,17 +1,20 @@
 /**
  * ============================================================================
- * Example 15: Text-to-Speech - Voice Synthesis with OpenAI TTS
+ * Example 15: Text-to-Speech - Voice Synthesis with Fish Audio (OpenRouter)
  * ============================================================================
  *
  * WHAT THIS DEMONSTRATES:
  *   - Converting text to spoken audio
- *   - Using OpenAI's TTS API
+ *   - Using OpenRouter's /audio/speech endpoint (free Fish Audio model)
  *   - Working with audio output in C++
  *
  * WHAT YOU'LL LEARN:
  *   - Text-to-speech API usage
- *   - Available voices and their characteristics
+ *   - Picking a voice via a Fish Audio reference ID
  *   - Saving audio files with modern C++
+ *
+ * PREREQUISITES:
+ *   - OPENROUTER_API_KEY environment variable set (free at https://openrouter.ai)
  *
  * COMPILE:
  *   g++ -std=c++17 -o 15_text_to_speech 15_text_to_speech.cpp -lcurl -I lib/
@@ -42,9 +45,9 @@ static size_t write_to_file(void *contents, size_t size, size_t nmemb, void *use
 
 int main() {
     /* Step 1: Get API key */
-    const char *api_key_cstr = std::getenv("DEMETERICS_API_KEY");
+    const char *api_key_cstr = std::getenv("OPENROUTER_API_KEY");
     if (api_key_cstr == nullptr) {
-        std::cerr << "Error: DEMETERICS_API_KEY not set\n";
+        std::cerr << "Error: OPENROUTER_API_KEY not set\n";
         return 1;
     }
     std::string api_key(api_key_cstr);
@@ -57,23 +60,24 @@ int main() {
         return 1;
     }
 
-    /* Step 3: Define text to speak and voice to use */
+    /* Step 3: Define text to speak */
     std::string text_to_speak =
         "Hello! I am an AI assistant speaking to you. "
         "This demonstrates text-to-speech synthesis using modern AI technology. "
         "Pretty cool, right?";
-    std::string voice = "nova";  /* One of 11 available voices */
 
     std::cout << "=== TEXT-TO-SPEECH ===\n";
-    std::cout << "Using OpenAI gpt-4o-mini-tts\n\n";
+    std::cout << "Using fish-audio/s2.1-pro-free:free (via OpenRouter)\n\n";
     std::cout << "Text: " << text_to_speak << "\n\n";
-    std::cout << "Voice: " << voice << "\n\n";
 
-    /* Step 4: Build JSON request for TTS */
+    /* Step 4: Build JSON request for TTS.
+     * Omitting "voice"/referenceId lets the model use its default voice -
+     * simplest for a first TTS example. To pick a specific voice, grab a
+     * reference ID from https://fish.audio (free account, voice library)
+     * and add: {"providerOptions", {{"fishAudio", {{"referenceId", json::array({id})}}}}} */
     json request_body = {
-        {"model", "gpt-4o-mini-tts"},
+        {"model", "fish-audio/s2.1-pro-free:free"},
         {"input", text_to_speak},
-        {"voice", voice},
         {"response_format", "mp3"}
     };
 
@@ -97,7 +101,7 @@ int main() {
     }
 
     /* Step 7: Configure curl */
-    curl_easy_setopt(curl, CURLOPT_URL, "https://api.demeterics.com/openai/v1/audio/speech");
+    curl_easy_setopt(curl, CURLOPT_URL, "https://openrouter.ai/api/v1/audio/speech");
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, json_payload.c_str());
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_to_file);
@@ -134,20 +138,11 @@ int main() {
     curl_global_cleanup();
 
     /* Educational info */
-    std::cout << "\n=== AVAILABLE VOICES ===\n\n";
-    std::cout << "Voice       Description\n";
-    std::cout << "------      -----------\n";
-    std::cout << "alloy       Neutral, balanced\n";
-    std::cout << "ash         Confident, professional\n";
-    std::cout << "ballad      Warm, storytelling\n";
-    std::cout << "coral       Friendly, upbeat\n";
-    std::cout << "echo        Smooth, clear\n";
-    std::cout << "fable       Expressive, British-accented\n";
-    std::cout << "nova        Youthful, energetic\n";
-    std::cout << "onyx        Deep, authoritative\n";
-    std::cout << "sage        Wise, measured\n";
-    std::cout << "shimmer     Gentle, soothing\n";
-    std::cout << "verse       Dramatic, theatrical\n\n";
+    std::cout << "\n=== CHOOSING A VOICE ===\n\n";
+    std::cout << "This example uses the model's default voice. For a specific\n";
+    std::cout << "voice, browse https://fish.audio (free account), copy a voice's\n";
+    std::cout << "reference ID, and pass it via providerOptions.fishAudio.referenceId.\n";
+    std::cout << "See example 16 for a two-voice request.\n\n";
 
     std::cout << "=== OUTPUT FORMATS ===\n\n";
     std::cout << "mp3   - Most compatible (default)\n";
@@ -182,11 +177,11 @@ int main() {
  * TEXT-TO-SPEECH NOTES:
  *
  * PRICING:
- *   - Input: $0.60 per 1M characters
- *   - Output: $12 per 1M tokens (audio duration-based)
+ *   - fish-audio/s2.1-pro-free:free is $0 - meant for testing/prototyping/
+ *     low-volume use (no production latency or availability guarantee)
  *
  * VOICE SELECTION:
- *   - Try different voices for different contexts
+ *   - Try different reference-ID voices for different contexts
  *   - Some voices work better for certain languages
  *   - Consider your audience when choosing
  */

@@ -4,7 +4,7 @@
  * ============================================================================
  *
  * WHAT THIS DEMONSTRATES:
- *   - Using groq/compound-mini for built-in web search
+ *   - Using OpenRouter's ":online" web-search plugin for built-in web search
  *   - Getting real-time information from the web
  *   - No separate search API needed
  *
@@ -48,9 +48,9 @@ static size_t write_callback(void *contents, size_t size, size_t nmemb, void *us
 
 int main(void) {
     /* Step 1: Get API key */
-    const char *api_key = getenv("DEMETERICS_API_KEY");
+    const char *api_key = getenv("OPENROUTER_API_KEY");
     if (api_key == NULL) {
-        fprintf(stderr, "Error: DEMETERICS_API_KEY not set\n");
+        fprintf(stderr, "Error: OPENROUTER_API_KEY not set\n");
         return 1;
     }
 
@@ -65,8 +65,8 @@ int main(void) {
     /* Step 3: Define a query that needs current information */
     const char *user_query = "What are the latest tech news today?";
 
-    printf("=== COMPOUND MODEL WEB SEARCH ===\n");
-    printf("Using groq/compound-mini for built-in web search\n\n");
+    printf("=== ONLINE WEB SEARCH ===\n");
+    printf("Using OpenRouter's \":online\" plugin for built-in web search\n\n");
     printf("Query: %s\n\n", user_query);
 
     /* Step 4: Build request with compound model */
@@ -78,10 +78,12 @@ int main(void) {
     cJSON_AddStringToObject(message, "content", user_query);
     cJSON_AddItemToArray(messages, message);
 
-    /* Use compound-mini which has built-in web search */
-    cJSON_AddStringToObject(root, "model", "compound-mini");
+    /* Appending ":online" to any model slug turns on OpenRouter's built-in
+     * web-search plugin (default engine Exa, ~$0.005/request for the first
+     * 10 results) -- the model searches automatically when it needs to. */
+    cJSON_AddStringToObject(root, "model", "openai/gpt-oss-20b:online");
     cJSON_AddItemToObject(root, "messages", messages);
-    cJSON_AddNumberToObject(root, "max_tokens", 500);
+    cJSON_AddNumberToObject(root, "max_tokens", 1200);
 
     char *json_payload = cJSON_PrintUnformatted(root);
 
@@ -98,7 +100,7 @@ int main(void) {
     response.size = 0;
     response.data[0] = '\0';
 
-    curl_easy_setopt(curl, CURLOPT_URL, "https://api.demeterics.com/groq/v1/chat/completions");
+    curl_easy_setopt(curl, CURLOPT_URL, "https://openrouter.ai/api/v1/chat/completions");
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, json_payload);
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
@@ -151,14 +153,14 @@ int main(void) {
     curl_global_cleanup();
 
     /* Educational info */
-    printf("\n=== COMPOUND MODEL FEATURES ===\n\n");
-    printf("WHAT IS COMPOUND-MINI?\n");
-    printf("  A specialized model with built-in web search.\n");
+    printf("\n=== \":online\" PLUGIN FEATURES ===\n\n");
+    printf("WHAT DOES \":online\" DO?\n");
+    printf("  Appends web search to any model's normal chat completion.\n");
     printf("  Automatically searches when queries need current info.\n\n");
 
     printf("COMPARISON:\n");
-    printf("  Tavily + Llama:  Separate API calls, more control\n");
-    printf("  Compound-mini:   Single call, automatic search\n\n");
+    printf("  Tavily + chat model:  Separate API calls, more control\n");
+    printf("  model:online:         Single call, automatic search\n\n");
 
     printf("WHEN TO USE:\n");
     printf("  - Quick web-grounded answers\n");
@@ -174,10 +176,10 @@ int main(void) {
 }
 
 /*
- * COMPOUND MODEL NOTES:
+ * ":online" PLUGIN NOTES:
  *
- * groq/compound-mini:
- *   - Has built-in web search capability
+ * <model>:online (e.g. openai/gpt-oss-20b:online):
+ *   - Adds built-in web search capability to any model
  *   - Automatically decides when to search
  *   - Returns web-grounded responses
  *

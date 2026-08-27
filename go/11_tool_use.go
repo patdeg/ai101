@@ -1,10 +1,10 @@
 package main
 
 /*
-Example 10: Tool Use (Function Calling) - AI Agents with Groq + Tavily
+Example 10: Tool Use (Function Calling) - AI Agents with OpenRouter + Tavily
 
 Demonstrates:
-- Groq function calling with llama-4-scout
+- OpenRouter function calling with a cheap, reliable chat model
 - Tavily Search and Extract as tools
 - Multi-step agent workflow
 
@@ -94,26 +94,32 @@ func executeTool(functionName string, arguments map[string]interface{}) (map[str
 	}
 }
 
-func callGroq(messages []interface{}, tools []interface{}) (map[string]interface{}, error) {
+func callOpenRouter(messages []interface{}, tools []interface{}) (map[string]interface{}, error) {
 	requestData := map[string]interface{}{
-		"model":    "meta-llama/llama-4-scout-17b-16e-instruct",
+		"model":    "openai/gpt-oss-20b",
 		"messages": messages,
 	}
 
 	if tools != nil {
 		requestData["tools"] = tools
 		requestData["tool_choice"] = "auto"
+	} else {
+		// tool_choice: "none" tells the model this is the final answer turn,
+		// not another chance to call a tool - without it, small models
+		// occasionally echo malformed tool-call syntax instead of a
+		// plain-text summary.
+		requestData["tool_choice"] = "none"
 	}
 
 	requestBody, _ := json.Marshal(requestData)
 
-	req, err := http.NewRequest("POST", "https://api.demeterics.com/groq/v1/chat/completions", bytes.NewBuffer(requestBody))
+	req, err := http.NewRequest("POST", "https://openrouter.ai/api/v1/chat/completions", bytes.NewBuffer(requestBody))
 	if err != nil {
 		return nil, err
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", os.Getenv("DEMETERICS_API_KEY")))
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", os.Getenv("OPENROUTER_API_KEY")))
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -131,15 +137,15 @@ func callGroq(messages []interface{}, tools []interface{}) (map[string]interface
 
 func main() {
 	// Check for API keys
-	if os.Getenv("DEMETERICS_API_KEY") == "" || os.Getenv("TAVILY_API_KEY") == "" {
-		fmt.Fprintln(os.Stderr, "Error: Both DEMETERICS_API_KEY and TAVILY_API_KEY must be set")
-		fmt.Fprintln(os.Stderr, "Get your Demeterics Managed LLM Key: https://demeterics.com")
+	if os.Getenv("OPENROUTER_API_KEY") == "" || os.Getenv("TAVILY_API_KEY") == "" {
+		fmt.Fprintln(os.Stderr, "Error: Both OPENROUTER_API_KEY and TAVILY_API_KEY must be set")
+		fmt.Fprintln(os.Stderr, "Get a free OpenRouter key: https://openrouter.ai/keys")
 		fmt.Fprintln(os.Stderr, "Get a Tavily key: https://tavily.com")
 		os.Exit(1)
 	}
 
 	fmt.Println("========================================")
-	fmt.Println("Groq Tool Use - AI Agent Demo")
+	fmt.Println("OpenRouter Tool Use - AI Agent Demo")
 	fmt.Println("========================================\n")
 
 	userQuery := "Search for the latest developments in quantum computing and provide a summary"
@@ -186,7 +192,7 @@ func main() {
 	}
 
 	// Step 1: Initial request
-	initialResponse, err := callGroq([]interface{}{
+	initialResponse, err := callOpenRouter([]interface{}{
 		map[string]interface{}{"role": "user", "content": userQuery},
 	}, tools)
 
@@ -254,7 +260,11 @@ func main() {
 	}
 	messages = append(messages, toolMessages...)
 
-	finalResponse, err := callGroq(messages, nil)
+	// Even with tool_choice: "none", budget models can still occasionally
+	// return an empty/odd response on a multi-turn tool continuation - if
+	// that happens, just re-run; a production system would retry
+	// automatically.
+	finalResponse, err := callOpenRouter(messages, nil)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
@@ -284,7 +294,8 @@ func main() {
 	fmt.Printf("Completion tokens: %.0f\n", completionTokens)
 	fmt.Printf("Total tokens: %.0f\n", totalTokens)
 
-	cost := (promptTokens*0.11 + completionTokens*0.34) / 1000000
+	// openai/gpt-oss-20b pricing: $0.03/1M input, $0.13/1M output
+	cost := (promptTokens*0.03 + completionTokens*0.13) / 1000000
 	fmt.Printf("Cost: $%.6f\n\n", cost)
 
 	fmt.Println("========================================")

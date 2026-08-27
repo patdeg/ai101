@@ -2,8 +2,8 @@
  * 01_basic_chat.ino - Basic Chat Example for XIAO ESP32-S3 Sense
  *
  * WHAT THIS EXAMPLE DEMONSTRATES:
- * This Arduino sketch shows you how to make a basic chat request to Groq's AI models
- * through the Demeterics observability proxy
+ * This Arduino sketch shows you how to make a basic chat request to an AI model
+ * through OpenRouter (one key, hundreds of models, free tier)
  * using the XIAO ESP32-S3 Sense board with WiFi. It's the simplest possible
  * example - just send a question and get a response back.
  *
@@ -23,7 +23,7 @@
  *
  * HOW TO USE:
  * 1. Update WIFI_SSID and WIFI_PASSWORD with your WiFi credentials
- * 2. Update DEMETERICS_API_KEY with your Demeterics Managed LLM Key from https://demeterics.com
+ * 2. Update OPENROUTER_API_KEY with your key from https://openrouter.ai (free signup)
  * 3. Upload to your ESP32 board
  * 4. Open Serial Monitor at 115200 baud to see output
  *
@@ -53,25 +53,25 @@
 // ============================================================================
 const char* WIFI_SSID = "YOUR_WIFI_SSID";         // Replace with your WiFi network name
 const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD"; // Replace with your WiFi password
-const char* DEMETERICS_API_KEY = "YOUR_DEMETERICS_API_KEY";   // Replace with your Demeterics Managed LLM Key
+const char* OPENROUTER_API_KEY = "YOUR_OPENROUTER_API_KEY";   // Replace with your OpenRouter API key
 
 // API endpoint configuration
-const char* DEMETERICS_HOST = "api.demeterics.com";
+const char* OPENROUTER_HOST = "openrouter.ai";
 const int HTTPS_PORT = 443;
-const char* API_PATH = "/groq/v1/chat/completions";
+const char* API_PATH = "/api/v1/chat/completions";
 
 // ============================================================================
 // HELPER FUNCTIONS
 // ============================================================================
 
 // ----------------------------------------------------------------------------
-// checkGroqConnection() - Diagnose network connectivity to Demeterics Groq proxy
+// checkOpenRouterConnection() - Diagnose network connectivity to OpenRouter
 // ----------------------------------------------------------------------------
 // This function performs a series of diagnostic tests to verify we can reach
-// the Demeterics Groq proxy servers. It's useful for troubleshooting connection problems.
+// the OpenRouter servers. It's useful for troubleshooting connection problems.
 //
 // WHAT IT TESTS:
-// 1. DNS resolution - Can we convert "api.demeterics.com" to an IP address?
+// 1. DNS resolution - Can we convert "openrouter.ai" to an IP address?
 // 2. TLS connection - Can we establish an encrypted HTTPS connection?
 // 3. HTTP layer - Can we send a simple request and get a response?
 //
@@ -81,7 +81,7 @@ const char* API_PATH = "/groq/v1/chat/completions";
 // - Provides specific error messages for each failure point
 //
 // RETURNS: true if all tests pass, false if any test fails
-bool checkGroqConnection() {
+bool checkOpenRouterConnection() {
   Serial.println("\n=== Network Diagnostics ===");
 
   // Test 1: DNS Resolution
@@ -90,10 +90,10 @@ bool checkGroqConnection() {
   // This is called DNS resolution (Domain Name System)
   IPAddress ip;
   Serial.print("Testing DNS resolution for ");
-  Serial.print(DEMETERICS_HOST);
+  Serial.print(OPENROUTER_HOST);
   Serial.print("... ");
 
-  if (!WiFi.hostByName(DEMETERICS_HOST, ip)) {
+  if (!WiFi.hostByName(OPENROUTER_HOST, ip)) {
     Serial.println("FAILED");
     Serial.println("ERROR: DNS lookup failed. Check your internet connection.");
     return false;
@@ -112,10 +112,10 @@ bool checkGroqConnection() {
   testClient.setHandshakeTimeout(30); // Wait up to 30 seconds for TLS handshake
 
   Serial.print("Testing TLS connection to ");
-  Serial.print(DEMETERICS_HOST);
+  Serial.print(OPENROUTER_HOST);
   Serial.print(":443... ");
 
-  if (!testClient.connect(DEMETERICS_HOST, HTTPS_PORT)) {
+  if (!testClient.connect(OPENROUTER_HOST, HTTPS_PORT)) {
     Serial.println("FAILED");
     Serial.println("ERROR: Cannot establish TLS connection.");
     Serial.println("Possible causes:");
@@ -135,7 +135,7 @@ bool checkGroqConnection() {
   Serial.print("Testing HTTP layer... ");
 
   testClient.print(String("HEAD / HTTP/1.1\r\n") +
-                   "Host: " + DEMETERICS_HOST + "\r\n" +
+                   "Host: " + OPENROUTER_HOST + "\r\n" +
                    "Connection: close\r\n\r\n");
 
   // Wait for response (up to 5 seconds)
@@ -158,7 +158,7 @@ bool checkGroqConnection() {
 }
 
 // ----------------------------------------------------------------------------
-// groqRequest() - Send a chat request to Demeterics Groq proxy and return the response
+// openRouterRequest() - Send a chat request to OpenRouter and return the response
 // ----------------------------------------------------------------------------
 // This function handles the entire API request/response cycle:
 // 1. Establish HTTPS connection
@@ -171,16 +171,16 @@ bool checkGroqConnection() {
 // - prompt: The question or message to send to the AI
 //
 // RETURNS: The AI's response as a String, or empty string on error
-String groqRequest(const char* prompt) {
+String openRouterRequest(const char* prompt) {
   // Create HTTPS client with security settings
   WiFiClientSecure client;
   client.setInsecure();           // Skip certificate validation (simpler for beginners)
   client.setHandshakeTimeout(30); // 30 second timeout for TLS handshake
   WiFi.setSleep(false);           // Disable WiFi power saving (prevents connection stalls)
 
-  // Step 1: Connect to Demeterics Groq proxy server
-  Serial.println("Connecting to Demeterics Groq proxy...");
-  if (!client.connect(DEMETERICS_HOST, HTTPS_PORT)) {
+  // Step 1: Connect to OpenRouter server
+  Serial.println("Connecting to OpenRouter...");
+  if (!client.connect(OPENROUTER_HOST, HTTPS_PORT)) {
     Serial.println("ERROR: Connection failed!");
     return "";
   }
@@ -193,9 +193,9 @@ String groqRequest(const char* prompt) {
   StaticJsonDocument<512> doc;
 
   // Set the AI model
-  // meta-llama/llama-4-scout-17b-16e-instruct is the latest Llama model (Oct 2025)
+  // openai/gpt-oss-20b is the latest Llama model (Oct 2025)
   // It's fast, accurate, and cost-effective for general chat
-  doc["model"] = "meta-llama/llama-4-scout-17b-16e-instruct";
+  doc["model"] = "openai/gpt-oss-20b";
 
   // Create the messages array
   // Chat APIs expect an array of message objects with "role" and "content"
@@ -227,9 +227,9 @@ String groqRequest(const char* prompt) {
 
   String httpRequest =
     String("POST ") + API_PATH + " HTTP/1.1\r\n" +
-    "Host: " + DEMETERICS_HOST + "\r\n" +
+    "Host: " + OPENROUTER_HOST + "\r\n" +
     "Content-Type: application/json\r\n" +
-    "Authorization: Bearer " + DEMETERICS_API_KEY + "\r\n" +
+    "Authorization: Bearer " + OPENROUTER_API_KEY + "\r\n" +
     "Content-Length: " + requestBody.length() + "\r\n" +
     "Connection: close\r\n" +
     "\r\n" +  // Blank line separates headers from body
@@ -273,7 +273,7 @@ String groqRequest(const char* prompt) {
 
   // Step 7: Extract the AI's message from the response
   // ---------------------------------------------------
-  // Demeterics Groq proxy response structure:
+  // OpenRouter response structure:
   // {
   //   "choices": [
   //     {
@@ -311,7 +311,7 @@ void setup() {
   Serial.begin(115200);
   delay(1000);  // Small delay to let serial connection stabilize
 
-  Serial.println("\n\n=== Demeterics Groq proxy Basic Chat Example ===");
+  Serial.println("\n\n=== OpenRouter Basic Chat Example ===");
   Serial.println("XIAO ESP32-S3 Sense\n");
 
   // Step 2: Connect to WiFi
@@ -348,9 +348,9 @@ void setup() {
 
   // Step 3: Run network diagnostics
   // ---------------------------------------------------
-  // Test DNS, TLS, and HTTP connectivity to Demeterics Groq proxy
+  // Test DNS, TLS, and HTTP connectivity to OpenRouter
   // This helps identify connection problems early
-  if (!checkGroqConnection()) {
+  if (!checkOpenRouterConnection()) {
     Serial.println("\nWARNING: Diagnostics failed, but continuing anyway...");
     // You can uncomment the next line to stop on diagnostic failure:
     // return;
@@ -360,7 +360,7 @@ void setup() {
   // ---------------------------------------------------
   // Send a simple question to the AI and get a response
   Serial.println("Asking AI for a joke...");
-  String response = groqRequest("Tell me a joke");
+  String response = openRouterRequest("Tell me a joke");
 
   // Step 5: Display the response
   // ---------------------------------------------------

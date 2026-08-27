@@ -5,13 +5,16 @@
  *
  * WHAT THIS DEMONSTRATES:
  *   - Transcribing audio files using Whisper
- *   - Multipart form data uploads in C++
+ *   - Base64-encoding a binary file into a JSON request in C++
  *   - Working with audio files
  *
  * WHAT YOU'LL LEARN:
  *   - Whisper API for speech-to-text
- *   - HTTP multipart/form-data with libcurl
+ *   - OpenRouter's /audio/transcriptions endpoint (JSON body, not multipart)
  *   - Audio format considerations
+ *
+ * PREREQUISITES:
+ *   - OPENROUTER_API_KEY environment variable set (free at https://openrouter.ai)
  *
  * COMPILE:
  *   g++ -std=c++17 -o 08_whisper 08_whisper.cpp -lcurl -I lib/
@@ -27,6 +30,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <vector>
 #include <cstdlib>
 #include <curl/curl.h>
 #include "json.hpp"
@@ -39,36 +43,75 @@ static size_t write_callback(void *contents, size_t size, size_t nmemb, void *us
     return size * nmemb;
 }
 
-/* Get file size */
-long get_file_size(const std::string &filename) {
-    std::ifstream file(filename, std::ios::binary | std::ios::ate);
-    if (!file) return -1;
-    return file.tellg();
+/* Base64 encoding function (same pattern as the vision examples) */
+std::string base64_encode(const std::vector<unsigned char> &data) {
+    static const char table[] =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+    std::string result;
+    result.reserve(4 * ((data.size() + 2) / 3));
+
+    size_t i = 0;
+    while (i < data.size()) {
+        uint32_t octet_a = i < data.size() ? data[i++] : 0;
+        uint32_t octet_b = i < data.size() ? data[i++] : 0;
+        uint32_t octet_c = i < data.size() ? data[i++] : 0;
+        uint32_t triple = (octet_a << 16) + (octet_b << 8) + octet_c;
+
+        result += table[(triple >> 18) & 0x3F];
+        result += table[(triple >> 12) & 0x3F];
+        result += table[(triple >> 6) & 0x3F];
+        result += table[triple & 0x3F];
+    }
+
+    size_t mod = data.size() % 3;
+    if (mod > 0) {
+        result[result.size() - 1] = '=';
+        if (mod == 1) result[result.size() - 2] = '=';
+    }
+
+    return result;
+}
+
+/* Read entire file into a vector */
+std::vector<unsigned char> read_file(const std::string &filename) {
+    std::ifstream file(filename, std::ios::binary);
+    if (!file) {
+        throw std::runtime_error("Cannot open file: " + filename);
+    }
+    return std::vector<unsigned char>(
+        std::istreambuf_iterator<char>(file),
+        std::istreambuf_iterator<char>()
+    );
 }
 
 int main() {
     /* Step 1: Get API key */
-    const char *api_key_cstr = std::getenv("DEMETERICS_API_KEY");
+    const char *api_key_cstr = std::getenv("OPENROUTER_API_KEY");
     if (api_key_cstr == nullptr) {
-        std::cerr << "Error: DEMETERICS_API_KEY not set\n";
+        std::cerr << "Error: OPENROUTER_API_KEY not set\n";
         return 1;
     }
     std::string api_key(api_key_cstr);
 
-    /* Step 2: Check if audio file exists */
+    /* Step 2: Read and base64-encode the audio file */
     std::string audio_path = "../gettysburg.mp3";
-    long file_size = get_file_size(audio_path);
 
-    if (file_size < 0) {
-        std::cerr << "Error: Could not open audio file: " << audio_path << "\n";
+    std::vector<unsigned char> audio_data;
+    try {
+        audio_data = read_file(audio_path);
+    } catch (const std::exception &e) {
+        std::cerr << "Error: " << e.what() << "\n";
         std::cerr << "Make sure gettysburg.mp3 exists in parent directory\n";
         return 1;
     }
 
     std::cout << "=== WHISPER AUDIO TRANSCRIPTION ===\n";
     std::cout << "File: " << audio_path << "\n";
-    std::cout << "Size: " << file_size << " bytes ("
-              << (file_size / (1024.0 * 1024.0)) << " MB)\n\n";
+    std::cout << "Size: " << audio_data.size() << " bytes ("
+              << (audio_data.size() / (1024.0 * 1024.0)) << " MB)\n\n";
+
+    std::string audio_base64 = base64_encode(audio_data);
 
     /* Step 3: Initialize curl */
     curl_global_init(CURL_GLOBAL_ALL);
@@ -79,42 +122,33 @@ int main() {
     }
 
     /* ========================================================================
-     * Step 4: Build multipart form data
+     * Step 4: Build the JSON request body
      * ========================================================================
-     * Whisper API uses multipart/form-data for file uploads.
-     * This is different from JSON - it's designed for file uploads.
-     *
-     * libcurl's curl_mime makes this easy!
+     * OpenRouter's transcription endpoint takes base64-encoded audio inside a
+     * JSON body (the same "encode binary as base64, embed in JSON" pattern
+     * used for images in example 04) rather than a multipart file upload.
      */
+    json request_body = {
+        {"model", "openai/whisper-1"},
+        {"input_audio", {
+            {"data", audio_base64},
+            {"format", "mp3"}
+        }}
+    };
 
-    curl_mime *form = curl_mime_init(curl);
-    curl_mimepart *field;
-
-    /* Add the audio file */
-    field = curl_mime_addpart(form);
-    curl_mime_name(field, "file");
-    curl_mime_filedata(field, audio_path.c_str());
-
-    /* Add the model parameter */
-    field = curl_mime_addpart(form);
-    curl_mime_name(field, "model");
-    curl_mime_data(field, "whisper-large-v3-turbo", CURL_ZERO_TERMINATED);
-
-    /* Optional: Add language hint (helps accuracy) */
-    field = curl_mime_addpart(form);
-    curl_mime_name(field, "language");
-    curl_mime_data(field, "en", CURL_ZERO_TERMINATED);
+    std::string json_payload = request_body.dump();
 
     /* Step 5: Set up headers */
     struct curl_slist *headers = nullptr;
+    headers = curl_slist_append(headers, "Content-Type: application/json");
     std::string auth_header = "Authorization: Bearer " + api_key;
     headers = curl_slist_append(headers, auth_header.c_str());
 
     /* Step 6: Configure curl */
     std::string response_data;
-    curl_easy_setopt(curl, CURLOPT_URL, "https://api.demeterics.com/groq/v1/audio/transcriptions");
-    curl_easy_setopt(curl, CURLOPT_MIMEPOST, form);
+    curl_easy_setopt(curl, CURLOPT_URL, "https://openrouter.ai/api/v1/audio/transcriptions");
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, json_payload.c_str());
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_data);
 
@@ -142,7 +176,6 @@ int main() {
     }
 
     /* Step 9: Clean up */
-    curl_mime_free(form);
     curl_slist_free_all(headers);
     curl_easy_cleanup(curl);
     curl_global_cleanup();
@@ -153,35 +186,29 @@ int main() {
     std::cout << "  mp3, mp4, mpeg, mpga, m4a, wav, webm\n\n";
 
     std::cout << "PARAMETERS:\n";
-    std::cout << "  model    - whisper-large-v3-turbo (fastest)\n";
-    std::cout << "  language - ISO 639-1 code (en, es, fr, etc.)\n";
-    std::cout << "  prompt   - Optional context/vocabulary hints\n\n";
+    std::cout << "  model - openai/whisper-1\n";
+    std::cout << "  input_audio.format - matches the file you send (mp3, wav, ...)\n\n";
 
     std::cout << "COST:\n";
-    std::cout << "  $0.04 per hour of audio\n\n";
+    std::cout << "  $0.006 per minute of audio (not free - the only STT model\n";
+    std::cout << "  on OpenRouter, but cheap: a 3-minute clip costs about $0.02)\n\n";
 
     std::cout << "TIPS:\n";
-    std::cout << "  1. Use language parameter for better accuracy\n";
-    std::cout << "  2. Clean audio = better transcription\n";
-    std::cout << "  3. Provide vocabulary hints for domain terms\n";
-    std::cout << "  4. Max file size: 25 MB\n";
+    std::cout << "  1. Clean audio = better transcription\n";
+    std::cout << "  2. Max file size: 25 MB\n";
+    std::cout << "  3. Base64 inflates size ~33% - stay well under that limit\n";
 
     return 0;
 }
 
 /*
- * MULTIPART/FORM-DATA NOTES:
+ * BASE64 JSON AUDIO UPLOAD NOTES:
  *
- * Unlike JSON POST requests, file uploads use multipart/form-data.
- * This format allows mixing files and regular form fields.
- *
- * LIBCURL MIME API:
- *   curl_mime_init()      - Create a new form
- *   curl_mime_addpart()   - Add a part (field or file)
- *   curl_mime_name()      - Set field name
- *   curl_mime_filedata()  - Attach a file
- *   curl_mime_data()      - Set text data
- *   curl_mime_free()      - Clean up
+ * Unlike a traditional multipart/form-data file upload, OpenRouter's audio
+ * endpoints take a plain JSON body with the file's bytes base64-encoded
+ * inline - the same approach the vision examples use for images. One HTTP
+ * client code path (build JSON, POST it, parse JSON back) covers chat,
+ * vision, and audio.
  *
  * C++ FILE SIZE CHECK:
  *   std::ios::ate - Open at end (for tellg())

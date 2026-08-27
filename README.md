@@ -16,7 +16,7 @@ But here's what makes this different: **AI safety is built in from day one.** Al
 - 💬 **Chat & Reasoning**: Question-answering, step-by-step thinking, prompt caching
 - 👁️ **Vision**: Image analysis with multimodal AI models
 - 🎙️ **Audio**: Speech-to-text transcription with Whisper
-- 🔊 **Voice Synthesis**: Text-to-speech with 11 different voices
+- 🔊 **Voice Synthesis**: Text-to-speech with Fish Audio (free), including two-speaker podcasts
 - 🔍 **Web Search**: AI-powered search and content extraction
 - 🛠️ **AI Agents**: Building autonomous agents with function calling
 
@@ -51,11 +51,11 @@ Example 01 (Basic Chat) demonstrates how to work with **5 different AI providers
 
 | Provider | Strengths | Best Use Case |
 |----------|-----------|---------------|
+| **OpenRouter** | One key, hundreds of models, free tier | Default for this repo — chat, vision, safety, audio, everything |
 | **Groq** | Fastest inference, cost-effective | Real-time applications, high volume |
 | **OpenAI** | Most advanced models, GPT series | Complex reasoning, function calling |
 | **Anthropic** | Claude models, nuanced responses | Long context, careful analysis |
 | **SambaNova** | Open models (Llama), enterprise | Privacy-conscious, on-premise |
-| **Demeterics** | Universal observability proxy | Production monitoring, analytics |
 
 Each provider has its own example file (e.g., `01_basic_chat_OPENAI.py`) showing provider-specific authentication and API patterns.
 
@@ -71,12 +71,12 @@ Each provider has its own example file (e.g., `01_basic_chat_OPENAI.py`) showing
 8. **Whisper Audio** - Transcribing audio to text with Whisper
 9. **Tavily Search** - Web search with AI-powered answers
 10. **Tavily Extract** - Extract clean content from web pages
-11. **Tool Use** - AI agents with function calling (Groq + Tavily)
-12. **Web Search (Groq)** - Built-in web search with groq/compound-mini
-13. **Code Execution** - Python code execution with openai/gpt-oss-20b
-14. **Reasoning** - Step-by-step thinking with openai/gpt-oss-20b + prompt caching
-15. **Text-to-Speech** - Voice synthesis with OpenAI gpt-4o-mini-tts
-16. **Podcast** - Multi-speaker podcast generation with Google Gemini TTS
+11. **Tool Use** - AI agents with function calling (OpenRouter + Tavily)
+12. **Web Search** - Built-in search-augmented generation via OpenRouter's `:online` models
+13. **Code Execution** - Python code execution with openai/gpt-oss-20b (direct on Groq)
+14. **Reasoning** - Step-by-step thinking with openai/gpt-oss-20b + prompt caching (direct on Groq)
+15. **Text-to-Speech** - Voice synthesis with Fish Audio S2.1 Pro (via OpenRouter)
+16. **Podcast** - Two-speaker podcast generation with Fish Audio S2.1 Pro (via OpenRouter)
 18. **Pose Estimation** - Real-time computer vision with webcam skeleton overlay (Python, Go)
 
 ## 🎮 Featured Project: Alfred the Minecraft AI Counselor
@@ -127,17 +127,23 @@ Each language folder contains the same 16 examples implemented in that language 
 
 ### Primary Provider API Keys
 
-Example 01 (Basic Chat) supports multiple AI providers, but **everything in this repo defaults to the Demeterics proxy**. One Managed LLM Key unlocks Groq, OpenAI, Gemini, and Anthropic with full observability.
+Example 01 (Basic Chat) supports multiple AI providers, but **everything in this repo defaults to OpenRouter** — a direct connection, no proxy, no whitelist, free to sign up.
 
-**Demeterics Managed LLM Key (Default - powers Groq examples 2-15):**
-1. Go to https://demeterics.com
+**OpenRouter (Default - powers nearly every example):**
+1. Go to https://openrouter.ai
 2. Sign up and open the dashboard
-3. Click **Managed LLM Keys** → **Create Key**
-4. Copy the key (looks like `dmt_xxx...`)
-5. Save/export as `DEMETERICS_API_KEY`
-6. View analytics and traces at https://demeterics.com/dashboard
+3. Click **Keys** → **Create Key**
+4. Copy the key (looks like `sk-or-v1-xxx...`)
+5. Save/export as `OPENROUTER_API_KEY`
+6. Browse free and paid models at https://openrouter.ai/models
 
-**OpenAI (used directly for text-to-speech and optional variants):**
+**Groq (used directly for examples 13-14, code execution + reasoning):**
+1. Go to https://console.groq.com
+2. Sign up for a free account
+3. Create a new API key
+4. Save as `GROQ_API_KEY`
+
+**OpenAI (optional, used by the `_OPENAI` provider-comparison variant of example 01):**
 1. Go to https://platform.openai.com
 2. Sign up for an account
 3. Create a new API key
@@ -156,8 +162,6 @@ Example 01 (Basic Chat) supports multiple AI providers, but **everything in this
 3. Get your API key
 4. Save as `SAMBANOVA_API_KEY`
 
-> 💡 Already have Groq/OpenAI keys? Add them inside Demeterics → Settings → API Keys so every request inherits your BYOK credentials plus centralized observability.
-
 ### Additional API Keys
 
 **Tavily (for examples 08-10):**
@@ -174,13 +178,13 @@ Example 01 (Basic Chat) supports multiple AI providers, but **everything in this
 cp .env.example .env
 
 # Edit .env and add your API key
-# DEMETERICS_API_KEY=dmt_your_actual_key_here
+# OPENROUTER_API_KEY=sk-or-v1-your_actual_key_here
 ```
 
 **Option 2: Export to shell (for bash/curl examples)**
 ```bash
 # Add to your ~/.bashrc or ~/.zshrc
-export DEMETERICS_API_KEY="dmt_your_api_key_here"
+export OPENROUTER_API_KEY="sk-or-v1-your_api_key_here"
 
 # Reload your shell
 source ~/.bashrc
@@ -208,48 +212,69 @@ After running the basic examples, head to [**exercises/**](exercises/) for hands
 ### Endpoint
 
 ```
-POST https://api.demeterics.com/groq/v1/chat/completions
+POST https://openrouter.ai/api/v1/chat/completions
+```
+
+Two examples (13 code execution, 14 reasoning) call Groq directly instead, to use
+its native code-interpreter tool and prompt caching:
+
+```
+POST https://api.groq.com/openai/v1/chat/completions
 ```
 
 ### Authentication
 
 ```
-Authorization: Bearer $DEMETERICS_API_KEY   # Managed LLM Key from Demeterics
+Authorization: Bearer $OPENROUTER_API_KEY   # openrouter.ai — most examples
+Authorization: Bearer $GROQ_API_KEY         # console.groq.com — examples 13, 14 only
 ```
 
 ### Models Used
 
-Demeterics mirrors the Groq OpenAI-compatible catalog, so model names, capabilities, and pricing come directly from Groq. Use Demeterics for routing/observability, and reference Groq docs for model deep dives.
+OpenRouter exposes an OpenAI-compatible catalog spanning hundreds of models from
+dozens of providers — model names, capabilities, and pricing are set by each
+underlying provider and mirrored by OpenRouter. Browse the live catalog and free-tier
+availability at https://openrouter.ai/models (free-tier models rotate over time).
 
-**Full documentation:** https://console.groq.com/docs/models
+**Full documentation:** https://openrouter.ai/docs
 
-### Groq Models
+### OpenRouter Models
+
+| Model | Purpose | Pricing (per 1M tokens) |
+|-------|---------|------------------------|
+| [`openai/gpt-oss-20b`](https://openrouter.ai/openai/gpt-oss-20b) | Chat, System Prompt, Templates, Tool Use | Input: $0.03/1M<br>Output: $0.13/1M |
+| [`google/gemma-4-31b-it`](https://openrouter.ai/google/gemma-4-31b-it) | Vision | Input: $0.09/1M<br>Output: $0.34/1M |
+| [`meta-llama/llama-guard-4-12b`](https://openrouter.ai/meta-llama/llama-guard-4-12b) | Content Safety (Text + Vision) | Input: $0.18/1M<br>Output: $0.18/1M |
+| [`openai/gpt-oss-safeguard-20b`](https://openrouter.ai/openai/gpt-oss-safeguard-20b) | Prompt Injection Detection | Input: $0.075/1M<br>Output: $0.30/1M |
+| [`openai/whisper-1`](https://openrouter.ai/openai/whisper-1) | Audio Transcription (`/audio/transcriptions`) | **$0.006 per minute of audio** |
+| [`fish-audio/s2.1-pro-free:free`](https://openrouter.ai/fish-audio/s2.1-pro-free:free) | Text-to-Speech, 2-speaker Podcast (`/audio/speech`) | Free |
+| any model + `:online` suffix | Web Search (search-augmented generation) | Model's own cost + ~$0.005/request (search) |
+
+Both `openai/gpt-oss-20b` and `google/gemma-4-31b-it` have genuinely free
+`:free` variants on OpenRouter, but this repo uses the small-paid versions
+instead — the free tiers proved unreliable during testing (verbose
+chain-of-thought reasoning that burns through `max_tokens` before reaching an
+answer, occasional upstream rate-limiting, and flaky multi-turn tool-call
+continuations). The paid versions cost a fraction of a cent per call and
+answer reliably.
+
+### Groq Models (direct, examples 13-14 only)
 
 | Model | Purpose | Context | Max Output | Pricing (per 1M tokens) |
 |-------|---------|---------|------------|------------------------|
-| [`meta-llama/llama-4-scout-17b-16e-instruct`](https://console.groq.com/docs/model/meta-llama/llama-4-scout-17b-16e-instruct) | Chat + Vision | 131K | 8,192 | Input: $0.11/1M<br>Output: $0.34/1M |
-| [`meta-llama/llama-guard-4-12b`](https://console.groq.com/docs/model/meta-llama/llama-guard-4-12b) | Content Safety (Text + Vision) | 131K | 1,024 | Input: $0.20/1M<br>Output: $0.20/1M |
-| [`meta-llama/llama-prompt-guard-2-86m`](https://console.groq.com/docs/model/meta-llama/llama-prompt-guard-2-86m) | Prompt Injection Detection | 512 | 512 | Input: $0.04/1M<br>Output: $0.04/1M |
-| [`whisper-large-v3-turbo`](https://console.groq.com/docs/speech-text) | Audio Transcription | - | - | **$0.04 per hour of audio** |
 | [`openai/gpt-oss-20b`](https://console.groq.com/docs/model/openai/gpt-oss-20b) | Reasoning + Code Execution | 131K | 8,192 | Input: $0.10/1M ($0.05/1M cached)<br>Output: $0.50/1M |
 
-### OpenAI Models
-
-| Model | Purpose | Pricing |
-|-------|---------|---------|
-| `gpt-4o-mini-tts` | Text-to-Speech (11 voices) | Input: $0.60/1M<br>Output: $12/1M (duration-based) |
-
-**Pricing Notes (as of October 1, 2025):**
+**Pricing Notes:**
 - You are billed separately for input tokens (prompt) and output tokens (completion)
 - Vision requests include image tokens in the input count
-- Most requests cost less than $0.01 (one cent)
+- Most requests cost less than $0.01 (one cent), and several examples are entirely free on OpenRouter's free tier
 - Examples in this repo calculate and display the exact cost for each call
 
 ### Request Format
 
 ```json
 {
-  "model": "meta-llama/llama-4-scout-17b-16e-instruct",
+  "model": "openai/gpt-oss-20b",
   "messages": [
     {
       "role": "system",
@@ -287,7 +312,7 @@ Demeterics mirrors the Groq OpenAI-compatible catalog, so model names, capabilit
 
 ```json
 {
-  "model": "meta-llama/llama-4-scout-17b-16e-instruct",
+  "model": "google/gemma-4-31b-it",
   "messages": [
     {
       "role": "user",
@@ -323,7 +348,7 @@ Demeterics mirrors the Groq OpenAI-compatible catalog, so model names, capabilit
   "id": "chatcmpl-123",
   "object": "chat.completion",
   "created": 1234567890,
-  "model": "meta-llama/llama-4-scout-17b-16e-instruct",
+  "model": "openai/gpt-oss-20b",
   "choices": [
     {
       "index": 0,
@@ -361,12 +386,12 @@ Demeterics mirrors the Groq OpenAI-compatible catalog, so model names, capabilit
 ## Common Issues
 
 **"Unauthorized" error:**
-- Check your API key is set: `echo $DEMETERICS_API_KEY`
+- Check your API key is set: `echo $OPENROUTER_API_KEY` (or `$GROQ_API_KEY` for examples 13-14)
 - Make sure you exported it in your current shell
 
 **"Model not found" error:**
 - Copy model names exactly (they're case-sensitive)
-- Check https://console.groq.com/docs/models for current models
+- Check https://openrouter.ai/models for current models — free-tier models rotate over time
 
 **Image too large:**
 - Resize images before encoding
@@ -380,9 +405,8 @@ Demeterics mirrors the Groq OpenAI-compatible catalog, so model names, capabilit
 
 ## Resources
 
-- **Demeterics Docs:** https://demeterics.com/docs
-- **Demeterics Prompt Guide:** https://demeterics.com/docs/prompt
-- **Demeterics AI 101 companion:** https://demeterics.com/docs/ai101
+- **OpenRouter Docs:** https://openrouter.ai/docs
+- **OpenRouter Model Catalog:** https://openrouter.ai/models
 - **Groq Model Catalog:** https://console.groq.com/docs/models
 - **Groq Vision Guide:** https://console.groq.com/docs/vision
 - **Groq Audio Guide:** https://console.groq.com/docs/speech-text
@@ -401,11 +425,11 @@ Ready to experiment and build? Check out the [**exercises/**](exercises/) direct
 - **[Exercise 8: Tavily Search](exercises/08_tavily_search.md)** - Web search, time filters, domain control
 - **[Exercise 9: Tavily Extract](exercises/09_tavily_extract.md)** - Content extraction, article analysis
 - **[Exercise 10: Tool Use](exercises/10_tool_use.md)** - AI agents, function calling, autonomous workflows
-- **[Exercise 11: Web Search (Groq)](exercises/11_web_search.md)** - Built-in search with groq/compound-mini
+- **[Exercise 11: Web Search (OpenRouter)](exercises/11_web_search.md)** - Built-in search with the `:online` model suffix
 - **[Exercise 12: Code Execution](exercises/12_code_execution.md)** - Python execution with openai/gpt-oss-20b
 - **[Exercise 13: Reasoning](exercises/13_reasoning.md)** - Step-by-step thinking with prompt caching
-- **[Exercise 14: Text-to-Speech](exercises/14_text_to_speech.md)** - Voice synthesis with 11 voices
-- **[Exercise 15: Podcast](exercises/16_podcast.md)** - Multi-speaker podcast generation with Gemini
+- **[Exercise 14: Text-to-Speech](exercises/14_text_to_speech.md)** - Voice synthesis with Fish Audio (free)
+- **[Exercise 15: Podcast](exercises/16_podcast.md)** - Multi-speaker podcast generation with Fish Audio
 - **[Exercise 18: Pose Estimation](exercises/18_pose_estimation.md)** - Computer vision, blue ball → shapes → ArUco → skeleton
 
 Each exercise file includes:

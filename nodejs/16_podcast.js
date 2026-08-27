@@ -3,19 +3,25 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 // This example demonstrates how to generate a podcast with multiple speakers
-// using Demeterics multi-speaker TTS API in a SINGLE API call.
+// using OpenRouter's audio/speech endpoint (Fish Audio S2.1 Pro) in a SINGLE
+// API call.
 //
 // What you'll learn:
 // - Multi-speaker audio generation with distinct voices
 // - NPR/NotebookLM "Deep Dive" podcast style
-// - Voice selection from 30 available options
+// - The <|speaker:N|> tagging convention for turn-taking
 // - Script formatting with "Speaker: text" pattern
 //
 // Prerequisites:
-// - DEMETERICS_API_KEY environment variable
+// - OPENROUTER_API_KEY environment variable
+// - FISH_VOICE_1 / FISH_VOICE_2 environment variables - two Fish Audio voice
+//   reference IDs. Get free ones by creating an account at https://fish.audio,
+//   browsing the voice library, and copying the ID of any voice you like.
 //
 // Usage:
-//   export DEMETERICS_API_KEY="dmt_your-api-key"
+//   export OPENROUTER_API_KEY="your-api-key"
+//   export FISH_VOICE_1="<voice-id-for-Alex>"
+//   export FISH_VOICE_2="<voice-id-for-Sam>"
 //   node 16_podcast.js
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -23,17 +29,26 @@
 const https = require('https');
 const fs = require('fs');
 
-// Step 1: Check for API key
-const apiKey = process.env.DEMETERICS_API_KEY;
+// Step 1: Check for API key and voice IDs
+const apiKey = process.env.OPENROUTER_API_KEY;
 if (!apiKey) {
-  console.error('Error: DEMETERICS_API_KEY not set');
-  console.error('Get your key from: https://demeterics.com');
+  console.error('Error: OPENROUTER_API_KEY not set');
+  console.error('Get your key from: https://openrouter.ai');
+  process.exit(1);
+}
+
+const voice1 = process.env.FISH_VOICE_1;
+const voice2 = process.env.FISH_VOICE_2;
+if (!voice1 || !voice2) {
+  console.error('Error: FISH_VOICE_1 and FISH_VOICE_2 not set');
+  console.error('Create a free account at https://fish.audio, pick two voices');
+  console.error('from the voice library, and export their reference IDs.');
   process.exit(1);
 }
 
 // Step 2: Define the podcast script
 // Format: "SpeakerName: dialogue text"
-// Speaker names must match exactly in speakers array
+// Speaker names must match exactly in the speakers array below
 const podcastScript = `Alex: Hey, welcome back to The Deep Dive! I am Alex.
 Sam: And I am Sam. Today we are diving into something that every kid learns in school, but honestly, gets way more complicated when you dig into it.
 Alex: Columbus. Christopher Columbus. 1492. In fourteen hundred ninety two, Columbus sailed the ocean blue.
@@ -55,28 +70,49 @@ Sam: Very complicated. It is really the story of a European arriving somewhere t
 Alex: That is the deep dive for today. Thanks for listening, everyone!
 Sam: See you next time!`;
 
-// Step 3: Configure voices for each speaker
-// Available voices (30 total):
-//   Puck (upbeat), Kore (firm), Charon (informative), Zephyr (bright),
-//   Fenrir (excitable), Leda (youthful), Aoede (breezy), Sulafat (warm),
-//   Achird (friendly), and 21 others.
+// Step 3: Map speaker names to speaker-tag indexes (0 and 1)
+// Fish Audio's multi-speaker format uses <|speaker:0|> / <|speaker:1|> tags
+// embedded directly in the text, plus a matching array of voice IDs.
 const speakers = [
-  { name: 'Alex', voice: 'Charon' },  // Informative, clear - explains concepts
-  { name: 'Sam', voice: 'Puck' }      // Upbeat - energetic, enthusiastic
+  { name: 'Alex', voiceId: voice1 },
+  { name: 'Sam', voiceId: voice2 }
 ];
+const speakerIndex = Object.fromEntries(speakers.map((s, i) => [s.name, i]));
 
-// Step 4: Build the request body (Demeterics format)
+// Step 4: Convert "Name: text" lines into "<|speaker:N|>text " tagged input
+function buildTaggedInput(script) {
+  return script
+    .split('\n')
+    .map(line => {
+      const [name, ...rest] = line.split(':');
+      const idx = speakerIndex[name.trim()];
+      if (idx === undefined) {
+        throw new Error(`Unknown speaker "${name}" - add them to the speakers array`);
+      }
+      return `<|speaker:${idx}|>${rest.join(':').trim()}`;
+    })
+    .join(' ');
+}
+
+const taggedInput = buildTaggedInput(podcastScript);
+
+// Step 5: Build the request body
 const requestBody = JSON.stringify({
-  provider: 'gemini',
-  input: podcastScript,
-  speakers: speakers
+  model: 'fish-audio/s2.1-pro-free:free',
+  input: taggedInput,
+  providerOptions: {
+    fishAudio: {
+      referenceId: speakers.map(s => s.voiceId)
+    }
+  },
+  response_format: 'mp3'
 });
 
-// Step 5: Configure the API request
+// Step 6: Configure the API request
 const options = {
-  hostname: 'api.demeterics.com',
+  hostname: 'openrouter.ai',
   port: 443,
-  path: '/tts/v1/generate',
+  path: '/api/v1/audio/speech',
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
@@ -90,13 +126,13 @@ console.log('Multi-Speaker Podcast Generation');
 console.log('========================================');
 console.log('');
 console.log('Speakers:');
-speakers.forEach(s => console.log(`  ${s.name}: ${s.voice}`));
+speakers.forEach((s, i) => console.log(`  <|speaker:${i}|> ${s.name}: voice ${s.voiceId}`));
 console.log('');
 console.log(`Script length: ${podcastScript.length} characters`);
 console.log('');
 console.log('Generating podcast audio...');
 
-// Step 6: Make the API request
+// Step 7: Make the API request
 const req = https.request(options, (res) => {
   const chunks = [];
 
@@ -112,9 +148,9 @@ const req = https.request(options, (res) => {
       process.exit(1);
     }
 
-    // Step 7: Save the audio file directly (Demeterics returns audio bytes)
+    // Step 8: Save the audio file directly (response is raw audio bytes)
     const audioBuffer = Buffer.concat(chunks);
-    const outputFile = 'columbus_podcast.wav';
+    const outputFile = 'columbus_podcast.mp3';
     fs.writeFileSync(outputFile, audioBuffer);
 
     console.log('');
@@ -134,6 +170,6 @@ req.on('error', (error) => {
   process.exit(1);
 });
 
-// Step 8: Send the request
+// Step 9: Send the request
 req.write(requestBody);
 req.end();

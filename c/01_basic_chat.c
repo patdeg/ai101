@@ -18,7 +18,7 @@
  * PREREQUISITES:
  *   - libcurl installed (see README.md)
  *   - cJSON in lib/ folder or installed system-wide
- *   - DEMETERICS_API_KEY environment variable set
+ *   - OPENROUTER_API_KEY environment variable set
  *
  * COMPILE:
  *   gcc -o 01_basic_chat 01_basic_chat.c lib/cJSON.c -lcurl -I lib/
@@ -86,10 +86,10 @@ static size_t write_callback(void *contents, size_t size, size_t nmemb, void *us
  */
 int main(void) {
     /* Step 3: Get API key from environment variable */
-    const char *api_key = getenv("DEMETERICS_API_KEY");
+    const char *api_key = getenv("OPENROUTER_API_KEY");
     if (api_key == NULL) {
-        fprintf(stderr, "Error: DEMETERICS_API_KEY environment variable not set\n");
-        fprintf(stderr, "Run: export DEMETERICS_API_KEY='your_key_here'\n");
+        fprintf(stderr, "Error: OPENROUTER_API_KEY environment variable not set\n");
+        fprintf(stderr, "Run: export OPENROUTER_API_KEY='your_key_here'\n");
         return 1;
     }
 
@@ -115,7 +115,7 @@ int main(void) {
     cJSON_AddItemToArray(messages, message);
 
     /* Add fields to root object */
-    cJSON_AddStringToObject(root, "model", "meta-llama/llama-4-scout-17b-16e-instruct");
+    cJSON_AddStringToObject(root, "model", "openai/gpt-oss-20b");
     cJSON_AddItemToObject(root, "messages", messages);
     cJSON_AddNumberToObject(root, "temperature", 0.7);
     cJSON_AddNumberToObject(root, "max_tokens", 100);
@@ -146,7 +146,7 @@ int main(void) {
     response.data[0] = '\0';
 
     /* Step 9: Configure curl options */
-    curl_easy_setopt(curl, CURLOPT_URL, "https://api.demeterics.com/groq/v1/chat/completions");
+    curl_easy_setopt(curl, CURLOPT_URL, "https://openrouter.ai/api/v1/chat/completions");
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, json_payload);
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
@@ -255,7 +255,7 @@ int main(void) {
  *
  * getenv("VAR_NAME")
  *   Gets an environment variable. Returns NULL if not set.
- *   Like $VAR_NAME in bash.
+ *   Like $VAR_NAME in bash. (e.g. $OPENROUTER_API_KEY)
  *
  * snprintf(buf, size, format, ...)
  *   Safe string formatting (won't overflow buffer).

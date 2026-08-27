@@ -1,6 +1,6 @@
-# Minecraft AI Chatbot: Groq Integration Guide
+# Minecraft AI Chatbot: OpenRouter Integration Guide
 
-This guide details how to build a Java plugin for a PaperMC (Minecraft) server. This plugin will allow players to interact with an NPC, send their chat message to the Demeterics Groq proxy, and receive a response in-game.
+This guide details how to build a Java plugin for a PaperMC (Minecraft) server. This plugin will allow players to interact with an NPC, send their chat message to OpenRouter, and receive a response in-game.
 
 We will cover two examples:
 
@@ -13,7 +13,7 @@ We will cover two examples:
 2.  **VS Code:** [Visual Studio Code](https://code.visualstudio.com/) with the [Extension Pack for Java](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-java-pack) installed.
 3.  **PaperMC Server:** A working [PaperMC server](https://papermc.io/downloads).
 4.  **Citizens Plugin:** The [Citizens plugin `.jar` file](https://www.google.com/search?q=%5Bhttps://www.spigotmc.org/resources/citizens.13811/%5D\(https://www.spigotmc.org/resources/citizens.13811/\)) in your server's `/plugins` folder.
-5.  **Demeterics Managed LLM Key:** Grab a key from the [Demeterics dashboard](https://demeterics.com) (Dashboard → Managed LLM Keys).
+5.  **OpenRouter API Key:** Sign up free at [openrouter.ai](https://openrouter.ai) and create a key (Dashboard → Keys).
 
 -----
 
@@ -134,7 +134,7 @@ public class GroqBotPlugin extends JavaPlugin {
 
 ## 3\. The Core Logic (`GroqListener.java`)
 
-This class does all the work. It listens for clicks, manages a simple "chat" state, and calls the Demeterics Groq proxy.
+This class does all the work. It listens for clicks, manages a simple "chat" state, and calls OpenRouter.
 
 ```java
 package com.ai101.groqbot;
@@ -167,9 +167,9 @@ public class GroqListener implements Listener {
     private final int EXAMPLE_1_NPC_ID = 1; // Direct query bot
     private final int EXAMPLE_2_NPC_ID = 2; // Role-play bot
 
-    // Paste your Demeterics Managed LLM Key here
+    // Paste your OpenRouter API Key here
     // !! For production, load this from a file, not hardcoded !!
-    private final String DEMETERICS_API_KEY = "dmt_YourKeyHere";
+    private final String OPENROUTER_API_KEY = "sk-or-v1-YourKeyHere";
     // --- END CONFIGURATION ---
 
     // Stores which player is talking to which bot
@@ -252,13 +252,13 @@ public class GroqListener implements Listener {
                 Bukkit.getScheduler().runTask(plugin, () -> {
                     player.sendMessage("§c[GroqBot] §fAPI Error: " + e.getMessage());
                 });
-                plugin.getLogger().warning("Demeterics Groq proxy Error: " + e.getMessage());
+                plugin.getLogger().warning("OpenRouter Error: " + e.getMessage());
             }
         });
     }
 
     /**
-     * Makes the actual HTTP call to the Demeterics Groq proxy.
+     * Makes the actual HTTP call to OpenRouter.
      * This method MUST be run on an async thread!
      */
     private String getGroqCompletion(JsonArray messages) throws Exception {
@@ -266,13 +266,13 @@ public class GroqListener implements Listener {
         // 1. Build the full JSON payload
         JsonObject payload = new JsonObject();
         payload.add("messages", messages);
-        payload.addProperty("model", "llama3-8b-8192");
+        payload.addProperty("model", "openai/gpt-oss-20b");
         String requestBody = gson.toJson(payload);
 
         // 2. Create the HTTP request
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("https://api.demeterics.com/groq/v1/chat/completions"))
-                .header("Authorization", "Bearer " + DEMETERICS_API_KEY)
+                .uri(URI.create("https://openrouter.ai/api/v1/chat/completions"))
+                .header("Authorization", "Bearer " + OPENROUTER_API_KEY)
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .build();

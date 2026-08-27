@@ -25,17 +25,24 @@ go version
 # Windows: Download from go.dev/dl
 ```
 
-**2. Set API key:**
+**2. Set API keys:**
 ```bash
-export DEMETERICS_API_KEY="dmt_your_key_here"
+export OPENROUTER_API_KEY="your_key_here"   # free at https://openrouter.ai/keys - most examples
+export GROQ_API_KEY="your_key_here"         # free at https://console.groq.com - examples 13, 14 only
+export TAVILY_API_KEY="your_key_here"       # free at https://tavily.com - examples 9, 10, 11 only
 ```
 
 **3. Verify setup:**
 ```bash
-echo $DEMETERICS_API_KEY
+echo $OPENROUTER_API_KEY
 go version  # Should be 1.16 or higher
 ```
-`DEMETERICS_API_KEY` is your Managed LLM Key from https://demeterics.com. One key unlocks Groq, Gemini, OpenAI, and Anthropic through the proxy.
+`OPENROUTER_API_KEY` is a free key from https://openrouter.ai/keys and is all you need for
+almost every example here - chat, vision, safety, prompt-guard, tool use, web search,
+transcription, and text-to-speech all route through OpenRouter's unified API. Two examples
+(13 code execution, 14 reasoning) use Groq directly for its native code-interpreter tool and
+prompt-caching discount, so they need `GROQ_API_KEY` instead. Two more (9, 10, plus the tool
+use in 11) call Tavily directly for web search/extraction and need `TAVILY_API_KEY`.
 
 ## Quick Start
 
@@ -74,10 +81,10 @@ go run 07_whisper.go
 go run 08_tavily_search.go    # Web search with AI-powered answers
 go run 09_tavily_extract.go   # Extract clean content from web pages
 go run 10_tool_use.go         # AI agents with function calling
-go run 11_web_search.go       # groq/compound-mini with built-in web search
+go run 11_web_search.go       # OpenRouter :online plugin for built-in web search
 go run 12_code_execution.go   # openai/gpt-oss-20b Python execution
 go run 13_reasoning.go        # Step-by-step thinking with prompt caching
-go run 14_text_to_speech.go   # OpenAI TTS with 11 voices
+go run 15_text_to_speech.go   # Fish Audio TTS via OpenRouter (free tier)
 
 # Computer Vision (requires GoCV: gocv.io/x/gocv)
 go run 18_pose_estimation.go   # Real-time pose estimation with webcam + ONNX
@@ -712,24 +719,24 @@ import (
     "os"
 )
 
-// GroqClient wraps API functionality
-type GroqClient struct {
+// OpenRouterClient wraps API functionality
+type OpenRouterClient struct {
     APIKey  string
     BaseURL string
     Client  *http.Client
 }
 
-// NewGroqClient creates a new client
-func NewGroqClient(apiKey string) *GroqClient {
-    return &GroqClient{
+// NewOpenRouterClient creates a new client
+func NewOpenRouterClient(apiKey string) *OpenRouterClient {
+    return &OpenRouterClient{
         APIKey:  apiKey,
-        BaseURL: "https://api.demeterics.com/groq/v1",
+        BaseURL: "https://openrouter.ai/api/v1",
         Client:  &http.Client{},
     }
 }
 
 // Chat sends a chat completion request
-func (c *GroqClient) Chat(model string, messages []Message, options map[string]interface{}) (*ChatResponse, error) {
+func (c *OpenRouterClient) Chat(model string, messages []Message, options map[string]interface{}) (*ChatResponse, error) {
     // Build request
     request := ChatRequest{
         Model:    model,
@@ -785,10 +792,10 @@ func (c *GroqClient) Chat(model string, messages []Message, options map[string]i
 
 // Usage
 func main() {
-    client := NewGroqClient(os.Getenv("DEMETERICS_API_KEY"))
+    client := NewOpenRouterClient(os.Getenv("OPENROUTER_API_KEY"))
 
     response, err := client.Chat(
-        "meta-llama/llama-4-scout-17b-16e-instruct",
+        "openai/gpt-oss-20b",
         []Message{
             {Role: "user", Content: "What is Go?"},
         },
@@ -819,13 +826,13 @@ import (
 )
 
 type Chatbot struct {
-    client   *GroqClient
+    client   *OpenRouterClient
     messages []Message
 }
 
 func NewChatbot(apiKey string) *Chatbot {
     return &Chatbot{
-        client:   NewGroqClient(apiKey),
+        client:   NewOpenRouterClient(apiKey),
         messages: []Message{},
     }
 }
@@ -839,7 +846,7 @@ func (bot *Chatbot) Chat(userMessage string) (string, error) {
 
     // Get AI response
     response, err := bot.client.Chat(
-        "meta-llama/llama-4-scout-17b-16e-instruct",
+        "openai/gpt-oss-20b",
         bot.messages,
         map[string]interface{}{"temperature": 0.7},
     )
@@ -860,7 +867,7 @@ func (bot *Chatbot) Chat(userMessage string) (string, error) {
 }
 
 func main() {
-    bot := NewChatbot(os.Getenv("DEMETERICS_API_KEY"))
+    bot := NewChatbot(os.Getenv("OPENROUTER_API_KEY"))
     scanner := bufio.NewScanner(os.Stdin)
 
     fmt.Println("Chatbot started. Type 'quit' to exit.\n")
@@ -978,9 +985,9 @@ func chatHandler(w http.ResponseWriter, r *http.Request) {
     }
 
     // Call AI (simplified)
-    client := NewGroqClient(os.Getenv("DEMETERICS_API_KEY"))
+    client := NewOpenRouterClient(os.Getenv("OPENROUTER_API_KEY"))
     response, err := client.Chat(
-        "meta-llama/llama-4-scout-17b-16e-instruct",
+        "openai/gpt-oss-20b",
         []Message{{Role: "user", Content: req.Message}},
         nil,
     )
@@ -1032,7 +1039,7 @@ import (
 func main() {
     // Define flags
     message := flag.String("m", "", "Message to send")
-    model := flag.String("model", "meta-llama/llama-4-scout-17b-16e-instruct", "Model to use")
+    model := flag.String("model", "openai/gpt-oss-20b", "Model to use")
     temp := flag.Float64("temp", 0.7, "Temperature (0.0-2.0)")
 
     flag.Parse()
@@ -1043,7 +1050,7 @@ func main() {
         os.Exit(1)
     }
 
-    client := NewGroqClient(os.Getenv("DEMETERICS_API_KEY"))
+    client := NewOpenRouterClient(os.Getenv("OPENROUTER_API_KEY"))
 
     response, err := client.Chat(
         *model,
@@ -1082,7 +1089,7 @@ Ready to deepen your understanding? Check out the **[exercises/](../exercises/)*
 - **[Exercise 8: Tavily Search](../exercises/08_tavily_search.md)** - Web search, time filters, domain control
 - **[Exercise 9: Tavily Extract](../exercises/09_tavily_extract.md)** - Content extraction, article analysis
 - **[Exercise 10: Tool Use](../exercises/10_tool_use.md)** - AI agents, function calling, autonomous workflows
-- **[Exercise 11: Web Search (Groq)](../exercises/11_web_search.md)** - Built-in search with groq/compound-mini
+- **[Exercise 11: Web Search](../exercises/11_web_search.md)** - Built-in search with OpenRouter's `:online` model suffix
 - **[Exercise 12: Code Execution](../exercises/12_code_execution.md)** - Python execution with openai/gpt-oss-20b
 - **[Exercise 13: Reasoning](../exercises/13_reasoning.md)** - Step-by-step thinking with prompt caching
 - **[Exercise 14: Text-to-Speech](../exercises/14_text_to_speech.md)** - Voice synthesis with 11 voices

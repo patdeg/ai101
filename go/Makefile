@@ -19,7 +19,7 @@ BIN_DIR = bin
 # All source files (excluding variant files like *_OPENAI.go)
 # Also exclude 18_pose_estimation.go (requires GoCV external dependency)
 SOURCES = $(wildcard [0-9][0-9]_*.go)
-SOURCES := $(filter-out %_ANTHROPIC.go %_OPENAI.go %_DEMETERICS.go %_SAMBA.go 18_pose_estimation.go,$(SOURCES))
+SOURCES := $(filter-out %_ANTHROPIC.go %_OPENAI.go %_SAMBA.go 18_pose_estimation.go,$(SOURCES))
 
 # Generate executable names (strip .go, add bin/ prefix)
 EXECUTABLES = $(patsubst %.go,$(BIN_DIR)/%,$(SOURCES))

@@ -16,6 +16,11 @@ What you'll learn:
 
 Note: Uses Python standard library only
 For production, consider: pip install groq
+
+Prerequisites:
+  - GROQ_API_KEY set (this example's prompt-caching discount is a Groq-hosted
+    feature with no OpenRouter equivalent on a free/cheap model, so it calls
+    Groq directly)
 """
 
 import http.client
@@ -24,18 +29,18 @@ import os
 import sys
 
 # Check for API key
-if not os.environ.get('DEMETERICS_API_KEY'):
-    print('Error: DEMETERICS_API_KEY environment variable not set', file=sys.stderr)
-    print('Get your Managed LLM Key from: https://demeterics.com', file=sys.stderr)
+if not os.environ.get('GROQ_API_KEY'):
+    print('Error: GROQ_API_KEY environment variable not set', file=sys.stderr)
+    print('Get a free key from: https://console.groq.com', file=sys.stderr)
     sys.exit(1)
 
 def call_reasoning(messages, format_type=None, effort='medium'):
-    """Call Demeterics Groq proxy with reasoning model"""
-    conn = http.client.HTTPSConnection('api.demeterics.com')
+    """Call Groq directly with a reasoning model"""
+    conn = http.client.HTTPSConnection('api.groq.com')
 
     headers = {
         'Content-Type': 'application/json',
-        'Authorization': f'Bearer {os.environ["DEMETERICS_API_KEY"]}'
+        'Authorization': f'Bearer {os.environ["GROQ_API_KEY"]}'
     }
 
     request_data = {
@@ -51,7 +56,7 @@ def call_reasoning(messages, format_type=None, effort='medium'):
 
     body = json.dumps(request_data)
 
-    conn.request('POST', '/groq/v1/chat/completions', body, headers)
+    conn.request('POST', '/openai/v1/chat/completions', body, headers)
     response = conn.getresponse()
     data = response.read().decode('utf-8')
     conn.close()

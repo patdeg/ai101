@@ -7,7 +7,7 @@
  * WHAT THIS PROJECT DOES:
  *   - Press the BOOT button to capture a photo
  *   - Built-in LED flashes during capture
- *   - Sends image to Groq Vision API (meta-llama/llama-4-scout-17b-16e-instruct)
+ *   - Sends image to a vision-capable model on OpenRouter (google/gemma-4-31b-it)
  *   - AI analyzes and describes what's in the image
  *   - Displays description in Serial Monitor
  *
@@ -35,7 +35,7 @@
  *   1. Make sure camera module is ATTACHED to the board
  *   2. Install "esp32" board support (v3.0.0+) in Arduino IDE
  *   3. Copy secrets_template.h to secrets.h
- *   4. Fill in your WiFi credentials and Demeterics Managed LLM Key
+ *   4. Fill in your WiFi credentials and OpenRouter API key
  *   5. Select Board: "XIAO_ESP32S3"
  *   6. Set PSRAM: "OPI PSRAM"
  *   7. Upload and open Serial Monitor at 115200 baud
@@ -52,7 +52,7 @@
  *   - 10,000 images for $1.00
  *
  * MODEL INFO:
- *   - meta-llama/llama-4-scout-17b-16e-instruct
+ *   - google/gemma-4-31b-it
  *   - Vision + chat model (sees images + understands text)
  *   - 17 billion parameters
  *   - Can describe objects, scenes, read text, count items
@@ -116,7 +116,7 @@ void setup() {
   Serial.println("============================================================");
   Serial.println("XIAO ESP32-S3 Sense - AI Vision Camera");
   Serial.println("============================================================");
-  Serial.println("Model: meta-llama/llama-4-scout-17b-16e-instruct");
+  Serial.println("Model: google/gemma-4-31b-it");
   Serial.println("Camera: OV2640 (1600x1200)");
   Serial.println("============================================================");
   Serial.println();
@@ -320,14 +320,14 @@ void captureAndAnalyze() {
 void sendToVisionAPI(String base64Image) {
   Serial.println("📤 Sending to Vision API...");
 
-  if (!client.connect("api.demeterics.com", 443)) {
+  if (!client.connect("openrouter.ai", 443)) {
     Serial.println("ERROR: Connection failed!");
     return;
   }
 
   // Build JSON payload
   String payload = "{";
-  payload += "\"model\":\"meta-llama/llama-4-scout-17b-16e-instruct\",";
+  payload += "\"model\":\"google/gemma-4-31b-it\",";
   payload += "\"messages\":[{";
   payload += "\"role\":\"user\",";
   payload += "\"content\":[";
@@ -340,10 +340,10 @@ void sendToVisionAPI(String base64Image) {
   payload += "}";
 
   // Send HTTP request
-  client.println("POST /groq/v1/chat/completions HTTP/1.1");
-  client.println("Host: api.demeterics.com");
+  client.println("POST /api/v1/chat/completions HTTP/1.1");
+  client.println("Host: openrouter.ai");
   client.print("Authorization: Bearer ");
-  client.println(DEMETERICS_API_KEY);
+  client.println(OPENROUTER_API_KEY);
   client.println("Content-Type: application/json");
   client.print("Content-Length: ");
   client.println(payload.length());

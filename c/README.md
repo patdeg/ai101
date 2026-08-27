@@ -39,10 +39,26 @@ sudo apt-get install libcjson-dev
 brew install cjson
 ```
 
-### 3. Set your API key
+### 3. Set your API keys
 
+Most examples call [OpenRouter](https://openrouter.ai) directly (one free-signup
+key covers chat, vision, safety, prompt-guard, whisper/STT, TTS, and podcast):
 ```bash
-export DEMETERICS_API_KEY="your-api-key-here"
+export OPENROUTER_API_KEY="your-openrouter-key-here"
+```
+
+Two examples (13 code_execution, 14 reasoning) use Groq's native hosted
+code-interpreter + prompt-caching, so they need a separate Groq key instead:
+```bash
+export GROQ_API_KEY="your-groq-key-here"
+```
+
+Examples 09/10 (Tavily search/extract) need `TAVILY_API_KEY` from
+[tavily.com](https://tavily.com). Example 16 (podcast) also needs two Fish
+Audio voice IDs (free account at [fish.audio](https://fish.audio)):
+```bash
+export FISH_VOICE_1="<voice-id-for-speaker-0>"
+export FISH_VOICE_2="<voice-id-for-speaker-1>"
 ```
 
 ## Quick Start
@@ -111,10 +127,11 @@ done
 | 09 | `09_tavily_search.c` | Web search with Tavily API |
 | 10 | `10_tavily_extract.c` | Extract content from web pages |
 | 11 | `11_tool_use.c` | AI agents with function calling |
-| 12 | `12_web_search.c` | Built-in web search with groq/compound-mini |
-| 13 | `13_code_execution.c` | Python code execution |
-| 14 | `14_reasoning.c` | Step-by-step thinking with prompt caching |
-| 15 | `15_text_to_speech.c` | Voice synthesis with OpenAI TTS |
+| 12 | `12_web_search.c` | Built-in web search with OpenRouter's `:online` models |
+| 13 | `13_code_execution.c` | Python code execution (direct on Groq) |
+| 14 | `14_reasoning.c` | Step-by-step thinking with prompt caching (direct on Groq) |
+| 15 | `15_text_to_speech.c` | Voice synthesis with Fish Audio (via OpenRouter) |
+| 16 | `16_podcast.c` | Two-speaker podcast generation with Fish Audio (via OpenRouter) |
 
 ## C Concepts You'll Learn
 
@@ -149,10 +166,10 @@ cJSON not linked. Either:
 1. Add `lib/cJSON.c` to your compile command
 2. Or add `-lcjson` if installed system-wide
 
-### "DEMETERICS_API_KEY not set"
-Set your environment variable:
+### "OPENROUTER_API_KEY not set" (or GROQ_API_KEY / TAVILY_API_KEY)
+Set the environment variable the example needs (see "Set your API keys" above):
 ```bash
-export DEMETERICS_API_KEY="your-key-here"
+export OPENROUTER_API_KEY="your-key-here"
 ```
 
 ## Resources

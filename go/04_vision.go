@@ -144,12 +144,13 @@ type Usage struct {
 func main() {
 	// Step 1: Get API key from environment variable
 	// Authentication is required for all API calls
-	apiKey := os.Getenv("DEMETERICS_API_KEY")
+	apiKey := os.Getenv("OPENROUTER_API_KEY")
 
 	// Verify API key exists
 	if apiKey == "" {
-		fmt.Println("Error: DEMETERICS_API_KEY environment variable not set")
-		fmt.Println("Run: export DEMETERICS_API_KEY='your_key_here'")
+		fmt.Println("Error: OPENROUTER_API_KEY environment variable not set")
+		fmt.Println("Get a free key at https://openrouter.ai/keys, then:")
+		fmt.Println("Run: export OPENROUTER_API_KEY='your_key_here'")
 		os.Exit(1)
 	}
 
@@ -214,7 +215,7 @@ func main() {
 	// The Content field is now an ARRAY of ContentItem structs
 	// This allows us to mix text and images in a single message
 	request := VisionRequest{
-		Model: "meta-llama/llama-4-scout-17b-16e-instruct",
+		Model: "google/gemma-4-31b-it", // Free vision-capable model on OpenRouter
 		Messages: []VisionMessage{
 			{
 				Role: "user", // This is still a user message
@@ -251,9 +252,9 @@ func main() {
 	// Step 9: Create HTTP request
 	// Build POST request with our JSON payload
 	req, err := http.NewRequest(
-		"POST",                                            // HTTP method
-		"https://api.demeterics.com/groq/v1/chat/completions", // Same endpoint as text-only requests
-		bytes.NewBuffer(jsonData),                         // Request body with image data
+		"POST",                                          // HTTP method
+		"https://openrouter.ai/api/v1/chat/completions", // Same endpoint as text-only requests
+		bytes.NewBuffer(jsonData),                       // Request body with image data
 	)
 
 	// Check if request creation succeeded

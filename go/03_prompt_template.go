@@ -25,7 +25,7 @@ Examples:
     go run 03_prompt_template.go "Technology" "Artificial Intelligence"
 
 Environment:
-    DEMETERICS_API_KEY - Your Demeterics Managed LLM Key (required)
+    OPENROUTER_API_KEY - Your OpenRouter API key (required, free at https://openrouter.ai/keys)
 */
 
 import (
@@ -44,14 +44,14 @@ import (
 
 // Configuration constants
 const (
-	API_URL       = "https://api.demeterics.com/groq/v1/chat/completions"
-	MODEL         = "meta-llama/llama-4-scout-17b-16e-instruct"
+	API_URL       = "https://openrouter.ai/api/v1/chat/completions"
+	MODEL         = "openai/gpt-oss-20b"
 	TEMPLATE_DIR  = "../templates"
 	TEMPLATE_FILE = "essay_writer.txt"
 
-	// Pricing per million tokens
-	INPUT_PRICE  = 0.11
-	OUTPUT_PRICE = 0.34
+	// Pricing per million tokens (openai/gpt-oss-20b, via OpenRouter)
+	INPUT_PRICE  = 0.03
+	OUTPUT_PRICE = 0.13
 )
 
 // ChatRequest represents the API request structure
@@ -236,7 +236,7 @@ func processTemplate(data TemplateData) (string, error) {
 	return buf.String(), nil
 }
 
-// makeAPIRequest sends a request to the Demeterics Groq proxy
+// makeAPIRequest sends a request to OpenRouter's chat completions API
 func makeAPIRequest(systemPrompt, userPrompt, apiKey string) (*ChatResponse, error) {
 	// Prepare request data
 	request := ChatRequest{
@@ -348,10 +348,11 @@ func main() {
 	fmt.Printf("Topic: %s\n", topic)
 
 	// Check for API key
-	apiKey := os.Getenv("DEMETERICS_API_KEY")
+	apiKey := os.Getenv("OPENROUTER_API_KEY")
 	if apiKey == "" {
-		fmt.Println("\n❌ Error: DEMETERICS_API_KEY environment variable not set")
-		fmt.Println("Set it with: export DEMETERICS_API_KEY='your-api-key-here'")
+		fmt.Println("\n❌ Error: OPENROUTER_API_KEY environment variable not set")
+		fmt.Println("Get a free key at https://openrouter.ai/keys, then:")
+		fmt.Println("Set it with: export OPENROUTER_API_KEY='your-api-key-here'")
 		os.Exit(1)
 	}
 

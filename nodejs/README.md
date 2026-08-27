@@ -13,10 +13,15 @@
 
 | Provider | Example File | API Endpoint | Best For |
 |----------|-------------|--------------|----------|
-| **Demeterics (Default Groq proxy)** | `01_basic_chat.js` | `api.demeterics.com/groq` | Fast inference + observability |
+| **OpenRouter (default)** | `01_basic_chat.js` | `openrouter.ai/api/v1` | One key, many free/cheap models |
 | **OpenAI** | `01_basic_chat_OPENAI.js` | `api.openai.com` | Advanced reasoning, GPT models |
 | **Anthropic** | `01_basic_chat_ANTHROPIC.js` | `api.anthropic.com` | Claude models, nuanced responses |
 | **SambaNova** | `01_basic_chat_SAMBA.js` | `api.sambanova.ai` | Open models, enterprise focus |
+
+Most examples (01-12, 15, 16) run on OpenRouter with a single `OPENROUTER_API_KEY`.
+Two examples (13, 14) call Groq directly with `GROQ_API_KEY` for a Groq-only
+hosted code-interpreter + prompt-caching combo. Two examples (09, 10) call
+Tavily directly with `TAVILY_API_KEY` for live web search.
 
 ## Prerequisites
 
@@ -34,24 +39,26 @@ node --version
 
 **2. Set API keys (based on provider):**
 ```bash
-# Demeterics (default Groq proxy)
-export DEMETERICS_API_KEY="dmt_..."
+# OpenRouter (default for most examples)
+export OPENROUTER_API_KEY="sk-or-..."
 
-# OpenAI (TTS + optional examples)
+# Groq (examples 13, 14 only - direct code execution + prompt caching)
+export GROQ_API_KEY="gsk_..."
+
+# Tavily (examples 09, 10 - live web search)
+export TAVILY_API_KEY="tvly-..."
+
+# OpenAI, Anthropic, SambaNova (only for the 01_basic_chat_* vendor variants)
 export OPENAI_API_KEY="sk-..."
-
-# Anthropic (Claude)
 export ANTHROPIC_API_KEY="sk-ant-..."
-
-# SambaNova
 export SAMBANOVA_API_KEY="..."
 ```
 
-> The `DEMETERICS_API_KEY` is your Managed LLM Key from the Demeterics dashboard. One key unlocks Groq, Gemini, OpenAI, and Anthropic through the proxy with full observability.
+> Get a free `OPENROUTER_API_KEY` at https://openrouter.ai - no whitelist, self-serve signup. Most examples in this directory use it by default.
 
 **3. Verify setup:**
 ```bash
-echo $DEMETERICS_API_KEY
+echo $OPENROUTER_API_KEY
 node --version  # Should be v14+ or higher
 ```
 
@@ -59,26 +66,27 @@ node --version  # Should be v14+ or higher
 
 ```bash
 # Basic chat with different providers
-node 01_basic_chat.js              # Demeterics Groq proxy (default)
+node 01_basic_chat.js              # OpenRouter (default)
 node 01_basic_chat_OPENAI.js       # OpenAI
 node 01_basic_chat_ANTHROPIC.js    # Anthropic (Claude)
 node 01_basic_chat_SAMBA.js        # SambaNova
-node 01_basic_chat_DEMETERICS.js   # Via Demeterics proxy
 
-# Other examples (currently Groq only)
+# Other examples
 node 02_system_prompt.js
-node 03_vision.js
-node 04_safety_check.js
-node 05_image_safety_check.js
-node 06_prompt_guard.js
-node 07_whisper.js
-node 08_tavily_search.js       # Web search with AI-powered answers
-node 09_tavily_extract.js      # Extract clean content from web pages
-node 10_tool_use.js            # AI agents with function calling
-node 11_web_search.js          # groq/compound-mini with built-in web search
-node 12_code_execution.js      # openai/gpt-oss-20b Python execution
-node 13_reasoning.js           # Step-by-step thinking with prompt caching
-node 14_text_to_speech.js      # OpenAI TTS with 11 voices
+node 03_prompt_template.js
+node 04_vision.js
+node 05_safety_check.js
+node 06_image_safety_check.js
+node 07_prompt_guard.js
+node 08_whisper.js
+node 09_tavily_search.js       # Web search with AI-powered answers
+node 10_tavily_extract.js      # Extract clean content from web pages
+node 11_tool_use.js            # AI agents with function calling
+node 12_web_search.js          # OpenRouter :online with built-in web search
+node 13_code_execution.js      # openai/gpt-oss-20b Python execution (direct Groq)
+node 14_reasoning.js           # Step-by-step thinking with prompt caching (direct Groq)
+node 15_text_to_speech.js      # Fish Audio TTS via OpenRouter (free tier)
+node 16_podcast.js             # Multi-speaker podcast (OpenRouter/Fish Audio)
 ```
 
 ---
@@ -468,11 +476,11 @@ if (error.code === 'ENOENT') {
 
 ```javascript
 // Read environment variable
-const apiKey = process.env.DEMETERICS_API_KEY;
+const apiKey = process.env.OPENROUTER_API_KEY;
 
 // Check if it's set
-if (!process.env.DEMETERICS_API_KEY) {
-  console.error('DEMETERICS_API_KEY not set!');
+if (!process.env.OPENROUTER_API_KEY) {
+  console.error('OPENROUTER_API_KEY not set!');
   process.exit(1);
 }
 
@@ -534,7 +542,7 @@ req.on('error', (err) => {
 ### Convert to reusable function
 
 ```javascript
-function callGroqAPI(model, messages, options = {}) {
+function callOpenRouter(model, messages, options = {}) {
   return new Promise((resolve, reject) => {
     const data = JSON.stringify({
       model,
@@ -543,12 +551,12 @@ function callGroqAPI(model, messages, options = {}) {
     });
 
     const requestOptions = {
-      hostname: 'api.demeterics.com',
-      path: '/groq/v1/chat/completions',
+      hostname: 'openrouter.ai',
+      path: '/api/v1/chat/completions',
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.DEMETERICS_API_KEY}`,
+        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
         'Content-Length': Buffer.byteLength(data)
       }
     };
@@ -572,8 +580,8 @@ function callGroqAPI(model, messages, options = {}) {
 }
 
 // Usage
-callGroqAPI(
-  'meta-llama/llama-4-scout-17b-16e-instruct',
+callOpenRouter(
+  'openai/gpt-oss-20b',
   [{ role: 'user', content: 'Hi!' }],
   { temperature: 0.7 }
 )
@@ -610,8 +618,8 @@ function chat() {
 
     messages.push({ role: 'user', content: input });
 
-    const response = await callGroqAPI(
-      'meta-llama/llama-4-scout-17b-16e-instruct',
+    const response = await callOpenRouter(
+      'openai/gpt-oss-20b',
       messages
     );
 
@@ -641,7 +649,7 @@ Ready to deepen your understanding? Check out the **[exercises/](../exercises/)*
 - **[Exercise 8: Tavily Search](../exercises/08_tavily_search.md)** - Web search, time filters, domain control
 - **[Exercise 9: Tavily Extract](../exercises/09_tavily_extract.md)** - Content extraction, article analysis
 - **[Exercise 10: Tool Use](../exercises/10_tool_use.md)** - AI agents, function calling, autonomous workflows
-- **[Exercise 11: Web Search (Groq)](../exercises/11_web_search.md)** - Built-in search with groq/compound-mini
+- **[Exercise 11: Web Search](../exercises/11_web_search.md)** - Built-in search with OpenRouter's :online suffix
 - **[Exercise 12: Code Execution](../exercises/12_code_execution.md)** - Python execution with openai/gpt-oss-20b
 - **[Exercise 13: Reasoning](../exercises/13_reasoning.md)** - Step-by-step thinking with prompt caching
 - **[Exercise 14: Text-to-Speech](../exercises/14_text_to_speech.md)** - Voice synthesis with 11 voices

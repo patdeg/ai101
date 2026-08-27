@@ -3,27 +3,39 @@
 # Example 16: Multi-Speaker Podcast Generation (Minimal Version)
 ################################################################################
 #
-# Generate a podcast with two speakers in a SINGLE API call using Demeterics.
+# Generate a podcast with two speakers in a SINGLE API call using OpenRouter's
+# audio/speech endpoint and the free Fish Audio S2.1 Pro model.
 #
 # Prerequisites:
-# - DEMETERICS_API_KEY environment variable
+# - OPENROUTER_API_KEY environment variable
+# - FISH_VOICE_1 / FISH_VOICE_2 environment variables — two Fish Audio voice
+#   reference IDs. Get free ones by creating an account at https://fish.audio,
+#   browsing the voice library, and copying each voice's reference ID.
 #
 # Usage:
-#   export DEMETERICS_API_KEY="dmt_your-api-key"
+#   export OPENROUTER_API_KEY="sk-or-your-api-key"
+#   export FISH_VOICE_1="your-first-voice-reference-id"
+#   export FISH_VOICE_2="your-second-voice-reference-id"
 #   ./16_podcast_minimal.sh
 #
 ################################################################################
 
-# Check for API key
-if [ -z "$DEMETERICS_API_KEY" ]; then
-  echo "Error: DEMETERICS_API_KEY not set"
-  echo "Get your key from: https://demeterics.com"
+# Check for required environment variables
+if [ -z "$OPENROUTER_API_KEY" ]; then
+  echo "Error: OPENROUTER_API_KEY not set"
+  echo "Get your key from: https://openrouter.ai/keys"
+  exit 1
+fi
+if [ -z "$FISH_VOICE_1" ] || [ -z "$FISH_VOICE_2" ]; then
+  echo "Error: FISH_VOICE_1 and FISH_VOICE_2 must both be set"
+  echo "Get two free voice reference IDs from https://fish.audio (sign up,"
+  echo "browse the voice library, copy each voice's reference ID)"
   exit 1
 fi
 
-API_URL="https://api.demeterics.com/tts/v1/generate"
+API_URL="https://openrouter.ai/api/v1/audio/speech"
 
-# The podcast script - Speaker names must match speakers array exactly
+# The podcast script - written as "Name: line" for readability
 SCRIPT='Alex: Hey, welcome back to The Deep Dive! I am Alex.
 Sam: And I am Sam. Today we are diving into something that every kid learns in school, but honestly, gets way more complicated when you dig into it.
 Alex: Columbus. Christopher Columbus. 1492. In fourteen hundred ninety two, Columbus sailed the ocean blue.
@@ -45,51 +57,49 @@ Sam: Very complicated. It is really the story of a European arriving somewhere t
 Alex: That is the deep dive for today. Thanks for listening, everyone!
 Sam: See you next time!'
 
+# Fish Audio's multi-speaker format doesn't use names — it uses index tags
+# <|speaker:0|> / <|speaker:1|> matched against the referenceId array below.
+# Convert "Alex: ..." -> "<|speaker:0|>..." and "Sam: ..." -> "<|speaker:1|>..."
+TAGGED_SCRIPT=$(echo "$SCRIPT" | sed -e 's/^Alex: /<|speaker:0|>/' -e 's/^Sam: /<|speaker:1|>/' | tr '\n' ' ')
+
 echo "Generating podcast with two speakers..."
 echo "Script length: $(echo "$SCRIPT" | wc -c) characters"
 
-# Single API call generates audio with both voices (Deep Dive style)
-# - Alex uses Charon voice (informative, clear - explains concepts)
-# - Sam uses Puck voice (upbeat - energetic, enthusiastic)
-# API returns binary audio directly with metadata in headers
-HEADERS_FILE=$(mktemp)
+# Single API call generates audio with both voices
+# - referenceId[0] (Alex) is spoken by <|speaker:0|> turns
+# - referenceId[1] (Sam) is spoken by <|speaker:1|> turns
+# API returns binary audio directly (this is the free ":free" tier — $0.00)
 curl -s -X POST "$API_URL" \
-  -H "Authorization: Bearer $DEMETERICS_API_KEY" \
+  -H "Authorization: Bearer $OPENROUTER_API_KEY" \
   -H "Content-Type: application/json" \
-  -o columbus_podcast.wav \
-  -D "$HEADERS_FILE" \
+  -o columbus_podcast.mp3 \
   -d @- <<EOF
 {
-  "provider": "gemini",
-  "input": "$SCRIPT",
-  "speakers": [
-    {"name": "Alex", "voice": "Charon"},
-    {"name": "Sam", "voice": "Puck"}
-  ]
+  "model": "fish-audio/s2.1-pro-free:free",
+  "input": "$TAGGED_SCRIPT",
+  "providerOptions": {
+    "fishAudio": { "referenceId": ["$FISH_VOICE_1", "$FISH_VOICE_2"] }
+  },
+  "response_format": "mp3"
 }
 EOF
 
 # Check if response is an error (JSON) or audio (binary)
-if [ -f "columbus_podcast.wav" ] && [ -s "columbus_podcast.wav" ]; then
-  FIRST_CHAR=$(head -c 1 columbus_podcast.wav)
+if [ -f "columbus_podcast.mp3" ] && [ -s "columbus_podcast.mp3" ]; then
+  FIRST_CHAR=$(head -c 1 columbus_podcast.mp3)
   if [ "$FIRST_CHAR" = "{" ]; then
     # Response is JSON error
     echo "API Error:"
-    cat columbus_podcast.wav
+    cat columbus_podcast.mp3
     echo ""
-    rm -f columbus_podcast.wav "$HEADERS_FILE"
+    rm -f columbus_podcast.mp3
     exit 1
   else
-    # Success - extract metadata from headers
-    COST=$(grep -i "X-Cost-USD" "$HEADERS_FILE" | cut -d' ' -f2 | tr -d '\r')
-    DURATION=$(grep -i "X-Duration-Seconds" "$HEADERS_FILE" | cut -d' ' -f2 | tr -d '\r')
-    rm -f "$HEADERS_FILE"
-    echo "Duration: ${DURATION}s, Cost: \$${COST}"
-    echo "Created: columbus_podcast.wav ($(wc -c < columbus_podcast.wav) bytes)"
-    echo "Play with: mpv columbus_podcast.wav"
+    echo "Created: columbus_podcast.mp3 ($(wc -c < columbus_podcast.mp3) bytes)"
+    echo "Cost: \$0.00 (fish-audio/s2.1-pro-free:free tier)"
+    echo "Play with: mpv columbus_podcast.mp3"
   fi
 else
   echo "Error: No response from API"
-  rm -f "$HEADERS_FILE"
   exit 1
 fi

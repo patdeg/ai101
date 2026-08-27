@@ -18,7 +18,7 @@
  *
  * PREREQUISITES:
  * - Completed 01_basic_chat.js and 02_system_prompt.js
- * - DEMETERICS_API_KEY environment variable set
+ * - OPENROUTER_API_KEY environment variable set
  * - A test image file (or use the curl command below to download one)
  *
  * EXPECTED OUTPUT:
@@ -86,7 +86,7 @@ const imageUrl = `data:${mimeType};base64,${imageBase64}`;
 // Step 6: Create the request payload with both text and image
 // Notice the content is now an ARRAY of objects (not a string)
 const data = JSON.stringify({
-  model: "meta-llama/llama-4-scout-17b-16e-instruct",
+  model: "google/gemma-4-31b-it",
   messages: [
     {
       role: "user",
@@ -110,13 +110,13 @@ const data = JSON.stringify({
 
 // Step 7: Configure the HTTPS request options
 const options = {
-  hostname: 'api.demeterics.com',
+  hostname: 'openrouter.ai',
   port: 443,
-  path: '/groq/v1/chat/completions',
+  path: '/api/v1/chat/completions',
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${process.env.DEMETERICS_API_KEY}`,
+    'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
     'Content-Length': Buffer.byteLength(data)
   }
 };

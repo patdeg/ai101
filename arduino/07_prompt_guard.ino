@@ -28,7 +28,7 @@
  * DEFENSE STRATEGY:
  * This example uses a layered approach:
  * Layer 1: Fast local keyword check (runs on Arduino, instant results)
- * Layer 2: AI-powered analysis (uses Demeterics Groq proxy, more accurate but slower)
+ * Layer 2: AI-powered analysis (uses OpenRouter, more accurate but slower)
  *
  * HARDWARE REQUIRED:
  * - ESP32 or ESP8266 board (these have built-in WiFi)
@@ -40,7 +40,7 @@
  *
  * HOW TO USE:
  * 1. Update WIFI_SSID and WIFI_PASSWORD
- * 2. Update DEMETERICS_API_KEY
+ * 2. Update OPENROUTER_API_KEY
  * 3. Upload to ESP32/ESP8266
  * 4. Open Serial Monitor at 115200 baud
  *
@@ -69,11 +69,11 @@
 // ============================================================================
 const char* WIFI_SSID = "YOUR_WIFI_SSID";
 const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";
-const char* DEMETERICS_API_KEY = "YOUR_DEMETERICS_API_KEY";
+const char* OPENROUTER_API_KEY = "YOUR_OPENROUTER_API_KEY";
 
-const char* DEMETERICS_HOST = "api.demeterics.com";
+const char* OPENROUTER_HOST = "openrouter.ai";
 const int HTTPS_PORT = 443;
-const char* API_PATH = "/groq/v1/chat/completions";
+const char* API_PATH = "/api/v1/chat/completions";
 
 // ============================================================================
 // HELPER FUNCTION: Detect prompt injection attempts using AI
@@ -102,9 +102,9 @@ bool detectPromptInjection(const char* userInput) {
   Serial.print(userInput);
   Serial.println("\"");
 
-  // Establish connection to Demeterics Groq proxy
-  if (!client.connect(DEMETERICS_HOST, HTTPS_PORT)) {
-    Serial.println("ERROR: Failed to connect to Demeterics Groq proxy");
+  // Establish connection to OpenRouter
+  if (!client.connect(OPENROUTER_HOST, HTTPS_PORT)) {
+    Serial.println("ERROR: Failed to connect to OpenRouter");
     return true; // Fail-safe: treat as suspicious if we can't check
   }
 
@@ -117,7 +117,7 @@ bool detectPromptInjection(const char* userInput) {
   DynamicJsonDocument requestDoc(2048);
 
   // Use a fast model for quick detection
-  requestDoc["model"] = "llama-3.1-8b-instant";
+  requestDoc["model"] = "openai/gpt-oss-safeguard-20b";
 
   // Create messages array
   JsonArray messages = requestDoc.createNestedArray("messages");
@@ -146,8 +146,14 @@ bool detectPromptInjection(const char* userInput) {
   // We don't want random variations in security decisions!
   requestDoc["temperature"] = 0.0;
 
-  // 50 tokens is enough for "SAFE" or "INJECTION_DETECTED"
-  requestDoc["max_tokens"] = 50;
+  // gpt-oss-safeguard-20b's reasoning is mandatory (can't be disabled) and
+  // can burn 60-230+ tokens thinking before it answers, so max_tokens needs
+  // real headroom for that plus the final verdict.
+  requestDoc["max_tokens"] = 400;
+
+  // "low" effort keeps that mandatory reasoning as short as the model allows
+  JsonObject reasoning = requestDoc.createNestedObject("reasoning");
+  reasoning["effort"] = "low";
 
   // Convert to JSON string
   String requestBody;
@@ -155,9 +161,9 @@ bool detectPromptInjection(const char* userInput) {
 
   // Build and send HTTP POST request
   String request = String("POST ") + API_PATH + " HTTP/1.1\r\n";
-  request += String("Host: ") + DEMETERICS_HOST + "\r\n";
+  request += String("Host: ") + OPENROUTER_HOST + "\r\n";
   request += "Content-Type: application/json\r\n";
-  request += String("Authorization: Bearer ") + DEMETERICS_API_KEY + "\r\n";
+  request += String("Authorization: Bearer ") + OPENROUTER_API_KEY + "\r\n";
   request += String("Content-Length: ") + requestBody.length() + "\r\n";
   request += "Connection: close\r\n";
   request += "\r\n";
@@ -205,7 +211,9 @@ bool detectPromptInjection(const char* userInput) {
   client.stop();
 
   // Parse response
-  DynamicJsonDocument responseDoc(2048);
+  // Larger than the other examples' response buffers: gpt-oss-safeguard-20b's
+  // mandatory reasoning text adds up to a few hundred extra characters.
+  DynamicJsonDocument responseDoc(4096);
   DeserializationError error = deserializeJson(responseDoc, responseBody);
 
   if (error) {
@@ -313,7 +321,7 @@ void setup() {
   // Brief delay to allow serial connection to stabilize
   delay(1000);
 
-  Serial.println("\n\n=== Demeterics Groq proxy Prompt Injection Detection Example ===");
+  Serial.println("\n\n=== OpenRouter Prompt Injection Detection Example ===");
   Serial.println("Demonstrating protection against prompt injection attacks\n");
 
   // ------------------------------------------------------------------------

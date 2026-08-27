@@ -26,8 +26,8 @@ type ToolInvocation struct {
 	Error     string `json:"error,omitempty"`
 }
 
-// ToolDefinition mirrors the Demeterics schema for function calling and is returned to
-// the LLM whenever Alfred is allowed to use helper commands.
+// ToolDefinition mirrors OpenRouter's (OpenAI-compatible) schema for function calling
+// and is returned to the LLM whenever Alfred is allowed to use helper commands.
 type ToolDefinition struct {
 	Type     string                 `json:"type"`
 	Function ToolFunctionDefinition `json:"function,omitempty"`
@@ -74,7 +74,7 @@ type weatherArguments struct {
 	State string `json:"state"`
 }
 
-// Message and related structs match the Demeterics chat-completions API payload/response.
+// Message and related structs match OpenRouter's chat-completions API payload/response.
 type Message struct {
 	Role       string     `json:"role"`
 	Content    string     `json:"content,omitempty"`
@@ -118,7 +118,7 @@ type Usage struct {
 
 // callLLM prepares the conversation, tool list, and routing state before handing control
 // to chatWithTools, returning the final model response plus any tool logs. It is the
-// single entry point the rest of the bot uses to talk to Demeterics.
+// single entry point the rest of the bot uses to talk to OpenRouter.
 //
 // 🎓 LEARNING NOTE: This is how we talk to the AI! We send:
 // 1. System prompt (Alfred's personality & instructions)
@@ -155,7 +155,7 @@ func chatWithTools(ctx context.Context, cfg Config, evt ChatEvent, messages []Me
 		if len(tools) > 0 {
 			toolChoice = "auto"
 		}
-		// Send full conversation plus tool schema upstream to Demeterics.
+		// Send full conversation plus tool schema upstream to OpenRouter.
 		reqBody := ChatRequest{
 			Model:               cfg.Model,
 			Messages:            messages,
@@ -224,14 +224,14 @@ func chatWithTools(ctx context.Context, cfg Config, evt ChatEvent, messages []Me
 	return "", toolLogs, errors.New("tool routing exceeded attempts")
 }
 
-// doChatCompletion performs the HTTPS request to Demeterics and decodes the response body.
+// doChatCompletion performs the HTTPS request to OpenRouter and decodes the response body.
 // It isolates HTTP handling so retries or error logging can be updated in one place.
 func doChatCompletion(ctx context.Context, cfg Config, reqBody ChatRequest) (ChatResponse, error) {
 	payload, err := json.Marshal(reqBody)
 	if err != nil {
 		return ChatResponse{}, err
 	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, "https://api.demeterics.com/groq/v1/chat/completions", bytes.NewReader(payload))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, "https://openrouter.ai/api/v1/chat/completions", bytes.NewReader(payload))
 	if err != nil {
 		return ChatResponse{}, err
 	}

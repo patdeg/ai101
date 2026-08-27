@@ -32,7 +32,7 @@
  *
  * HOW TO USE:
  * 1. Update WIFI_SSID and WIFI_PASSWORD
- * 2. Update DEMETERICS_API_KEY
+ * 2. Update OPENROUTER_API_KEY
  * 3. Upload to ESP32/ESP8266
  * 4. Open Serial Monitor at 115200 baud
  *
@@ -43,7 +43,9 @@
  * - The AI's description of the image (should identify it as red/colored)
  * - Tips for working with images on Arduino
  *
- * NOTE: Groq currently supports vision models like llama-3.2-11b-vision-preview
+ * NOTE: not every OpenRouter model supports vision - pick one whose modalities
+ * include "image" at https://openrouter.ai/models (this example uses
+ * google/gemma-4-31b-it)
  */
 
 // Include WiFi library
@@ -62,11 +64,11 @@
 // ============================================================================
 const char* WIFI_SSID = "YOUR_WIFI_SSID";
 const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";
-const char* DEMETERICS_API_KEY = "YOUR_DEMETERICS_API_KEY";
+const char* OPENROUTER_API_KEY = "YOUR_OPENROUTER_API_KEY";
 
-const char* DEMETERICS_HOST = "api.demeterics.com";
+const char* OPENROUTER_HOST = "openrouter.ai";
 const int HTTPS_PORT = 443;
-const char* API_PATH = "/groq/v1/chat/completions";
+const char* API_PATH = "/api/v1/chat/completions";
 
 // ============================================================================
 // DEMO IMAGE: 1x1 pixel red PNG encoded as base64
@@ -96,7 +98,7 @@ void setup() {
   // Brief delay to allow serial connection to stabilize
   delay(1000);
 
-  Serial.println("\n\n=== Demeterics Groq proxy Vision Example ===");
+  Serial.println("\n\n=== OpenRouter Vision Example ===");
   Serial.println("Analyzing an image using vision models\n");
 
   // Print memory info (ESP32 only)
@@ -144,14 +146,14 @@ void setup() {
     client.setInsecure();
   #endif
 
-  Serial.println("\nConnecting to Demeterics Groq proxy...");
+  Serial.println("\nConnecting to OpenRouter...");
 
-  if (!client.connect(DEMETERICS_HOST, HTTPS_PORT)) {
-    Serial.println("ERROR: Connection to Demeterics Groq proxy failed!");
+  if (!client.connect(OPENROUTER_HOST, HTTPS_PORT)) {
+    Serial.println("ERROR: Connection to OpenRouter failed!");
     return;
   }
 
-  Serial.println("Connected to Demeterics Groq proxy!");
+  Serial.println("Connected to OpenRouter!");
 
   // ------------------------------------------------------------------------
   // STEP 3: Build JSON request with IMAGE content
@@ -173,7 +175,7 @@ void setup() {
 
   // Use a vision-capable model (NOT all models support vision!)
   // Regular chat models will fail if you send them images
-  requestDoc["model"] = "llama-3.2-11b-vision-preview";
+  requestDoc["model"] = "google/gemma-4-31b-it";
 
   // Create the messages array
   JsonArray messages = requestDoc.createNestedArray("messages");
@@ -226,9 +228,9 @@ void setup() {
   // STEP 4: Send HTTP POST request
   // ------------------------------------------------------------------------
   String request = String("POST ") + API_PATH + " HTTP/1.1\r\n";
-  request += String("Host: ") + DEMETERICS_HOST + "\r\n";
+  request += String("Host: ") + OPENROUTER_HOST + "\r\n";
   request += "Content-Type: application/json\r\n";
-  request += String("Authorization: Bearer ") + DEMETERICS_API_KEY + "\r\n";
+  request += String("Authorization: Bearer ") + OPENROUTER_API_KEY + "\r\n";
   request += String("Content-Length: ") + requestBody.length() + "\r\n";
   request += "Connection: close\r\n";
   request += "\r\n";

@@ -5,21 +5,21 @@
  *
  * SETUP INSTRUCTIONS:
  *   1. Copy this file and rename it to "secrets.h"
- *   2. Fill in your actual WiFi credentials and Demeterics Managed LLM Key below
+ *   2. Fill in your actual WiFi credentials and OpenRouter API key below
  *   3. Never commit secrets.h to GitHub!
  *
- * HOW TO GET A DEMETERICS MANAGED LLM KEY:
- *   1. Go to: https://demeterics.com
- *   2. Sign up for a free account (Google or GitHub login)
- *   3. Open the dashboard and click "Managed LLM Keys"
+ * HOW TO GET AN OPENROUTER API KEY:
+ *   1. Go to: https://openrouter.ai
+ *   2. Sign up for a free account (Google + GitHub login supported)
+ *   3. Open the dashboard and click "Keys"
  *   4. Click "Create Key"
- *   5. Copy the key (starts with "dmt_...")
+ *   5. Copy the key (starts with "sk-or-v1-...")
  *   6. Paste it below and keep it secret
  *
- * FREE TIER LIMITS:
- *   - 14,400 requests per day
+ * FREE TIER:
+ *   - Free-tier (":free") models have no per-request cost
  *   - Perfect for personal projects!
- *   - That's 1 command every 6 seconds, 24/7
+ *   - Browse current free models at https://openrouter.ai/models
  *
  * SECURITY NOTES:
  *   - Keep this file private (add secrets.h to .gitignore)
@@ -33,15 +33,15 @@
 #define WIFI_SSID "YourWiFiNetworkName"       // Replace with your WiFi name
 #define WIFI_PASSWORD "YourWiFiPassword"      // Replace with your WiFi password
 
-// Demeterics Managed LLM Key
-#define DEMETERICS_API_KEY "dmt_your_api_key_here"  // Replace with your Demeterics Managed LLM Key
+// OpenRouter API Key
+#define OPENROUTER_API_KEY "sk-or-v1-your_api_key_here"  // Replace with your OpenRouter API key
 
 /*
  * EXAMPLE (DO NOT USE THESE - THEY WON'T WORK):
  *
  * #define WIFI_SSID "MyHomeWiFi"
  * #define WIFI_PASSWORD "SuperSecret123"
- * #define DEMETERICS_API_KEY "dmt_abc123xyz456..."
+ * #define OPENROUTER_API_KEY "sk-or-v1-abc123xyz456..."
  *
  * IMPORTANT NOTES:
  *
@@ -57,8 +57,8 @@
  *   - Escape backslashes: "My\\Password" for "My\Password"
  *
  * API Key:
- *   - Always starts with "dmt_"
- *   - About 50+ characters long
- *   - Copy the entire key including dmt_ prefix
+ *   - Always starts with "sk-or-v1-"
+ *   - About 60+ characters long
+ *   - Copy the entire key including the sk-or-v1- prefix
  *   - No spaces or line breaks
  */

@@ -17,7 +17,7 @@
 #   - How to extract specific fields from JSON with jq
 #
 # Prerequisites:
-#   - DEMETERICS_API_KEY environment variable must be set
+#   - OPENROUTER_API_KEY environment variable must be set
 #   - curl command installed (usually pre-installed on Linux/Mac)
 #   - jq command installed (see README.md for installation)
 #
@@ -30,8 +30,8 @@
 ################################################################################
 
 # Store the API endpoint URL in a variable for easy reference
-# This is Groq's chat completions endpoint (OpenAI-compatible)
-API_URL="https://api.demeterics.com/groq/v1/chat/completions"
+# This is OpenRouter's chat completions endpoint (OpenAI-compatible)
+API_URL="https://openrouter.ai/api/v1/chat/completions"
 
 # STEP 1: Make the API call and capture the response in a variable
 # We're using curl to send an HTTP POST request
@@ -39,9 +39,9 @@ API_URL="https://api.demeterics.com/groq/v1/chat/completions"
 echo "Sending request to AI..."
 RESPONSE=$(curl -s "$API_URL" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $DEMETERICS_API_KEY" \
+  -H "Authorization: Bearer $OPENROUTER_API_KEY" \
   -d '{
-    "model": "meta-llama/llama-4-scout-17b-16e-instruct",
+    "model": "openai/gpt-oss-20b",
     "messages": [
       {
         "role": "user",
@@ -84,42 +84,22 @@ echo "  Completion tokens: $COMPLETION_TOKENS"
 echo "  Total tokens:      $TOTAL_TOKENS"
 
 # STEP 4b: Calculate the cost of this API call
-# Pricing for meta-llama/llama-4-scout-17b-16e-instruct (as of Oct 1, 2025):
-#   Input:  $0.11 per 1M tokens
-#   Output: $0.34 per 1M tokens
+# Pricing for openai/gpt-oss-20b on OpenRouter:
+#   Input:  $0.03 per 1M tokens
+#   Output: $0.13 per 1M tokens
+# Not a ":free" tier model, but cheap and reliable — a typical exchange
+# like this one costs a small fraction of a cent.
+INPUT_COST=$(echo "scale=8; $PROMPT_TOKENS * 0.03 / 1000000" | bc)
+OUTPUT_COST=$(echo "scale=8; $COMPLETION_TOKENS * 0.13 / 1000000" | bc)
+TOTAL_COST=$(echo "scale=8; $INPUT_COST + $OUTPUT_COST" | bc)
+
 echo ""
 echo "========================================"
 echo "Cost Breakdown:"
 echo "========================================"
-
-# Calculate cost in dollars (using bc for floating point math)
-# If bc is not available, we'll use awk instead
-if command -v bc &> /dev/null; then
-  INPUT_COST=$(echo "scale=10; $PROMPT_TOKENS * 0.11 / 1000000" | bc)
-  OUTPUT_COST=$(echo "scale=10; $COMPLETION_TOKENS * 0.34 / 1000000" | bc)
-  TOTAL_COST=$(echo "scale=10; $INPUT_COST + $OUTPUT_COST" | bc)
-else
-  INPUT_COST=$(awk "BEGIN {printf \"%.10f\", $PROMPT_TOKENS * 0.11 / 1000000}")
-  OUTPUT_COST=$(awk "BEGIN {printf \"%.10f\", $COMPLETION_TOKENS * 0.34 / 1000000}")
-  TOTAL_COST=$(awk "BEGIN {printf \"%.10f\", $INPUT_COST + $OUTPUT_COST}")
-fi
-
-echo "  Input cost:  \$$INPUT_COST  ($PROMPT_TOKENS tokens × \$0.11/1M)"
-echo "  Output cost: \$$OUTPUT_COST  ($COMPLETION_TOKENS tokens × \$0.34/1M)"
-echo "  Total cost:  \$$TOTAL_COST"
-echo ""
-echo "  💡 This request cost less than a fraction of a cent!"
-
-# STEP 5: Extract and display timing information
-# These show how long each stage took (in seconds)
-echo ""
-echo "========================================"
-echo "Timing (seconds):"
-echo "========================================"
-echo "  Queue time:      $(echo "$RESPONSE" | jq '.usage.queue_time')"
-echo "  Prompt time:     $(echo "$RESPONSE" | jq '.usage.prompt_time')"
-echo "  Completion time: $(echo "$RESPONSE" | jq '.usage.completion_time')"
-echo "  Total time:      $(echo "$RESPONSE" | jq '.usage.total_time')"
+echo "  Input:  \$$INPUT_COST"
+echo "  Output: \$$OUTPUT_COST"
+echo "  Total:  \$$TOTAL_COST"
 echo ""
 
 ################################################################################
@@ -134,20 +114,20 @@ echo ""
 # -H "Content-Type: application/json"
 #   Tells the server we're sending JSON data
 #
-# -H "Authorization: Bearer $DEMETERICS_API_KEY"
+# -H "Authorization: Bearer $OPENROUTER_API_KEY"
 #   Proves we have permission to use the API
-#   $DEMETERICS_API_KEY is read from your environment variable
+#   $OPENROUTER_API_KEY is read from your environment variable
 #
 # -d '{...}'
 #   The data we're sending (the -d flag means "data")
 #
 # Here's the request body with detailed explanations:
 # {
-#   "model": "meta-llama/llama-4-scout-17b-16e-instruct",
+#   "model": "openai/gpt-oss-20b",
 #     ↑ Which AI model to use
-#     This is a 17B parameter model good for chat + vision
-#     Context window: 131,072 tokens
-#     Max output: 8,192 tokens
+#     OpenRouter model slugs are "vendor/model-name", and the ":free"
+#     suffix picks the no-cost, rate-limited tier of this model
+#     Context window: 1,000,000 tokens
 #
 #   "messages": [
 #     ↑ Array of conversation messages

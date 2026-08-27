@@ -18,7 +18,7 @@ WHAT YOU'LL LEARN:
 
 PREREQUISITES:
     - Python 3.6 or higher
-    - DEMETERICS_API_KEY environment variable set
+    - OPENROUTER_API_KEY environment variable set
     - Internet connection
 
 EXPECTED OUTPUT:
@@ -39,12 +39,13 @@ import os           # For accessing environment variables
 
 # Get API key from environment variable (more secure than hardcoding)
 # This keeps your API key out of your source code
-api_key = os.environ.get('DEMETERICS_API_KEY')
+api_key = os.environ.get('OPENROUTER_API_KEY')
 
 # Validate that the API key exists before proceeding
 if not api_key:
-    print("Error: DEMETERICS_API_KEY environment variable not set")
-    print("Run: export DEMETERICS_API_KEY='your_key_here'")
+    print("Error: OPENROUTER_API_KEY environment variable not set")
+    print("Get a free key at https://openrouter.ai/keys, then:")
+    print("Run: export OPENROUTER_API_KEY='your_key_here'")
     exit(1)
 
 # ==============================================================================
@@ -59,7 +60,7 @@ if not api_key:
 
 # Create the request payload (the data we're sending to the API)
 payload = {
-    "model": "meta-llama/llama-4-scout-17b-16e-instruct",
+    "model": "openai/gpt-oss-20b",
     "messages": [
         {
             "role": "user",  # This message is from the user
@@ -78,9 +79,10 @@ payload_json = json.dumps(payload)
 # Step 3: Establish HTTPS connection to the API
 # ==============================================================================
 
-# Create HTTPS connection to Demeterics Groq proxy server
+# Create HTTPS connection to OpenRouter (routes to hundreds of models,
+# including free ones, behind one OpenAI-compatible API)
 # HTTPS ensures encrypted communication for security
-conn = http.client.HTTPSConnection("api.demeterics.com")
+conn = http.client.HTTPSConnection("openrouter.ai")
 
 # ==============================================================================
 # Step 4: Prepare HTTP headers for authentication and content type
@@ -103,7 +105,7 @@ headers = {
 # - Path: OpenAI-compatible endpoint
 # - Body: Our JSON payload with the question
 # - Headers: Authentication and content type
-conn.request("POST", "/groq/v1/chat/completions", payload_json, headers)
+conn.request("POST", "/api/v1/chat/completions", payload_json, headers)
 
 # ==============================================================================
 # Step 6: Receive and read the HTTP response
@@ -164,7 +166,7 @@ print(f"  Total: {response_json['usage']['total_tokens']}")
 #   Built-in module for OS operations (like environment variables)
 #
 # os.environ.get('VAR_NAME')
-#   Gets environment variable (like $DEMETERICS_API_KEY in bash)
+#   Gets environment variable (like $OPENROUTER_API_KEY in bash)
 #   Returns None if not set
 #
 # json.dumps(dict)

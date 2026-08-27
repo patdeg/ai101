@@ -16,7 +16,7 @@ This project is part of the **Blue Fermion Labs** portfolio. As such, it follows
 | **U2** | **Never destroy user work with git checkout/reset** | Learned from production incident; always preserve uncommitted changes |
 | **U3** | **Documentation in `/docs/` only** | Root folder contains only README.md, CLAUDE.md, AGENTS.md; keeps projects clean |
 | **U4** | **Use the shared common library** | `github.com/patdeg/common` provides logging, utilities, and LLM integration (when applicable) |
-| **U5** | **Use Demeterics for LLM observability** | All LLM calls should be tagged with APP, FLOW, ENV, USER for cost tracking |
+| **U5** | **Connect directly to providers — no Demeterics** | ai101 is public and every visitor is outside Demeterics' whitelist. Examples call OpenRouter, Groq, and Tavily directly with no proxy layer (see "API Models and Pricing" below) |
 
 ### Blue Fermion Labs Objectives (Cross-Product)
 
@@ -68,12 +68,12 @@ Create a "Rosetta Stone" of AI API examples that teach programming fundamentals 
 8. **08_whisper** - Audio transcription with Whisper
 9. **09_tavily_search** - Web search with AI-powered answers (Tavily API)
 10. **10_tavily_extract** - Extract clean content from web pages (Tavily API)
-11. **11_tool_use** - AI agents with function calling (Groq + Tavily)
-12. **12_web_search** - Built-in web search with groq/compound-mini
-13. **13_code_execution** - Python code execution with openai/gpt-oss-20b
-14. **14_reasoning** - Step-by-step thinking with openai/gpt-oss-20b + prompt caching
-15. **15_text_to_speech** - Voice synthesis with OpenAI gpt-4o-mini-tts (11 voices)
-16. **16_podcast** - Multi-speaker podcast generation with Google Gemini TTS (30 voices)
+11. **11_tool_use** - AI agents with function calling (OpenRouter + Tavily)
+12. **12_web_search** - Built-in search-augmented generation via OpenRouter's `:online` models
+13. **13_code_execution** - Python code execution with openai/gpt-oss-20b (direct on Groq)
+14. **14_reasoning** - Step-by-step thinking with openai/gpt-oss-20b + prompt caching (direct on Groq)
+15. **15_text_to_speech** - Voice synthesis with Fish Audio S2.1 Pro (via OpenRouter)
+16. **16_podcast** - Two-speaker podcast generation with Fish Audio S2.1 Pro (via OpenRouter)
 
 ## Bash Directory: Dual Version Strategy
 
@@ -116,7 +116,7 @@ Each bash example has **two versions**:
 ```bash
 curl -d @- <<EOF
 {
-  "model": "meta-llama/llama-4-scout-17b-16e-instruct",
+  "model": "google/gemma-4-31b-it",
   "messages": [{
     "role": "user",
     "content": [
@@ -144,41 +144,89 @@ EOF
 
 **Examples**: 03_vision (camera), 07_whisper (microphone)
 
-### 5. API Models and Pricing (October 2025)
+### 5. API Models and Pricing (verified live against OpenRouter, 2026-08-26)
 
-**Chat/Vision**: `meta-llama/llama-4-scout-17b-16e-instruct`
-- Input: $0.11/1M tokens
-- Output: $0.34/1M tokens
+> **No Demeterics.** ai101 is a public training repo — every visitor is outside
+> Demeterics' whitelist by definition. Examples connect directly to **OpenRouter**
+> (default, one key for nearly everything), **Groq** (direct, examples 13-14 only —
+> Groq's native code-interpreter tool + prompt caching have no OpenRouter free-tier
+> equivalent), and **Tavily** (direct, unchanged, examples 09-10). Free-tier model
+> slugs on OpenRouter rotate over time — re-verify against
+> `https://openrouter.ai/api/v1/models` before relying on a specific `:free` slug.
+
+> **Free-tier model reliability (found via live testing, 2026-08-26).** Several
+> `:free` OpenRouter models were tried first and dropped after live testing
+> surfaced real failures: `nvidia/nemotron-3.5-lightning:free` reliably spent
+> its whole `max_tokens` budget on unrequested chain-of-thought reasoning and
+> returned truncated/empty answers (fixable with `"reasoning":{"enabled":false}`
+> for simple chat, but its multi-turn tool-call continuation stayed flaky even
+> with that fix); `google/gemma-4-31b-it:free` hit persistent upstream 429s
+> from the shared free-tier pool. This repo now defaults to the small-paid
+> versions of both (`openai/gpt-oss-20b`, `google/gemma-4-31b-it` — a fraction
+> of a cent per call) for reliability. `openai/gpt-oss-safeguard-20b` (example
+> 07) has *mandatory* reasoning that can't be disabled — it needs a generous
+> `max_tokens` (400) and `"reasoning":{"effort":"low"}`, not a model swap.
+> Example 11 (tool_use)'s follow-up call also needs `tool_choice: "none"` to
+> stop the model from re-attempting a tool call instead of answering — even so,
+> budget models can occasionally return an empty response on that turn; a
+> production system would retry.
+
+**Chat / System Prompt / Templates / Tool Use**: `openai/gpt-oss-20b`
+- Input: $0.03/1M tokens, Output: $0.13/1M tokens (supports `tools`/`tool_choice`)
+- Deliberately NOT the `:free` variant (`openai/gpt-oss-20b:free` doesn't exist,
+  but the equivalent free-tier reasoning models tested, e.g.
+  `nvidia/nemotron-3.5-lightning:free`, reliably burned their entire `max_tokens`
+  budget on chain-of-thought and returned empty/truncated answers — see the
+  "Free-tier model reliability" note below)
+
+**Vision**: `google/gemma-4-31b-it`
+- Input: $0.09/1M tokens, Output: $0.34/1M tokens (image + text + video input)
+- Deliberately NOT `google/gemma-4-31b-it:free` — that variant hit persistent
+  upstream 429 rate-limiting during testing (`upstream_provider_shared_pool`)
 
 **Safety (Text + Vision)**: `meta-llama/llama-guard-4-12b`
-- Input: $0.20/1M tokens
-- Output: $0.20/1M tokens
+- Same model this repo used before the migration — only the host changed (was
+  Groq-via-Demeterics, now called directly on OpenRouter). Category taxonomy
+  (S1-S14) and response format are unchanged.
+- Input: $0.18/1M tokens
+- Output: $0.18/1M tokens
 
-**Prompt Guard**: `meta-llama/llama-prompt-guard-2-86m`
-- Input: $0.04/1M tokens
-- Output: $0.04/1M tokens
+**Prompt Guard**: `openai/gpt-oss-safeguard-20b`
+- Purpose-built OpenAI safety/guardrail classifier. No free dedicated
+  prompt-injection model exists on OpenRouter; use a classification-style system
+  prompt asking for a safe/unsafe verdict, matching the existing exercise contract.
+- Input: $0.075/1M tokens
+- Output: $0.30/1M tokens
 
-**Whisper Audio**: `whisper-large-v3-turbo`
-- **$0.04 per hour of audio**
+**Whisper Audio**: `openai/whisper-1` via `POST /api/v1/audio/transcriptions`
+- **$0.006 per minute of audio** (no free STT model exists on OpenRouter)
+- Body: `{"model": "openai/whisper-1", "input_audio": {"data": "<base64>", "format": "mp3"}}`
+- Response includes a `text` field with the transcript
 
-**Reasoning + Code Execution**: `openai/gpt-oss-20b`
+**Web Search**: append `:online` to any chat model, e.g. `openai/gpt-oss-20b:online`
+- OpenRouter's built-in search-augmented generation (default engine Exa)
+- ~$0.005/request for up to 10 results, on top of the underlying model's own cost
+- Replaces Groq's `groq/compound-mini`
+
+**Reasoning + Code Execution** (direct on Groq, NOT OpenRouter): `openai/gpt-oss-20b`
+- `POST https://api.groq.com/openai/v1/chat/completions`, `Authorization: Bearer $GROQ_API_KEY`
 - Input: $0.10/1M tokens ($0.05/1M cached - 50% discount)
 - Output: $0.50/1M tokens
+- Groq's native hosted code-interpreter tool + prompt caching combo isn't available
+  on an OpenRouter free/cheap model, so these two examples stay direct-to-Groq
 
-**Text-to-Speech** (OpenAI): `gpt-4o-mini-tts`
-- Input: $0.60/1M tokens (≈ characters)
-- Output: $12/1M tokens (audio duration-based)
-- 11 voices: alloy, ash, ballad, coral, echo, fable, onyx, nova, sage, shimmer, verse
+**Text-to-Speech**: `fish-audio/s2.1-pro-free:free` via `POST /api/v1/audio/speech`
+- Free
+- Single voice (example 15): `{"model": "fish-audio/s2.1-pro-free:free", "input": "...", "response_format": "mp3"}`
+- Response: raw audio bytes
 
-**Multi-Speaker TTS** (Demeterics): `POST /tts/v1/generate`
-- Single API call generates audio with multiple distinct speakers
-- 30 voices: Puck (upbeat), Kore (firm), Charon (informative), Zephyr (bright),
-  Fenrir (excitable), Leda (youthful), Aoede (breezy), Sulafat (warm), Achird (friendly), etc.
-- Max 2 speakers per request
-- Uses DEMETERICS_API_KEY (same key as other examples)
-- Documentation: https://demeterics.ai/docs/speech
+**Two-Speaker Podcast**: same `fish-audio/s2.1-pro-free:free` model
+- Mark turns in `input` with `<|speaker:0|>` / `<|speaker:1|>` tags
+- Supply two Fish Audio voice IDs via `providerOptions.fishAudio.referenceId` — get
+  real IDs free from https://fish.audio (voice library), don't hardcode placeholders
+- Max 2 speakers per request (same constraint as before the migration)
 
-**Tavily API** (for examples 08-09):
+**Tavily API** (for examples 09-10, unchanged — always direct, never Demeterics):
 - Web search and content extraction
 - Authentication: `Authorization: Bearer <TAVILY_API_KEY>` header
 - Endpoints: `/search`, `/extract`
@@ -256,11 +304,11 @@ EOF
 9. Web search APIs, Tavily integration
 10. Content extraction from web pages
 11. AI agents with function calling, tool use
-12. Web search with groq/compound-mini
+12. Web search with OpenRouter's `:online` model suffix
 13. Code execution with sandboxing
 14. Reasoning with prompt caching optimization
 15. Text-to-speech with voice synthesis
-16. Multi-speaker podcast generation with Gemini TTS
+16. Multi-speaker podcast generation with Fish Audio TTS
 
 **Key Principles**:
 - **Safety-first mindset** - AI safety taught in examples 5-7, before advanced features
@@ -270,8 +318,8 @@ EOF
 
 ## Resources
 
-- **Demeterics Docs:** https://demeterics.com/docs
-- **Demeterics Prompt Guide:** https://demeterics.com/docs/prompt
+- **OpenRouter Docs:** https://openrouter.ai/docs
+- **OpenRouter Model Catalog:** https://openrouter.ai/models
 - **Groq Model Information:** https://console.groq.com/docs/models
 - **Groq Vision API Guide:** https://console.groq.com/docs/vision
 - **Groq Tool Use Guide:** https://console.groq.com/docs/tool-use
@@ -300,7 +348,7 @@ The `exercises/` directory contains hands-on practice challenges designed using 
 - `exercises/12_web_search.md` - Groq built-in web search
 - `exercises/13_code_execution.md` - Python code execution
 - `exercises/14_reasoning.md` - Step-by-step thinking with caching
-- `exercises/15_text_to_speech.md` - Voice synthesis with 11 voices
+- `exercises/15_text_to_speech.md` - Voice synthesis with Fish Audio (free)
 - `exercises/16_podcast.md` - Multi-speaker podcast generation
 
 Each exercise file includes:

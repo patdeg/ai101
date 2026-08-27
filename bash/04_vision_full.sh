@@ -17,7 +17,7 @@
 #   - Vision requests use more tokens (image + text + response)
 #
 # Prerequisites:
-#   - DEMETERICS_API_KEY environment variable must be set
+#   - OPENROUTER_API_KEY environment variable must be set
 #   - jq command installed (see README.md for installation)
 #   - base64 command (pre-installed on Linux/Mac)
 #   - test_image.jpg in parent directory
@@ -32,7 +32,7 @@
 ################################################################################
 
 # Store the API endpoint URL
-API_URL="https://api.demeterics.com/groq/v1/chat/completions"
+API_URL="https://openrouter.ai/api/v1/chat/completions"
 
 # STEP 1: Set the path to the image we want to analyze
 # Using the shared test image from the root directory
@@ -62,9 +62,9 @@ echo "Sending image to AI for analysis..."
 echo ""
 RESPONSE=$(curl -s "$API_URL" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $DEMETERICS_API_KEY" \
+  -H "Authorization: Bearer $OPENROUTER_API_KEY" \
   -d '{
-    "model": "meta-llama/llama-4-scout-17b-16e-instruct",
+    "model": "google/gemma-4-31b-it",
     "messages": [
       {
         "role": "user",
@@ -118,40 +118,21 @@ echo "     - Your text question (~10-20 tokens)"
 echo "     - The image itself (500-2000 tokens depending on size)"
 
 # STEP 8: Calculate the cost of this API call
-# Pricing for meta-llama/llama-4-scout-17b-16e-instruct (as of Oct 1, 2025):
-#   Input:  $0.11 per 1M tokens
-#   Output: $0.34 per 1M tokens
+# Pricing for google/gemma-4-31b-it on OpenRouter: $0.09/1M input,
+# $0.34/1M output. Not the ":free" tier - that variant was too congested
+# upstream to be reliable, so this example uses the small-but-paid version.
+VISION_INPUT_COST=$(echo "scale=8; $PROMPT_TOKENS * 0.09 / 1000000" | bc)
+VISION_OUTPUT_COST=$(echo "scale=8; $COMPLETION_TOKENS * 0.34 / 1000000" | bc)
+VISION_TOTAL_COST=$(echo "scale=8; $VISION_INPUT_COST + $VISION_OUTPUT_COST" | bc)
 echo ""
 echo "========================================"
 echo "Cost Breakdown:"
 echo "========================================"
-
-if command -v bc &> /dev/null; then
-  INPUT_COST=$(echo "scale=10; $PROMPT_TOKENS * 0.11 / 1000000" | bc)
-  OUTPUT_COST=$(echo "scale=10; $COMPLETION_TOKENS * 0.34 / 1000000" | bc)
-  TOTAL_COST=$(echo "scale=10; $INPUT_COST + $OUTPUT_COST" | bc)
-else
-  INPUT_COST=$(awk "BEGIN {printf \"%.10f\", $PROMPT_TOKENS * 0.11 / 1000000}")
-  OUTPUT_COST=$(awk "BEGIN {printf \"%.10f\", $COMPLETION_TOKENS * 0.34 / 1000000}")
-  TOTAL_COST=$(awk "BEGIN {printf \"%.10f\", $INPUT_COST + $OUTPUT_COST}")
-fi
-
-echo "  Input cost:  \$$INPUT_COST  ($PROMPT_TOKENS tokens × \$0.11/1M)"
-echo "  Output cost: \$$OUTPUT_COST  ($COMPLETION_TOKENS tokens × \$0.34/1M)"
-echo "  Total cost:  \$$TOTAL_COST"
-echo ""
-echo "  💡 Vision requests cost more than text-only due to image tokens"
-
-# STEP 9: Extract and display timing information
-echo ""
-echo "========================================"
-echo "Timing (seconds):"
-echo "========================================"
-echo "  Queue time:      $(echo "$RESPONSE" | jq '.usage.queue_time')"
-echo "  Prompt time:     $(echo "$RESPONSE" | jq '.usage.prompt_time')"
-echo "  Completion time: $(echo "$RESPONSE" | jq '.usage.completion_time')"
-echo "  Total time:      $(echo "$RESPONSE" | jq '.usage.total_time')"
-echo ""
+echo "  Input:  \$$VISION_INPUT_COST"
+echo "  Output: \$$VISION_OUTPUT_COST"
+echo "  Total:  \$$VISION_TOTAL_COST"
+echo "  Vision requests cost more than text-only, since the image itself"
+echo "  burns 500-2000+ prompt tokens."
 
 ################################################################################
 # EXPLANATION OF THE API REQUEST
@@ -159,9 +140,10 @@ echo ""
 #
 # Here's the request body with detailed explanations:
 # {
-#   "model": "meta-llama/llama-4-scout-17b-16e-instruct",
-#     ↑ Using same model as before - this one supports vision!
-#     Not all models can analyze images - check the docs
+#   "model": "google/gemma-4-31b-it",
+#     ↑ A different model than example 1 - this one supports vision!
+#     Not all models can analyze images - check a model's "modalities"
+#     on https://openrouter.ai/models before assuming it can see
 #
 #   "messages": [
 #     {

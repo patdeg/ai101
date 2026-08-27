@@ -1,23 +1,23 @@
 #!/usr/bin/env python3
 """
-Example 7: Whisper - Audio Transcription with Whisper Large-v3-Turbo
+Example 7: Whisper - Audio Transcription with OpenAI Whisper-1
 
 WHAT THIS DEMONSTRATES:
-    - How to transcribe audio files using Whisper large-v3-turbo
-    - Uploading multipart form data to the API
-    - Processing speech-to-text with fast, cost-effective model
+    - How to transcribe audio files using OpenAI's whisper-1 model
+    - Base64-encoding an audio file into a JSON request body
+    - Processing speech-to-text through OpenRouter's transcription endpoint
     - Working with file uploads in Python
 
 WHAT YOU'LL LEARN:
     - How to use the Whisper API for audio transcription
-    - Working with multipart/form-data requests in Python
+    - Base64 encoding for binary uploads (same trick as the vision example)
     - Handling audio file uploads with http.client
     - Processing binary file data
     - Calculating transcription costs
 
 PREREQUISITES:
     - Python 3.6 or higher
-    - DEMETERICS_API_KEY environment variable set
+    - OPENROUTER_API_KEY environment variable set
     - Audio file gettysburg.mp3 in the repository root
 
 EXPECTED OUTPUT:
@@ -31,8 +31,7 @@ Run with: python3 07_whisper.py
 import http.client  # For HTTPS API requests
 import json         # For JSON encoding/decoding
 import os           # For environment variables
-import mimetypes    # For detecting file MIME types
-import uuid         # For generating multipart boundary
+import base64       # For encoding binary audio data to text
 import time         # For measuring latency
 
 # ==============================================================================
@@ -40,11 +39,11 @@ import time         # For measuring latency
 # ==============================================================================
 
 # Retrieve API key from environment variable
-api_key = os.environ.get('DEMETERICS_API_KEY')
+api_key = os.environ.get('OPENROUTER_API_KEY')
 
 # Exit if API key is missing
 if not api_key:
-    print("Error: DEMETERICS_API_KEY not set")
+    print("Error: OPENROUTER_API_KEY not set")
     exit(1)
 
 # ==============================================================================
@@ -63,75 +62,51 @@ if not os.path.exists(audio_file_path):
 with open(audio_file_path, 'rb') as f:
     audio_data = f.read()
 
-# Get the file name from the path
-file_name = os.path.basename(audio_file_path)
-
-# Detect the MIME type of the file
-mime_type, _ = mimetypes.guess_type(audio_file_path)
-if not mime_type:
-    mime_type = 'audio/mpeg'  # Default to MP3 if detection fails
+# Before sending to the API, encode the binary audio to base64 text
+# (same trick the vision example uses for images — JSON can't hold raw bytes)
+audio_base64 = base64.b64encode(audio_data).decode('utf-8')
 
 print("=" * 60)
 print("Transcribing Audio with Whisper")
 print("=" * 60)
-print(f"Model: whisper-large-v3-turbo")
+print(f"Model: openai/whisper-1")
 print(f"File: {audio_file_path}")
 print(f"File size: {len(audio_data)} bytes")
 print()
 
 # ==============================================================================
-# Step 3: Create multipart form data
+# Step 3: Build the JSON request body
 # ==============================================================================
 
-# Generate a unique boundary for multipart data
-boundary = str(uuid.uuid4())
-
-# Build the multipart form data body
-body_parts = []
-
-# Part 1: The audio file
-body_parts.append(f'--{boundary}'.encode())
-body_parts.append(f'Content-Disposition: form-data; name="file"; filename="{file_name}"'.encode())
-body_parts.append(f'Content-Type: {mime_type}'.encode())
-body_parts.append(b'')
-body_parts.append(audio_data)
-
-# Part 2: The model parameter
-body_parts.append(f'--{boundary}'.encode())
-body_parts.append(b'Content-Disposition: form-data; name="model"')
-body_parts.append(b'')
-body_parts.append(b'whisper-large-v3-turbo')
-
-# Part 3: Response format (verbose_json for duration info)
-body_parts.append(f'--{boundary}'.encode())
-body_parts.append(b'Content-Disposition: form-data; name="response_format"')
-body_parts.append(b'')
-body_parts.append(b'verbose_json')
-
-# Final boundary
-body_parts.append(f'--{boundary}--'.encode())
-
-# Combine all parts with CRLF line endings
-body = b'\r\n'.join(body_parts)
+# OpenRouter's transcription endpoint takes the audio as a base64 string
+# plus its format, instead of a raw file upload
+payload = {
+    "model": "openai/whisper-1",
+    "input_audio": {
+        "data": audio_base64,
+        "format": "mp3"
+    },
+    "response_format": "verbose_json"  # Ask for duration info, like before
+}
 
 # ==============================================================================
 # Step 4: Make the API request
 # ==============================================================================
 
-# Create secure connection to Demeterics Groq proxy
-conn = http.client.HTTPSConnection("api.demeterics.com")
+# Create secure connection to OpenRouter
+conn = http.client.HTTPSConnection("openrouter.ai")
 
-# Set up required headers for multipart form data
+# Set up required headers
 headers = {
     'Authorization': f'Bearer {api_key}',
-    'Content-Type': f'multipart/form-data; boundary={boundary}'
+    'Content-Type': 'application/json'
 }
 
 # Measure API latency
 start_time = time.time()
 
 # Make the API request to transcribe audio
-conn.request("POST", "/groq/v1/audio/transcriptions", body, headers)
+conn.request("POST", "/api/v1/audio/transcriptions", json.dumps(payload), headers)
 
 # Get the response from the server
 response = conn.getresponse()
@@ -158,7 +133,7 @@ print()
 
 # Calculate cost based on audio duration
 duration = response_data.get('duration', 0)
-cost = (duration / 3600) * 0.04  # $0.04 per hour
+cost = (duration / 60) * 0.006  # $0.006 per minute
 
 print("Performance Metrics:")
 print("=" * 60)
@@ -170,25 +145,27 @@ print()
 print("Full API Response:")
 print(json.dumps(response_data, indent=2))
 
-# Model: whisper-large-v3-turbo
+# Model: openai/whisper-1 (via OpenRouter)
 #   - Fast, cost-effective speech recognition from OpenAI
 #   - Supports 99+ languages with high accuracy
 #   - Automatic language detection
 #   - Punctuation and formatting included
 #   - Handles various audio formats (mp3, wav, m4a, etc.)
-#   - Pricing: $0.04 per hour of audio
+#   - Pricing: $0.006 per minute of audio
+#   - No free speech-to-text model exists on OpenRouter yet — this is
+#     the cheapest correct option (fractions of a cent for a short clip)
 #
 # Supported audio formats:
 #   - MP3, MP4, MPEG, MPGA, M4A, WAV, WEBM
 #   - Maximum file size: 25 MB
 #   - Recommended: 16kHz or higher sample rate
 #
-# Pricing examples (at $0.04/hour):
-#   - 1 minute:  $0.000667 (~$0.0007)
-#   - 5 minutes: $0.003333 (~$0.003)
-#   - 30 minutes: $0.02
-#   - 1 hour:     $0.04
-#   - 10 hours:   $0.40
+# Pricing examples (at $0.006/minute):
+#   - 1 minute:  $0.006
+#   - 5 minutes: $0.03
+#   - 30 minutes: $0.18
+#   - 1 hour:     $0.36
+#   - 10 hours:   $3.60
 #
 # API Response format:
 #   {
@@ -210,21 +187,22 @@ print(json.dumps(response_data, indent=2))
 #   def transcribe_audio(audio_path):
 #       """Transcribe an audio file using Whisper"""
 #
-#       # Read audio file
+#       # Read and base64-encode the audio file
 #       with open(audio_path, 'rb') as f:
 #           audio_data = f.read()
-#
-#       # Prepare multipart data
-#       boundary = str(uuid.uuid4())
-#       body = create_multipart_body(audio_data, boundary)
+#       audio_base64 = base64.b64encode(audio_data).decode('utf-8')
 #
 #       # Make API request
-#       conn = http.client.HTTPSConnection("api.demeterics.com")
+#       conn = http.client.HTTPSConnection("openrouter.ai")
 #       headers = {
 #           'Authorization': f'Bearer {api_key}',
-#           'Content-Type': f'multipart/form-data; boundary={boundary}'
+#           'Content-Type': 'application/json'
 #       }
-#       conn.request("POST", "/groq/v1/audio/transcriptions", body, headers)
+#       payload = {
+#           "model": "openai/whisper-1",
+#           "input_audio": {"data": audio_base64, "format": "mp3"}
+#       }
+#       conn.request("POST", "/api/v1/audio/transcriptions", json.dumps(payload), headers)
 #
 #       # Get response
 #       response = conn.getresponse()
@@ -233,31 +211,11 @@ print(json.dumps(response_data, indent=2))
 #
 #       return data.get('text', '')
 #
-# Advanced options (add to form data):
+# Advanced options (add to the JSON payload):
 #
-#   # Specify language (optional - auto-detected by default)
-#   body_parts.append(f'--{boundary}'.encode())
-#   body_parts.append(b'Content-Disposition: form-data; name="language"')
-#   body_parts.append(b'')
-#   body_parts.append(b'en')  # ISO-639-1 code (en, es, fr, de, etc.)
-#
-#   # Response format (optional - json is default)
-#   body_parts.append(f'--{boundary}'.encode())
-#   body_parts.append(b'Content-Disposition: form-data; name="response_format"')
-#   body_parts.append(b'')
-#   body_parts.append(b'json')  # Options: json, text, srt, vtt
-#
-#   # Temperature for randomness (optional - 0.0 to 1.0)
-#   body_parts.append(f'--{boundary}'.encode())
-#   body_parts.append(b'Content-Disposition: form-data; name="temperature"')
-#   body_parts.append(b'')
-#   body_parts.append(b'0.0')  # 0.0 = deterministic, 1.0 = creative
-#
-#   # Timestamp granularities (optional)
-#   body_parts.append(f'--{boundary}'.encode())
-#   body_parts.append(b'Content-Disposition: form-data; name="timestamp_granularities[]"')
-#   body_parts.append(b'')
-#   body_parts.append(b'word')  # Options: word, segment
+#   payload["language"] = "en"              # ISO-639-1 code, auto-detected by default
+#   payload["response_format"] = "json"     # Options: json, verbose_json, text, srt, vtt
+#   payload["temperature"] = 0.0            # 0.0 = deterministic, 1.0 = creative
 #
 # Error handling example:
 #

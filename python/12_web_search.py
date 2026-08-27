@@ -1,23 +1,23 @@
 #!/usr/bin/env python3
 """
-Example 11: Web Search with groq/compound-mini
+Example 11: Web Search with OpenRouter's :online model suffix
 
 What this demonstrates:
-  - Calling a web-search-enabled model (groq/compound-mini)
-  - OpenAI-compatible chat API with integrated search tools
-  - Inspecting optional reasoning and executed tool info
+  - Calling a web-search-augmented model via OpenRouter's ":online" suffix
+  - OpenAI-compatible chat API with integrated search
+  - Inspecting optional reasoning and citation info
 
 What you'll learn:
   - Building HTTPS requests with http.client
   - Parsing optional fields safely in JSON
 
 Prerequisites:
-  - DEMETERICS_API_KEY environment variable set
+  - OPENROUTER_API_KEY environment variable set
   - Python 3.7+
 
 Expected output:
-  - Final answer content
-  - Optional reasoning and executed tool info (if search was used)
+  - Final answer content, informed by live web search results
+  - Optional reasoning and annotation info (if present)
 
 Exercises: exercises/11_web_search.md
 """
@@ -28,21 +28,23 @@ import os
 import sys
 
 # Step 1: API key
-api_key = os.environ.get('DEMETERICS_API_KEY')
+api_key = os.environ.get('OPENROUTER_API_KEY')
 if not api_key:
-    print('Error: DEMETERICS_API_KEY not set', file=sys.stderr)
-    print('Run: export DEMETERICS_API_KEY="dmt_your_api_key_here"', file=sys.stderr)
+    print('Error: OPENROUTER_API_KEY not set', file=sys.stderr)
+    print('Run: export OPENROUTER_API_KEY="your_api_key_here"', file=sys.stderr)
     sys.exit(1)
 
 # Step 2: Build payload
+# Appending ":online" to any model slug turns on OpenRouter's built-in
+# web-search plugin (default engine Exa, ~$0.005/request) for this call.
 payload = {
-    "model": "groq/compound-mini",
+    "model": "openai/gpt-oss-20b:online",
     "messages": [
         {"role": "system", "content": "You are a helpful research assistant. Provide concise answers with links. Use search when needed."},
         {"role": "user",   "content": "What were the top 3 AI model releases last week? Include links and 1-sentence summaries."}
     ],
     "temperature": 0.3,
-    "max_tokens": 600
+    "max_tokens": 1200
 }
 
 # Optional extension (check docs before adding unsupported fields):
@@ -51,7 +53,7 @@ payload = {
 
 try:
     # Step 3: HTTPS connection
-    conn = http.client.HTTPSConnection('api.demeterics.com')
+    conn = http.client.HTTPSConnection('openrouter.ai')
 
     headers = {
         'Authorization': f'Bearer {api_key}',
@@ -60,7 +62,7 @@ try:
 
     # Step 4: Send request
     body = json.dumps(payload)
-    conn.request('POST', '/groq/v1/chat/completions', body, headers)
+    conn.request('POST', '/api/v1/chat/completions', body, headers)
 
     # Step 5: Read response
     res = conn.getresponse()
@@ -95,10 +97,10 @@ try:
     print()
 
     # Exercises:
-    # 1) Change model to 'groq/compound' for larger model.
+    # 1) Change the model before ":online" to try a different underlying LLM.
     # 2) Try a boolean-style query: '(OpenAI OR Meta) AND release notes last 7 days'.
-    # 3) If your deployment supports web-search parameters (include/exclude domains, country),
-    #    consult docs and add them in the payload.
+    # 3) OpenRouter's web plugin supports options like max_results and search_prompt —
+    #    see https://openrouter.ai/docs/features/web-search and add a "plugins" block.
 
     print('Exercises: exercises/11_web_search.md')
 

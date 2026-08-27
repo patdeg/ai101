@@ -16,6 +16,12 @@ What you'll learn:
 - Token usage and cost tracking
 
 Note: Uses Go standard library only
+
+This example calls Groq directly rather than OpenRouter — Groq's
+prompt-caching discount on gpt-oss-20b isn't available as a free/cheap
+OpenRouter offering, so this example (and 12_code_execution.go) stay on
+direct Groq while the rest of this repo defaults to OpenRouter.
+Prerequisites: GROQ_API_KEY (free at https://console.groq.com)
 */
 
 import (
@@ -42,13 +48,13 @@ func callReasoning(messages []interface{}, formatType *string, effort string) (m
 
 	requestBody, _ := json.Marshal(requestData)
 
-	req, err := http.NewRequest("POST", "https://api.demeterics.com/groq/v1/chat/completions", bytes.NewBuffer(requestBody))
+	req, err := http.NewRequest("POST", "https://api.groq.com/openai/v1/chat/completions", bytes.NewBuffer(requestBody))
 	if err != nil {
 		return nil, err
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", os.Getenv("DEMETERICS_API_KEY")))
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", os.Getenv("GROQ_API_KEY")))
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -66,9 +72,9 @@ func callReasoning(messages []interface{}, formatType *string, effort string) (m
 
 func main() {
 	// Check for API key
-	if os.Getenv("DEMETERICS_API_KEY") == "" {
-		fmt.Fprintln(os.Stderr, "Error: DEMETERICS_API_KEY not set")
-		fmt.Fprintln(os.Stderr, "Get your Managed LLM Key from: https://demeterics.com")
+	if os.Getenv("GROQ_API_KEY") == "" {
+		fmt.Fprintln(os.Stderr, "Error: GROQ_API_KEY not set")
+		fmt.Fprintln(os.Stderr, "Get a free key from: https://console.groq.com")
 		os.Exit(1)
 	}
 
@@ -204,10 +210,12 @@ func main() {
 ]
 `)
 
+	normalCachedCost := 1000 * inputCostPer1M / 1_000_000
+	discountedCachedCost := 1000 * cachedInputCostPer1M / 1_000_000
 	fmt.Println("Cache benefit calculation:")
 	fmt.Println("If 1000 tokens are always cached (system + resume):")
-	fmt.Println("  Normal cost: 1000 × $0.10 / 1M = $0.0001")
-	fmt.Println("  Cached cost: 1000 × $0.05 / 1M = $0.00005")
+	fmt.Printf("  Normal cost: 1000 × $%.2f / 1M = $%.5f\n", inputCostPer1M, normalCachedCost)
+	fmt.Printf("  Cached cost: 1000 × $%.2f / 1M = $%.5f\n", cachedInputCostPer1M, discountedCachedCost)
 	fmt.Println("  Savings: 50% per request!\n")
 
 	fmt.Println("========================================")

@@ -1,9 +1,9 @@
-# Exercise 11: Web Search (groq/compound-mini)
+# Exercise 11: Web Search (OpenRouter `:online`)
 
 [← Previous: Tool Use](10_tool_use.md) | [Back to Exercises](README.md) | [Next: Code Execution →](12_code_execution.md)
 
 ## What You’ll Learn
-- Using a built-in web-search-capable model (`groq/compound-mini`)
+- Using OpenRouter's built-in web-search plugin (append `:online` to any model slug)
 - Crafting queries that trigger search (fresh, factual, time-bound)
 - Comparing model variants and query logic (AND/OR patterns)
 - Applying domain/country hints where supported
@@ -84,16 +84,18 @@ Success criteria:
 Reflect:
 - When would localization matter in real products? How could you expose it as a user setting?
 
-## Exercise 11.5: Model Comparison (compound-mini vs. compound)
+## Exercise 11.5: Model Comparison (small vs. large `:online`)
 
-Goal: Evaluate trade-offs between model sizes.
+Goal: Evaluate trade-offs between model sizes when web search is layered on top.
 
-Run the same query on:
-- `groq/compound-mini`
-- `groq/compound` (larger)
+Run the same query with `:online` appended to two different base models, e.g.:
+- `openai/gpt-oss-20b:online` (small/fast, free base model)
+- a larger model of your choice from `https://openrouter.ai/models` with `:online` appended
 
 Success criteria:
-- You can articulate 2 pros and 2 cons for each (speed, completeness, quality, cost).
+- You can articulate 2 pros and 2 cons for each (speed, completeness, quality, cost). The
+  `:online` search fee (~$0.005/request) is the same either way — only the underlying
+  model's own cost and answer quality change.
 - You decide which is better for your use case.
 
 Reflect:

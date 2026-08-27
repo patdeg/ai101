@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include <curl/curl.h>
 #include "cJSON.h"
 
@@ -124,9 +125,9 @@ unsigned char *read_file(const char *filename, size_t *size) {
 
 int main(void) {
     /* Step 1: Get API key */
-    const char *api_key = getenv("DEMETERICS_API_KEY");
+    const char *api_key = getenv("OPENROUTER_API_KEY");
     if (api_key == NULL) {
-        fprintf(stderr, "Error: DEMETERICS_API_KEY not set\n");
+        fprintf(stderr, "Error: OPENROUTER_API_KEY not set\n");
         return 1;
     }
 
@@ -204,7 +205,7 @@ int main(void) {
     cJSON_AddItemToArray(messages, message);
 
     /* Assemble root */
-    cJSON_AddStringToObject(root, "model", "meta-llama/llama-4-scout-17b-16e-instruct");
+    cJSON_AddStringToObject(root, "model", "google/gemma-4-31b-it");
     cJSON_AddItemToObject(root, "messages", messages);
     cJSON_AddNumberToObject(root, "max_tokens", 500);
 
@@ -225,7 +226,7 @@ int main(void) {
     response.data[0] = '\0';
 
     /* Step 8: Configure and perform request */
-    curl_easy_setopt(curl, CURLOPT_URL, "https://api.demeterics.com/groq/v1/chat/completions");
+    curl_easy_setopt(curl, CURLOPT_URL, "https://openrouter.ai/api/v1/chat/completions");
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, json_payload);
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);

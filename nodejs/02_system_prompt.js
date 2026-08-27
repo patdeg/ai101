@@ -17,7 +17,7 @@
  *
  * PREREQUISITES:
  * - Completed 01_basic_chat.js
- * - DEMETERICS_API_KEY environment variable set
+ * - OPENROUTER_API_KEY environment variable set
  *
  * EXPECTED OUTPUT:
  * - The system prompt you defined
@@ -36,7 +36,7 @@ const https = require('https');
 // Step 2: Create the request payload with BOTH system and user messages
 // Notice the messages array now has TWO objects, each with a different role
 const data = JSON.stringify({
-  model: "meta-llama/llama-4-scout-17b-16e-instruct",
+  model: "openai/gpt-oss-20b",
   messages: [
     {
       role: "system",  // SYSTEM message = instructions/rules for the AI
@@ -53,13 +53,13 @@ const data = JSON.stringify({
 
 // Step 3: Configure the HTTPS request options (same as example 1)
 const options = {
-  hostname: 'api.demeterics.com',
+  hostname: 'openrouter.ai',
   port: 443,
-  path: '/groq/v1/chat/completions',
+  path: '/api/v1/chat/completions',
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${process.env.DEMETERICS_API_KEY}`,
+    'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
     'Content-Length': Buffer.byteLength(data)
   }
 };

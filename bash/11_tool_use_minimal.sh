@@ -1,11 +1,11 @@
 #!/bin/bash
-# Example 10: Tool Use with Groq - AI Function Calling with Tavily
+# Example 10: Tool Use with OpenRouter - AI Function Calling with Tavily
 # Minimal version - demonstrates tool use flow with bash functions
 
 # Check for required environment variables
-if [ -z "$DEMETERICS_API_KEY" ] || [ -z "$TAVILY_API_KEY" ]; then
-  echo "Error: Both DEMETERICS_API_KEY and TAVILY_API_KEY must be set"
-  echo "Get your Demeterics Managed LLM Key: https://demeterics.com"
+if [ -z "$OPENROUTER_API_KEY" ] || [ -z "$TAVILY_API_KEY" ]; then
+  echo "Error: Both OPENROUTER_API_KEY and TAVILY_API_KEY must be set"
+  echo "Get an OpenRouter key: https://openrouter.ai/keys"
   echo "Get a Tavily key: https://tavily.com"
   exit 1
 fi
@@ -35,13 +35,13 @@ tavily_extract() {
     }'
 }
 
-# Step 1: Send initial request to Groq with tool definitions
-INITIAL_RESPONSE=$(curl -s -X POST "https://api.demeterics.com/groq/v1/chat/completions" \
-  -H "Authorization: Bearer $DEMETERICS_API_KEY" \
+# Step 1: Send initial request to OpenRouter with tool definitions
+INITIAL_RESPONSE=$(curl -s -X POST "https://openrouter.ai/api/v1/chat/completions" \
+  -H "Authorization: Bearer $OPENROUTER_API_KEY" \
   -H "Content-Type: application/json" \
   -d @- <<'EOF'
 {
-  "model": "meta-llama/llama-4-scout-17b-16e-instruct",
+  "model": "openai/gpt-oss-20b",
   "messages": [
     {
       "role": "user",
@@ -95,7 +95,7 @@ echo ""
 # Execute the bash function
 TOOL_RESULT=$(tavily_search "$QUERY")
 
-# Step 4: Send tool result back to Groq for final response
+# Step 4: Send tool result back to OpenRouter for final response
 # Build messages array properly with jq
 MESSAGES=$(jq -n \
   --argjson assistant_msg "$(echo "$INITIAL_RESPONSE" | jq '.choices[0].message')" \
@@ -114,13 +114,20 @@ MESSAGES=$(jq -n \
     }
   ]')
 
-FINAL_RESPONSE=$(curl -s -X POST "https://api.demeterics.com/groq/v1/chat/completions" \
-  -H "Authorization: Bearer $DEMETERICS_API_KEY" \
+# tool_choice: "none" tells the model this is the final answer turn, not
+# another chance to call a tool - without it, small models occasionally
+# echo malformed tool-call syntax instead of a plain-text summary. Even
+# with this, budget models can still occasionally return an empty/odd
+# response on a multi-turn tool continuation - if that happens, just
+# re-run; a production system would retry automatically.
+FINAL_RESPONSE=$(curl -s -X POST "https://openrouter.ai/api/v1/chat/completions" \
+  -H "Authorization: Bearer $OPENROUTER_API_KEY" \
   -H "Content-Type: application/json" \
   -d @- <<EOF
 {
-  "model": "meta-llama/llama-4-scout-17b-16e-instruct",
-  "messages": $MESSAGES
+  "model": "openai/gpt-oss-20b",
+  "messages": $MESSAGES,
+  "tool_choice": "none"
 }
 EOF
 )

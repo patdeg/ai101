@@ -5,15 +5,31 @@ package main
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
-	"mime/multipart"
 	"net/http"
 	"os"
-	"path/filepath"
 	"time"
 )
+
+// Request structure for OpenRouter's transcription API
+type TranscriptionRequest struct {
+	// Model is the transcription model to use
+	Model string `json:"model"`
+
+	// InputAudio carries the audio bytes as base64, plus its format
+	InputAudio InputAudio `json:"input_audio"`
+}
+
+type InputAudio struct {
+	// Data is the base64-encoded audio file contents
+	Data string `json:"data"`
+
+	// Format is the audio container/codec (mp3, wav, m4a, etc.)
+	Format string `json:"format"`
+}
 
 // Response structure for Whisper API
 type TranscriptionResponse struct {
@@ -21,11 +37,6 @@ type TranscriptionResponse struct {
 	// Includes punctuation, capitalization, and formatting
 	// Supports 99+ languages with automatic detection
 	Text string `json:"text"`
-
-	// Duration is the audio length in seconds
-	// Used to calculate cost: (Duration / 3600) × $0.04 per hour
-	// Example: 60 seconds = 0.0167 hours = $0.00067
-	Duration float64 `json:"duration"`
 }
 
 // MAIN FUNCTION OVERVIEW:
@@ -50,12 +61,13 @@ type TranscriptionResponse struct {
 //
 func main() {
 	// Step 1: Get API key from environment variable
-	apiKey := os.Getenv("DEMETERICS_API_KEY")
+	apiKey := os.Getenv("OPENROUTER_API_KEY")
 
 	// Verify API key exists
 	if apiKey == "" {
-		fmt.Println("Error: DEMETERICS_API_KEY environment variable not set")
-		fmt.Println("Run: export DEMETERICS_API_KEY='your_key_here'")
+		fmt.Println("Error: OPENROUTER_API_KEY environment variable not set")
+		fmt.Println("Get a free key at https://openrouter.ai/keys, then:")
+		fmt.Println("Run: export OPENROUTER_API_KEY='your_key_here'")
 		os.Exit(1)
 	}
 
@@ -68,74 +80,44 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Open the audio file
-	file, err := os.Open(audioFilePath)
+	// Step 3: Read and base64-encode the audio file
+	// OpenRouter's transcription endpoint takes JSON with the audio
+	// embedded as base64, the same pattern used for images in example 04.
+	audioData, err := os.ReadFile(audioFilePath)
 	if err != nil {
-		fmt.Printf("Error opening audio file: %v\n", err)
+		fmt.Printf("Error reading audio file: %v\n", err)
 		os.Exit(1)
 	}
-	defer file.Close()
-
-	// Get file info for size
-	fileInfo, err := file.Stat()
-	if err != nil {
-		fmt.Printf("Error getting file info: %v\n", err)
-		os.Exit(1)
-	}
+	audioBase64 := base64.StdEncoding.EncodeToString(audioData)
 
 	fmt.Println("============================================================")
 	fmt.Println("Transcribing Audio with Whisper")
 	fmt.Println("============================================================")
-	fmt.Println("Model: whisper-large-v3-turbo")
+	fmt.Println("Model: openai/whisper-1 (via OpenRouter)")
 	fmt.Printf("File: %s\n", audioFilePath)
-	fmt.Printf("File size: %d bytes\n", fileInfo.Size())
+	fmt.Printf("File size: %d bytes\n", len(audioData))
 	fmt.Println()
 
-	// Step 3: Create multipart form data
-	// Create a buffer to write the multipart data
-	var requestBody bytes.Buffer
-	writer := multipart.NewWriter(&requestBody)
+	// Step 4: Build the JSON request body
+	request := TranscriptionRequest{
+		Model: "openai/whisper-1",
+		InputAudio: InputAudio{
+			Data:   audioBase64,
+			Format: "mp3",
+		},
+	}
 
-	// Add the audio file to the form
-	part, err := writer.CreateFormFile("file", filepath.Base(audioFilePath))
+	jsonData, err := json.Marshal(request)
 	if err != nil {
-		fmt.Printf("Error creating form file: %v\n", err)
+		fmt.Printf("Error creating JSON: %v\n", err)
 		os.Exit(1)
 	}
 
-	// Copy the file content to the form part
-	_, err = io.Copy(part, file)
-	if err != nil {
-		fmt.Printf("Error copying file content: %v\n", err)
-		os.Exit(1)
-	}
-
-	// Add the model parameter
-	err = writer.WriteField("model", "whisper-large-v3-turbo")
-	if err != nil {
-		fmt.Printf("Error writing model field: %v\n", err)
-		os.Exit(1)
-	}
-
-	// Add response format for duration info
-	err = writer.WriteField("response_format", "verbose_json")
-	if err != nil {
-		fmt.Printf("Error writing response_format field: %v\n", err)
-		os.Exit(1)
-	}
-
-	// Close the multipart writer to finalize the body
-	err = writer.Close()
-	if err != nil {
-		fmt.Printf("Error closing multipart writer: %v\n", err)
-		os.Exit(1)
-	}
-
-	// Step 4: Create HTTP request
+	// Step 5: Create HTTP request
 	req, err := http.NewRequest(
 		"POST",
-		"https://api.demeterics.com/groq/v1/audio/transcriptions",
-		&requestBody,
+		"https://openrouter.ai/api/v1/audio/transcriptions",
+		bytes.NewBuffer(jsonData),
 	)
 
 	if err != nil {
@@ -143,11 +125,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Step 5: Set HTTP headers
+	// Step 6: Set HTTP headers
 	req.Header.Set("Authorization", "Bearer "+apiKey)
-	req.Header.Set("Content-Type", writer.FormDataContentType())
+	req.Header.Set("Content-Type", "application/json")
 
-	// Step 6: Send the HTTP request with timing
+	// Step 7: Send the HTTP request with timing
 	startTime := time.Now()
 
 	client := &http.Client{}
@@ -162,7 +144,7 @@ func main() {
 
 	latency := time.Since(startTime).Milliseconds()
 
-	// Step 7: Read the response body
+	// Step 8: Read the response body
 	body, err := io.ReadAll(resp.Body)
 
 	if err != nil {
@@ -170,7 +152,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Step 8: Parse the JSON response
+	// Step 9: Parse the JSON response
 	var response TranscriptionResponse
 
 	err = json.Unmarshal(body, &response)
@@ -181,7 +163,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Step 9: Display the transcription result
+	// Step 10: Display the transcription result
 	fmt.Println("Transcription Result:")
 	fmt.Println("============================================================")
 	fmt.Println(response.Text)
@@ -189,14 +171,13 @@ func main() {
 	fmt.Println("============================================================")
 	fmt.Println()
 
-	// Calculate cost based on audio duration
-	cost := (response.Duration / 3600) * 0.04 // $0.04 per hour
-
+	// openai/whisper-1 on OpenRouter is billed at $0.006 per minute of
+	// audio. The transcription response doesn't return duration, so we
+	// print the flat rate rather than compute an exact per-request cost.
 	fmt.Println("Performance Metrics:")
 	fmt.Println("============================================================")
-	fmt.Printf("API Latency:    %dms\n", latency)
-	fmt.Printf("Audio Duration: %.2fs\n", response.Duration)
-	fmt.Printf("Cost:           $%.6f\n", cost)
+	fmt.Printf("API Latency: %dms\n", latency)
+	fmt.Println("Pricing:     $0.006 per minute of audio (openai/whisper-1)")
 	fmt.Println("============================================================")
 	fmt.Println()
 	fmt.Println("Full API Response:")
@@ -204,25 +185,25 @@ func main() {
 	fmt.Println(string(jsonBytes))
 }
 
-// Model: whisper-large-v3-turbo
-//   - Fast, cost-effective speech recognition from OpenAI
+// Model: openai/whisper-1 (via OpenRouter)
+//   - Well-known OpenAI speech recognition model
 //   - Supports 99+ languages with high accuracy
 //   - Automatic language detection
 //   - Punctuation and formatting included
 //   - Handles various audio formats (mp3, wav, m4a, etc.)
-//   - Pricing: $0.04 per hour of audio
+//   - Pricing: $0.006 per minute of audio ($0.36/hour)
 //
 // Supported audio formats:
 //   - MP3, MP4, MPEG, MPGA, M4A, WAV, WEBM
 //   - Maximum file size: 25 MB
 //   - Recommended: 16kHz or higher sample rate
 //
-// Pricing examples (at $0.04/hour):
-//   - 1 minute:  $0.000667 (~$0.0007)
-//   - 5 minutes: $0.003333 (~$0.003)
-//   - 30 minutes: $0.02
-//   - 1 hour:     $0.04
-//   - 10 hours:   $0.40
+// Pricing examples (at $0.006/minute):
+//   - 1 minute:  $0.006
+//   - 5 minutes: $0.03
+//   - 30 minutes: $0.18
+//   - 1 hour:     $0.36
+//   - 10 hours:   $3.60
 //
 // API Response format:
 //   {
@@ -242,40 +223,35 @@ func main() {
 // Production code example:
 //
 //   func transcribeAudio(audioPath string, apiKey string) (string, error) {
-//       // Open the audio file
-//       file, err := os.Open(audioPath)
+//       audioData, err := os.ReadFile(audioPath)
 //       if err != nil {
 //           return "", err
 //       }
-//       defer file.Close()
 //
-//       // Create multipart form data
-//       var body bytes.Buffer
-//       writer := multipart.NewWriter(&body)
-//
-//       // Add file
-//       part, err := writer.CreateFormFile("file", filepath.Base(audioPath))
+//       request := TranscriptionRequest{
+//           Model: "openai/whisper-1",
+//           InputAudio: InputAudio{
+//               Data:   base64.StdEncoding.EncodeToString(audioData),
+//               Format: "mp3",
+//           },
+//       }
+//       jsonData, err := json.Marshal(request)
 //       if err != nil {
 //           return "", err
 //       }
-//       io.Copy(part, file)
-//
-//       // Add model
-//       writer.WriteField("model", "whisper-large-v3")
-//       writer.Close()
 //
 //       // Create request
 //       req, err := http.NewRequest(
 //           "POST",
-//           "https://api.demeterics.com/groq/v1/audio/transcriptions",
-//           &body,
+//           "https://openrouter.ai/api/v1/audio/transcriptions",
+//           bytes.NewBuffer(jsonData),
 //       )
 //       if err != nil {
 //           return "", err
 //       }
 //
 //       req.Header.Set("Authorization", "Bearer "+apiKey)
-//       req.Header.Set("Content-Type", writer.FormDataContentType())
+//       req.Header.Set("Content-Type", "application/json")
 //
 //       // Send request
 //       client := &http.Client{}
@@ -307,19 +283,10 @@ func main() {
 //   }
 //   fmt.Println(text)
 //
-// Advanced options (add to form fields):
+// Advanced options (add to the request struct):
 //
 //   // Specify language (optional - auto-detected by default)
-//   writer.WriteField("language", "en")  // ISO-639-1 code (en, es, fr, de, etc.)
-//
-//   // Response format (optional - json is default)
-//   writer.WriteField("response_format", "json")  // Options: json, text, srt, vtt
-//
-//   // Temperature for randomness (optional - 0.0 to 1.0)
-//   writer.WriteField("temperature", "0.0")  // 0.0 = deterministic, 1.0 = creative
-//
-//   // Timestamp granularities (optional)
-//   writer.WriteField("timestamp_granularities[]", "word")  // Options: word, segment
+//   Language string `json:"language,omitempty"`  // ISO-639-1 code (en, es, fr, de, etc.)
 //
 // Error handling example:
 //

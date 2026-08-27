@@ -1,11 +1,11 @@
 /**
  * ============================================================================
- * Example 15: Text-to-Speech - Voice Synthesis with OpenAI TTS
+ * Example 15: Text-to-Speech - Voice Synthesis with Fish Audio (OpenRouter)
  * ============================================================================
  *
  * WHAT THIS DEMONSTRATES:
  *   - Converting text to spoken audio
- *   - Using OpenAI's TTS API
+ *   - Using OpenRouter's /audio/speech endpoint (Fish Audio S2.1 Pro, free)
  *   - Working with audio output in C
  *
  * WHAT YOU'LL LEARN:
@@ -38,9 +38,9 @@ static size_t write_to_file(void *contents, size_t size, size_t nmemb, void *use
 
 int main(void) {
     /* Step 1: Get API key */
-    const char *api_key = getenv("DEMETERICS_API_KEY");
+    const char *api_key = getenv("OPENROUTER_API_KEY");
     if (api_key == NULL) {
-        fprintf(stderr, "Error: DEMETERICS_API_KEY not set\n");
+        fprintf(stderr, "Error: OPENROUTER_API_KEY not set\n");
         return 1;
     }
 
@@ -52,22 +52,22 @@ int main(void) {
         return 1;
     }
 
-    /* Step 3: Define text to speak and voice to use */
+    /* Step 3: Define text to speak */
     const char *text_to_speak = "Hello! I am an AI assistant speaking to you. "
                                  "This demonstrates text-to-speech synthesis using modern AI technology. "
                                  "Pretty cool, right?";
-    const char *voice = "nova";  /* One of 11 available voices */
 
     printf("=== TEXT-TO-SPEECH ===\n");
-    printf("Using OpenAI gpt-4o-mini-tts\n\n");
+    printf("Using fish-audio/s2.1-pro-free:free (via OpenRouter)\n\n");
     printf("Text: %s\n\n", text_to_speak);
-    printf("Voice: %s\n\n", voice);
 
-    /* Step 4: Build JSON request for TTS */
+    /* Step 4: Build JSON request for TTS.
+     * Fish Audio picks a default voice when no referenceId is supplied --
+     * for a specific voice, grab a reference ID from https://fish.audio and
+     * see Example 16 for how to pass it via providerOptions.fishAudio. */
     cJSON *root = cJSON_CreateObject();
-    cJSON_AddStringToObject(root, "model", "gpt-4o-mini-tts");
+    cJSON_AddStringToObject(root, "model", "fish-audio/s2.1-pro-free:free");
     cJSON_AddStringToObject(root, "input", text_to_speak);
-    cJSON_AddStringToObject(root, "voice", voice);
     cJSON_AddStringToObject(root, "response_format", "mp3");
 
     char *json_payload = cJSON_PrintUnformatted(root);
@@ -93,7 +93,7 @@ int main(void) {
     }
 
     /* Step 7: Configure curl */
-    curl_easy_setopt(curl, CURLOPT_URL, "https://api.demeterics.com/openai/v1/audio/speech");
+    curl_easy_setopt(curl, CURLOPT_URL, "https://openrouter.ai/api/v1/audio/speech");
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, json_payload);
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_to_file);
@@ -132,20 +132,12 @@ int main(void) {
     curl_global_cleanup();
 
     /* Educational info */
-    printf("\n=== AVAILABLE VOICES ===\n\n");
-    printf("Voice       Description\n");
-    printf("------      -----------\n");
-    printf("alloy       Neutral, balanced\n");
-    printf("ash         Confident, professional\n");
-    printf("ballad      Warm, storytelling\n");
-    printf("coral       Friendly, upbeat\n");
-    printf("echo        Smooth, clear\n");
-    printf("fable       Expressive, British-accented\n");
-    printf("nova        Youthful, energetic\n");
-    printf("onyx        Deep, authoritative\n");
-    printf("sage        Wise, measured\n");
-    printf("shimmer     Gentle, soothing\n");
-    printf("verse       Dramatic, theatrical\n\n");
+    printf("\n=== CHOOSING A VOICE ===\n\n");
+    printf("No referenceId  -> Fish Audio picks a default voice\n");
+    printf("With referenceId -> pick any voice from https://fish.audio\n");
+    printf("                    (free account, browse the voice library,\n");
+    printf("                     copy its ID -- see Example 16 for the\n");
+    printf("                     providerOptions.fishAudio.referenceId shape)\n\n");
 
     printf("=== OUTPUT FORMATS ===\n\n");
     printf("mp3   - Most compatible (default)\n");
@@ -169,8 +161,8 @@ int main(void) {
  * TEXT-TO-SPEECH NOTES:
  *
  * PRICING:
- *   - Input: $0.60 per 1M characters
- *   - Output: $12 per 1M tokens (audio duration-based)
+ *   - fish-audio/s2.1-pro-free:free costs nothing (rate-limited, best-effort
+ *     availability -- meant for testing/prototyping, not production)
  *
  * VOICE SELECTION:
  *   - Try different voices for different contexts

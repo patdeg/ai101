@@ -7,7 +7,7 @@
  * WHAT THIS PROJECT DOES:
  *   - Press the onboard BOOT button to record 5 seconds of audio
  *   - Built-in LED blinks while recording
- *   - Sends audio to Groq Whisper API for transcription
+ *   - Sends audio to OpenRouter (openai/whisper-1) for transcription
  *   - Displays the transcribed command on Serial Monitor
  *
  * WHAT YOU'LL LEARN:
@@ -35,7 +35,7 @@
  *   1. Install "esp32" board support (v3.0.0+) in Arduino IDE
  *   2. Install "ESP32_I2S_PDM_Mic" library from Library Manager
  *   3. Copy secrets_template.h to secrets.h
- *   4. Fill in your WiFi credentials and Demeterics Managed LLM Key
+ *   4. Fill in your WiFi credentials and OpenRouter API key
  *   5. Select Board: "XIAO_ESP32S3"
  *   6. Set PSRAM: "OPI PSRAM"
  *   7. Upload and open Serial Monitor at 115200 baud
@@ -63,7 +63,7 @@
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <driver/i2s.h>
-#include "secrets.h"  // Contains WIFI_SSID, WIFI_PASSWORD, DEMETERICS_API_KEY
+#include "secrets.h"  // Contains WIFI_SSID, WIFI_PASSWORD, OPENROUTER_API_KEY
 
 // ============================================================================
 // CONFIGURATION - Pin Definitions for XIAO ESP32-S3 Sense
@@ -366,9 +366,9 @@ void stopRecording() {
 void sendToWhisper() {
   Serial.println("📤 Sending audio to Whisper API...");
 
-  // Connect to Demeterics Groq proxy
-  if (!client.connect("api.demeterics.com", 443)) {
-    Serial.println("ERROR: Connection to api.demeterics.com failed!");
+  // Connect to OpenRouter
+  if (!client.connect("openrouter.ai", 443)) {
+    Serial.println("ERROR: Connection to openrouter.ai failed!");
     return;
   }
 
@@ -392,17 +392,17 @@ void sendToWhisper() {
 
   String formModel = "\r\n--" + boundary + "\r\n";
   formModel += "Content-Disposition: form-data; name=\"model\"\r\n\r\n";
-  formModel += "whisper-large-v3-turbo\r\n";
+  formModel += "openai/whisper-1\r\n";
 
   String formEnd = "--" + boundary + "--\r\n";
 
   int contentLength = formStart.length() + totalWavSize + formModel.length() + formEnd.length();
 
   // Send HTTP POST request
-  client.println("POST /groq/v1/audio/transcriptions HTTP/1.1");
-  client.println("Host: api.demeterics.com");
+  client.println("POST /api/v1/audio/transcriptions HTTP/1.1");
+  client.println("Host: openrouter.ai");
   client.print("Authorization: Bearer ");
-  client.println(DEMETERICS_API_KEY);
+  client.println(OPENROUTER_API_KEY);
   client.print("Content-Type: multipart/form-data; boundary=");
   client.println(boundary);
   client.print("Content-Length: ");
@@ -605,5 +605,5 @@ void sendToWhisper() {
  * Compare to other voice platforms:
  *   - Google Cloud Speech: $0.006 per 15 seconds = $0.002/command (35x more!)
  *   - AWS Transcribe: $0.024 per minute = $0.002/command (35x more!)
- *   - Groq Whisper: $0.000056/command (cheapest!)
+ *   - openai/whisper-1 via OpenRouter: ~$0.006/minute of audio
  */

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Example 10: Tool Use (Function Calling) - AI Agents with Groq + Tavily
+Example 10: Tool Use (Function Calling) - AI Agents with OpenRouter + Tavily
 
 Demonstrates:
-- Groq function calling with llama-4-scout
+- OpenRouter function calling
 - Tavily Search and Extract as tools
 - Multi-step agent workflow
 
@@ -17,9 +17,9 @@ import os
 import sys
 
 # Check for API keys
-if not os.environ.get('DEMETERICS_API_KEY') or not os.environ.get('TAVILY_API_KEY'):
-    print('Error: Both DEMETERICS_API_KEY and TAVILY_API_KEY must be set', file=sys.stderr)
-    print('Get your Demeterics Managed LLM Key: https://demeterics.com', file=sys.stderr)
+if not os.environ.get('OPENROUTER_API_KEY') or not os.environ.get('TAVILY_API_KEY'):
+    print('Error: Both OPENROUTER_API_KEY and TAVILY_API_KEY must be set', file=sys.stderr)
+    print('Get an OpenRouter key: https://openrouter.ai/keys', file=sys.stderr)
     print('Get a Tavily key: https://tavily.com', file=sys.stderr)
     sys.exit(1)
 
@@ -78,26 +78,28 @@ def execute_tool(function_name, arguments):
     else:
         raise ValueError(f'Unknown function: {function_name}')
 
-def call_groq(messages, tools=None):
-    """Call Demeterics Groq proxy"""
-    conn = http.client.HTTPSConnection('api.demeterics.com')
+def call_groq(messages, tools=None, tool_choice=None):
+    """Call OpenRouter chat completions"""
+    conn = http.client.HTTPSConnection('openrouter.ai')
     headers = {
         'Content-Type': 'application/json',
-        'Authorization': f'Bearer {os.environ["DEMETERICS_API_KEY"]}'
+        'Authorization': f'Bearer {os.environ["OPENROUTER_API_KEY"]}'
     }
 
     request_data = {
-        'model': 'meta-llama/llama-4-scout-17b-16e-instruct',
+        'model': 'openai/gpt-oss-20b',
         'messages': messages
     }
 
     if tools:
         request_data['tools'] = tools
         request_data['tool_choice'] = 'auto'
+    elif tool_choice:
+        request_data['tool_choice'] = tool_choice
 
     body = json.dumps(request_data)
 
-    conn.request('POST', '/groq/v1/chat/completions', body, headers)
+    conn.request('POST', '/api/v1/chat/completions', body, headers)
     response = conn.getresponse()
     data = response.read().decode('utf-8')
     conn.close()
@@ -191,11 +193,17 @@ def main():
     # Step 3: Send results back to AI
     print('Step 2: Sending tool results back to AI for final answer...\n')
 
+    # tool_choice='none' tells the model this is the final answer turn, not
+    # another chance to call a tool - without it, small models occasionally
+    # echo malformed tool-call syntax instead of a plain-text summary. Even
+    # with this, budget models can still occasionally return an empty/odd
+    # response on a multi-turn tool continuation - if that happens, just
+    # re-run; a production system would retry automatically.
     final_response = call_groq([
         {'role': 'user', 'content': user_query},
         initial_response['choices'][0]['message'],
         *tool_messages
-    ])
+    ], tool_choice='none')
 
     # Display final response
     print('========================================')

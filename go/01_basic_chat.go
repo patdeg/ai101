@@ -116,12 +116,13 @@ func main() {
 	// Step 1: Get API key from environment variable
 	// The API key is sensitive information, so we store it as an environment variable
 	// rather than hardcoding it in the source code
-	apiKey := os.Getenv("DEMETERICS_API_KEY")
+	apiKey := os.Getenv("OPENROUTER_API_KEY")
 
 	// Check if API key exists before proceeding
 	if apiKey == "" {
-		fmt.Println("Error: DEMETERICS_API_KEY environment variable not set")
-		fmt.Println("Run: export DEMETERICS_API_KEY='your_key_here'")
+		fmt.Println("Error: OPENROUTER_API_KEY environment variable not set")
+		fmt.Println("Get a free key at https://openrouter.ai/keys, then:")
+		fmt.Println("Run: export OPENROUTER_API_KEY='your_key_here'")
 		os.Exit(1)
 	}
 
@@ -129,7 +130,7 @@ func main() {
 	// We build a ChatRequest struct that will be converted to JSON
 	// This struct contains all the information the API needs
 	request := ChatRequest{
-		Model: "meta-llama/llama-4-scout-17b-16e-instruct", // AI model to use
+		Model: "openai/gpt-oss-20b", // Free model on OpenRouter
 		Messages: []Message{
 			{
 				Role:    "user",                               // "user" means this is our question
@@ -155,9 +156,9 @@ func main() {
 	// http.NewRequest creates a new HTTP request object
 	// We need to specify the method (POST), URL, and body (our JSON data)
 	req, err := http.NewRequest(
-		"POST",                                            // HTTP method
-		"https://api.demeterics.com/groq/v1/chat/completions", // API endpoint
-		bytes.NewBuffer(jsonData),                         // Request body (our JSON data)
+		"POST",                                          // HTTP method
+		"https://openrouter.ai/api/v1/chat/completions", // API endpoint
+		bytes.NewBuffer(jsonData),                       // Request body (our JSON data)
 	)
 
 	// Check if request creation succeeded
@@ -268,7 +269,7 @@ func main() {
 //   Always check errors!
 //
 // os.Getenv("VAR")
-//   Gets environment variable (like $DEMETERICS_API_KEY in bash)
+//   Gets environment variable (like $OPENROUTER_API_KEY in bash)
 //   Returns empty string if not set
 //
 // os.Exit(1)

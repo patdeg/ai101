@@ -1,24 +1,24 @@
 /**
  * ============================================================================
- * Example 7: Whisper - Audio Transcription with Whisper Large-v3-Turbo
+ * Example 7: Whisper - Audio Transcription
  * ============================================================================
  *
  * WHAT THIS DEMONSTRATES:
- * - How to transcribe audio files using Whisper large-v3-turbo
- * - Uploading multipart form data to the API
- * - Processing speech-to-text with fast, cost-effective model
- * - Working with file uploads in Node.js
+ * - How to transcribe audio files using OpenAI's Whisper model
+ * - Base64-encoding an audio file and sending it as JSON
+ * - Processing speech-to-text
+ * - Working with file reads in Node.js
  *
  * WHAT YOU'LL LEARN:
  * - How to use the Whisper API for audio transcription
- * - Working with multipart/form-data requests in Node.js
- * - Handling audio file uploads with HTTPS module
- * - Processing binary file data
+ * - Base64 encoding audio for a JSON request body (same pattern as the
+ *   vision example's image encoding)
+ * - Handling audio file uploads with the HTTPS module
  * - Calculating transcription costs
  *
  * PREREQUISITES:
  * - Node.js installed
- * - DEMETERICS_API_KEY environment variable set
+ * - OPENROUTER_API_KEY environment variable set
  * - Audio file gettysburg.mp3 in the repository root
  *
  * EXPECTED OUTPUT:
@@ -27,7 +27,7 @@
  * - Duration and cost information
  *
  * RUN THIS:
- * node 07_whisper.js
+ * node 08_whisper.js
  *
  * ============================================================================
  */
@@ -46,59 +46,39 @@ if (!fs.existsSync(audioFilePath)) {
   process.exit(1);
 }
 
-// Read the audio file
+// Read the audio file and base64-encode it (same idea as image encoding in 04_vision.js)
 const audioData = fs.readFileSync(audioFilePath);
-const fileName = path.basename(audioFilePath);
+const audioBase64 = audioData.toString('base64');
 
 console.log('='.repeat(60));
 console.log('Transcribing Audio with Whisper');
 console.log('='.repeat(60));
-console.log(`Model: whisper-large-v3-turbo`);
+console.log(`Model: openai/whisper-1`);
 console.log(`File: ${audioFilePath}`);
 console.log(`File size: ${audioData.length} bytes`);
+console.log(`Base64 size: ${audioBase64.length} bytes`);
 console.log('');
 
-// Step 3: Create multipart form data
-// Generate a boundary string for multipart data
-const boundary = '----WebKitFormBoundary' + Math.random().toString(36).substring(2);
-
-// Build the multipart body
-let body = '';
-
-// Part 1: The audio file
-body += `--${boundary}\r\n`;
-body += `Content-Disposition: form-data; name="file"; filename="${fileName}"\r\n`;
-body += `Content-Type: audio/mpeg\r\n`;
-body += '\r\n';
-
-// Convert body to Buffer and append audio data
-const header = Buffer.from(body, 'utf8');
-const footer = Buffer.from(
-  `\r\n--${boundary}\r\n` +
-  `Content-Disposition: form-data; name="model"\r\n` +
-  `\r\n` +
-  `whisper-large-v3-turbo\r\n` +
-  `--${boundary}\r\n` +
-  `Content-Disposition: form-data; name="response_format"\r\n` +
-  `\r\n` +
-  `verbose_json\r\n` +
-  `--${boundary}--\r\n`,
-  'utf8'
-);
-
-// Combine all parts
-const requestBody = Buffer.concat([header, audioData, footer]);
+// Step 3: Build the JSON request body
+// input_audio.data holds the base64 audio, input_audio.format is the codec
+const requestBody = JSON.stringify({
+  model: 'openai/whisper-1',
+  input_audio: {
+    data: audioBase64,
+    format: 'mp3'
+  }
+});
 
 // Step 4: Configure the HTTPS request
 const options = {
-  hostname: 'api.demeterics.com',
+  hostname: 'openrouter.ai',
   port: 443,
-  path: '/groq/v1/audio/transcriptions',
+  path: '/api/v1/audio/transcriptions',
   method: 'POST',
   headers: {
-    'Authorization': `Bearer ${process.env.DEMETERICS_API_KEY}`,
-    'Content-Type': `multipart/form-data; boundary=${boundary}`,
-    'Content-Length': requestBody.length
+    'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+    'Content-Type': 'application/json',
+    'Content-Length': Buffer.byteLength(requestBody)
   }
 };
 
@@ -125,14 +105,14 @@ const req = https.request(options, (res) => {
       console.log('='.repeat(60));
       console.log('');
 
-      // Calculate cost based on audio duration
-      const duration = parsed.duration || 0;
-      const cost = (duration / 3600) * 0.04;  // $0.04 per hour
+      // Calculate cost based on audio duration (Whisper is billed per minute)
+      const durationSeconds = parsed.duration || 0;
+      const cost = (durationSeconds / 60) * 0.006;  // $0.006 per minute
 
       console.log('Performance Metrics:');
       console.log('='.repeat(60));
       console.log(`API Latency:    ${latency}ms`);
-      console.log(`Audio Duration: ${duration}s`);
+      console.log(`Audio Duration: ${durationSeconds}s`);
       console.log(`Cost:           $${cost.toFixed(6)}`);
       console.log('='.repeat(60));
       console.log('');
@@ -152,29 +132,37 @@ req.on('error', (error) => {
 req.write(requestBody);
 req.end();
 
-// Model: whisper-large-v3-turbo
-//   - Fast, cost-effective speech recognition from OpenAI
-//   - Supports 99+ languages with high accuracy
+// Model: openai/whisper-1 (via OpenRouter's /audio/transcriptions endpoint)
+//   - Speech recognition, supports 99+ languages with high accuracy
 //   - Automatic language detection
-//   - Punctuation and formatting included
-//   - Handles various audio formats (mp3, wav, m4a, etc.)
-//   - Pricing: $0.04 per hour of audio
+//   - Handles various audio formats (mp3, wav, m4a, flac, etc.)
+//   - Pricing: $0.006 per minute of audio (no free STT model exists on
+//     OpenRouter as of this writing - this is the cheapest correct option)
 //
 // Supported audio formats:
-//   - MP3, MP4, MPEG, MPGA, M4A, WAV, WEBM
+//   - MP3, MP4, MPEG, MPGA, M4A, WAV, WEBM, FLAC
 //   - Maximum file size: 25 MB
 //   - Recommended: 16kHz or higher sample rate
 //
-// Pricing examples (at $0.04/hour):
-//   - 1 minute:  $0.000667 (~$0.0007)
-//   - 5 minutes: $0.003333 (~$0.003)
-//   - 30 minutes: $0.02
-//   - 1 hour:     $0.04
-//   - 10 hours:   $0.40
+// Pricing examples (at $0.006/minute):
+//   - 1 minute:   $0.006
+//   - 5 minutes:  $0.03
+//   - 30 minutes: $0.18
+//   - 1 hour:     $0.36
 //
-// API Response format:
+// API request format:
 //   {
-//     "text": "The transcribed text will appear here..."
+//     "model": "openai/whisper-1",
+//     "input_audio": {
+//       "data": "<base64-encoded-audio>",
+//       "format": "mp3"
+//     }
+//   }
+//
+// API response format:
+//   {
+//     "text": "The transcribed text will appear here...",
+//     "duration": 272.5
 //   }
 //
 // Use cases:
@@ -191,41 +179,26 @@ req.end();
 //
 //   async function transcribeAudio(audioPath) {
 //     return new Promise((resolve, reject) => {
-//       // Read audio file
 //       const audioData = fs.readFileSync(audioPath);
-//       const fileName = path.basename(audioPath);
+//       const audioBase64 = audioData.toString('base64');
 //
-//       // Create multipart body
-//       const boundary = '----WebKitFormBoundary' + Math.random().toString(36).substring(2);
-//       const header = Buffer.from(
-//         `--${boundary}\r\n` +
-//         `Content-Disposition: form-data; name="file"; filename="${fileName}"\r\n` +
-//         `Content-Type: audio/mpeg\r\n\r\n`,
-//         'utf8'
-//       );
-//       const footer = Buffer.from(
-//         `\r\n--${boundary}\r\n` +
-//         `Content-Disposition: form-data; name="model"\r\n\r\n` +
-//         `whisper-large-v3\r\n` +
-//         `--${boundary}--\r\n`,
-//         'utf8'
-//       );
-//       const body = Buffer.concat([header, audioData, footer]);
+//       const body = JSON.stringify({
+//         model: 'openai/whisper-1',
+//         input_audio: { data: audioBase64, format: 'mp3' }
+//       });
 //
-//       // Configure request
 //       const options = {
-//         hostname: 'api.demeterics.com',
+//         hostname: 'openrouter.ai',
 //         port: 443,
-//         path: '/groq/v1/audio/transcriptions',
+//         path: '/api/v1/audio/transcriptions',
 //         method: 'POST',
 //         headers: {
-//           'Authorization': `Bearer ${process.env.DEMETERICS_API_KEY}`,
-//           'Content-Type': `multipart/form-data; boundary=${boundary}`,
-//           'Content-Length': body.length
+//           'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+//           'Content-Type': 'application/json',
+//           'Content-Length': Buffer.byteLength(body)
 //         }
 //       };
 //
-//       // Send request
 //       const req = https.request(options, (res) => {
 //         let data = '';
 //         res.on('data', (chunk) => data += chunk);
@@ -249,45 +222,13 @@ req.end();
 //     .then(result => console.log(result.text))
 //     .catch(error => console.error(error));
 //
-// Advanced options (add to form data):
+// Advanced options (add to the request body):
 //
 //   // Specify language (optional - auto-detected by default)
-//   footer = Buffer.from(
-//     `\r\n--${boundary}\r\n` +
-//     `Content-Disposition: form-data; name="model"\r\n\r\n` +
-//     `whisper-large-v3\r\n` +
-//     `--${boundary}\r\n` +
-//     `Content-Disposition: form-data; name="language"\r\n\r\n` +
-//     `en\r\n` +  // ISO-639-1 code (en, es, fr, de, etc.)
-//     `--${boundary}--\r\n`,
-//     'utf8'
-//   );
+//   { model: 'openai/whisper-1', input_audio: {...}, language: 'en' }
 //
 //   // Response format (optional - json is default)
-//   // Options: json, text, srt, vtt
-//   footer = Buffer.from(
-//     `\r\n--${boundary}\r\n` +
-//     `Content-Disposition: form-data; name="model"\r\n\r\n` +
-//     `whisper-large-v3\r\n` +
-//     `--${boundary}\r\n` +
-//     `Content-Disposition: form-data; name="response_format"\r\n\r\n` +
-//     `json\r\n` +
-//     `--${boundary}--\r\n`,
-//     'utf8'
-//   );
-//
-//   // Temperature for randomness (optional - 0.0 to 1.0)
-//   // 0.0 = deterministic, 1.0 = creative
-//   footer = Buffer.from(
-//     `\r\n--${boundary}\r\n` +
-//     `Content-Disposition: form-data; name="model"\r\n\r\n` +
-//     `whisper-large-v3\r\n` +
-//     `--${boundary}\r\n` +
-//     `Content-Disposition: form-data; name="temperature"\r\n\r\n` +
-//     `0.0\r\n` +
-//     `--${boundary}--\r\n`,
-//     'utf8'
-//   );
+//   { model: 'openai/whisper-1', input_audio: {...}, response_format: 'text' }
 //
 // Error handling example:
 //
@@ -328,43 +269,6 @@ req.end();
 //     fs.writeFileSync('transcription.json', JSON.stringify(parsed, null, 2), 'utf8');
 //   });
 //
-// Processing long audio files:
-//
-//   // For files > 25MB, you'll need to split them
-//   // This requires additional libraries like ffmpeg
-//   const { exec } = require('child_process');
-//
-//   function splitAudio(inputFile, chunkDuration = 600) {
-//     // Split audio into 10-minute chunks using ffmpeg
-//     return new Promise((resolve, reject) => {
-//       const cmd = `ffmpeg -i ${inputFile} -f segment -segment_time ${chunkDuration} -c copy chunk_%03d.mp3`;
-//       exec(cmd, (error, stdout, stderr) => {
-//         if (error) reject(error);
-//         else resolve();
-//       });
-//     });
-//   }
-//
-//   async function transcribeLongAudio(audioPath) {
-//     // Split into chunks
-//     await splitAudio(audioPath);
-//
-//     // Get list of chunks
-//     const chunks = fs.readdirSync('.')
-//       .filter(f => f.startsWith('chunk_'))
-//       .sort();
-//
-//     // Transcribe each chunk
-//     const transcriptions = [];
-//     for (const chunk of chunks) {
-//       const result = await transcribeAudio(chunk);
-//       transcriptions.push(result.text);
-//       fs.unlinkSync(chunk);  // Clean up
-//     }
-//
-//     return transcriptions.join(' ');
-//   }
-//
 // Supported languages (99+):
 //   English, Spanish, French, German, Italian, Portuguese, Dutch,
 //   Russian, Chinese, Japanese, Korean, Arabic, Turkish, Polish,
@@ -377,25 +281,6 @@ req.end();
 //   tr = Turkish, pl = Polish, uk = Ukrainian, vi = Vietnamese,
 //   th = Thai, id = Indonesian, hi = Hindi
 //
-// Response formats:
-//
-//   JSON (default):
-//     {"text": "Transcription here"}
-//
-//   Text (plain text):
-//     Transcription here
-//
-//   SRT (SubRip subtitles):
-//     1
-//     00:00:00,000 --> 00:00:05,000
-//     Transcription here
-//
-//   VTT (WebVTT subtitles):
-//     WEBVTT
-//
-//     00:00:00.000 --> 00:00:05.000
-//     Transcription here
-//
 // Performance tips:
 //   - Use MP3 format for smaller file sizes
 //   - 16kHz sample rate is usually sufficient
@@ -405,5 +290,4 @@ req.end();
 // Cost optimization:
 //   - Whisper pricing is based on audio duration
 //   - Remove silence before transcription
-//   - Use appropriate quality (don't over-sample)
 //   - Cache transcriptions to avoid re-processing

@@ -98,9 +98,9 @@ Perfect for:
    ```cpp
    #define WIFI_SSID "YourWiFiName"
    #define WIFI_PASSWORD "YourWiFiPassword"
-   #define DEMETERICS_API_KEY "dmt_your_api_key_here"
+   #define OPENROUTER_API_KEY "sk-or-v1-your_api_key_here"
    ```
-3. Get a free Demeterics Managed LLM Key at [demeterics.com](https://demeterics.com)
+3. Get a free API key at [openrouter.ai](https://openrouter.ai)
 
 ### 5. Upload the Code
 1. Connect XIAO to your computer via USB-C

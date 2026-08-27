@@ -1,15 +1,15 @@
 /**
  * ============================================================================
- * Example 12: Web Search - Built-in Web Search with Compound Model
+ * Example 12: Web Search - Built-in Web Search via OpenRouter :online
  * ============================================================================
  *
  * WHAT THIS DEMONSTRATES:
- *   - Using groq/compound-mini for built-in web search
+ *   - Using a model:online slug for built-in web search
  *   - Getting real-time information from the web
  *   - No separate search API needed
  *
  * WHAT YOU'LL LEARN:
- *   - Compound model capabilities
+ *   - The :online model-slug suffix
  *   - Web-grounded AI responses
  *   - Comparing to Tavily approach
  *
@@ -38,9 +38,9 @@ static size_t write_callback(void *contents, size_t size, size_t nmemb, void *us
 
 int main() {
     /* Step 1: Get API key */
-    const char *api_key_cstr = std::getenv("DEMETERICS_API_KEY");
+    const char *api_key_cstr = std::getenv("OPENROUTER_API_KEY");
     if (api_key_cstr == nullptr) {
-        std::cerr << "Error: DEMETERICS_API_KEY not set\n";
+        std::cerr << "Error: OPENROUTER_API_KEY not set\n";
         return 1;
     }
     std::string api_key(api_key_cstr);
@@ -56,17 +56,19 @@ int main() {
     /* Step 3: Define a query that needs current information */
     std::string user_query = "What are the latest tech news today?";
 
-    std::cout << "=== COMPOUND MODEL WEB SEARCH ===\n";
-    std::cout << "Using groq/compound-mini for built-in web search\n\n";
+    std::cout << "=== WEB-AUGMENTED CHAT (OpenRouter :online) ===\n";
+    std::cout << "Appending :online to any model slug adds built-in web search\n\n";
     std::cout << "Query: " << user_query << "\n\n";
 
-    /* Step 4: Build request with compound model */
+    /* Step 4: Build request. Appending ":online" to a model slug activates
+     * OpenRouter's web-search plugin (default engine: Exa) for this call -
+     * no separate search API needed, same idea as groq/compound-mini before. */
     json request_body = {
-        {"model", "compound-mini"},  /* Has built-in web search */
+        {"model", "openai/gpt-oss-20b:online"},
         {"messages", {
             {{"role", "user"}, {"content", user_query}}
         }},
-        {"max_tokens", 500}
+        {"max_tokens", 1200}
     };
 
     std::string json_payload = request_body.dump();
@@ -79,7 +81,7 @@ int main() {
 
     /* Step 6: Configure and perform request */
     std::string response_data;
-    curl_easy_setopt(curl, CURLOPT_URL, "https://api.demeterics.com/groq/v1/chat/completions");
+    curl_easy_setopt(curl, CURLOPT_URL, "https://openrouter.ai/api/v1/chat/completions");
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, json_payload.c_str());
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
@@ -120,14 +122,15 @@ int main() {
     curl_global_cleanup();
 
     /* Educational info */
-    std::cout << "\n=== COMPOUND MODEL FEATURES ===\n\n";
-    std::cout << "WHAT IS COMPOUND-MINI?\n";
-    std::cout << "  A specialized model with built-in web search.\n";
-    std::cout << "  Automatically searches when queries need current info.\n\n";
+    std::cout << "\n=== :online SUFFIX FEATURES ===\n\n";
+    std::cout << "WHAT DOES :online DO?\n";
+    std::cout << "  Appended to any OpenRouter model slug, it runs a web search\n";
+    std::cout << "  (default engine Exa, ~$0.005/request) and injects the results\n";
+    std::cout << "  as context before the model answers.\n\n";
 
     std::cout << "COMPARISON:\n";
-    std::cout << "  Tavily + Llama:  Separate API calls, more control\n";
-    std::cout << "  Compound-mini:   Single call, automatic search\n\n";
+    std::cout << "  Tavily + chat model:  Separate API calls, more control\n";
+    std::cout << "  model:online:         Single call, automatic search\n\n";
 
     std::cout << "WHEN TO USE:\n";
     std::cout << "  - Quick web-grounded answers\n";
@@ -143,11 +146,11 @@ int main() {
 }
 
 /*
- * COMPOUND MODEL NOTES:
+ * :online SUFFIX NOTES:
  *
- * groq/compound-mini:
+ * <model>:online:
  *   - Has built-in web search capability
- *   - Automatically decides when to search
+ *   - Automatically searches, then grounds the response in results
  *   - Returns web-grounded responses
  *
  * BENEFITS:

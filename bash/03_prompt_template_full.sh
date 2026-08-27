@@ -23,7 +23,7 @@
 #     ./03_prompt_template_full.sh "Technology" "Artificial Intelligence"
 #
 # Environment:
-#     DEMETERICS_API_KEY - Your Demeterics Managed LLM Key (required)
+#     OPENROUTER_API_KEY - Your OpenRouter API key (required)
 #
 # Dependencies:
 #     - curl: HTTP client for API requests
@@ -39,16 +39,16 @@ set -euo pipefail  # Exit on error, undefined variables, pipe failures
 #------------------------------------------------------------------------------
 
 # API configuration
-readonly API_URL="https://api.demeterics.com/groq/v1/chat/completions"
-readonly MODEL="meta-llama/llama-4-scout-17b-16e-instruct"
+readonly API_URL="https://openrouter.ai/api/v1/chat/completions"
+readonly MODEL="openai/gpt-oss-20b"
 
 # Template configuration
 readonly TEMPLATE_DIR="../templates"
 readonly TEMPLATE_FILE="$TEMPLATE_DIR/essay_writer_simple.txt"
 
-# Pricing (per million tokens)
-readonly INPUT_PRICE=0.11
-readonly OUTPUT_PRICE=0.34
+# Pricing (per million tokens) - openai/gpt-oss-20b, via OpenRouter
+readonly INPUT_PRICE=0.03
+readonly OUTPUT_PRICE=0.13
 
 # Colors for output
 readonly RED='\033[0;31m'
@@ -97,9 +97,9 @@ check_dependencies() {
 
 # Validate environment
 validate_environment() {
-    if [ -z "${DEMETERICS_API_KEY:-}" ]; then
-        print_color "$RED" "Error: DEMETERICS_API_KEY environment variable not set"
-        print_color "$YELLOW" "Set it with: export DEMETERICS_API_KEY='your-api-key-here'"
+    if [ -z "${OPENROUTER_API_KEY:-}" ]; then
+        print_color "$RED" "Error: OPENROUTER_API_KEY environment variable not set"
+        print_color "$YELLOW" "Set it with: export OPENROUTER_API_KEY='your-api-key-here'"
         exit 1
     fi
 
@@ -195,7 +195,7 @@ EOF
     # Make API request
     local response
     response=$(curl -s -X POST "$API_URL" \
-        -H "Authorization: Bearer $DEMETERICS_API_KEY" \
+        -H "Authorization: Bearer $OPENROUTER_API_KEY" \
         -H "Content-Type: application/json" \
         -d "$request_json")
 

@@ -1,22 +1,21 @@
 #!/usr/bin/env node
 /**
- * Example 10: Tool Use (Function Calling) - AI Agents with Groq + Tavily
+ * Example 10: Tool Use (Function Calling) - AI Agents with OpenRouter + Tavily
  *
  * Demonstrates:
- * - Groq function calling with llama-4-scout
+ * - Function calling via OpenRouter
  * - Tavily Search and Extract as tools
  * - Multi-step agent workflow
  *
  * Note: This uses built-in Node.js modules only (no external dependencies)
- * For production, consider using the official Groq SDK: npm install groq-sdk
  */
 
 const https = require('https');
 
 // Check for API keys
-if (!process.env.DEMETERICS_API_KEY || !process.env.TAVILY_API_KEY) {
-  console.error('Error: Both DEMETERICS_API_KEY and TAVILY_API_KEY must be set');
-  console.error('Get your Demeterics Managed LLM Key: https://demeterics.com');
+if (!process.env.OPENROUTER_API_KEY || !process.env.TAVILY_API_KEY) {
+  console.error('Error: Both OPENROUTER_API_KEY and TAVILY_API_KEY must be set');
+  console.error('Get an OpenRouter key: https://openrouter.ai');
   console.error('Get a Tavily key: https://tavily.com');
   process.exit(1);
 }
@@ -99,23 +98,23 @@ async function executeTool(functionName, args) {
   }
 }
 
-// Call Demeterics Groq proxy
-async function callGroq(messages, tools) {
+// Call OpenRouter chat completions
+async function callGroq(messages, tools, toolChoice = 'auto') {
   return new Promise((resolve, reject) => {
     const data = JSON.stringify({
-      model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+      model: 'openai/gpt-oss-20b',
       messages,
       tools,
-      tool_choice: 'auto'
+      tool_choice: toolChoice
     });
 
     const options = {
-      hostname: 'api.demeterics.com',
-      path: '/groq/v1/chat/completions',
+      hostname: 'openrouter.ai',
+      path: '/api/v1/chat/completions',
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.DEMETERICS_API_KEY}`,
+        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
         'Content-Length': Buffer.byteLength(data)
       }
     };
@@ -222,11 +221,17 @@ async function main() {
   // Step 3: Send results back to AI
   console.log('Step 2: Sending tool results back to AI for final answer...\n');
 
+  // tool_choice: 'none' tells the model this is the final answer turn, not
+  // another chance to call a tool - without it, small models occasionally
+  // echo malformed tool-call syntax instead of a plain-text summary. Even
+  // with this, budget models can still occasionally return an empty/odd
+  // response on a multi-turn tool continuation - if that happens, just
+  // re-run; a production system would retry automatically.
   const finalResponse = await callGroq([
     { role: 'user', content: userQuery },
     initialResponse.choices[0].message,
     ...toolMessages
-  ], tools);
+  ], undefined, 'none');
 
   // Display final response
   console.log('========================================');
@@ -244,7 +249,8 @@ async function main() {
   console.log(`Completion tokens: ${usage.completion_tokens}`);
   console.log(`Total tokens: ${usage.total_tokens}`);
 
-  const cost = (usage.prompt_tokens * 0.11 + usage.completion_tokens * 0.34) / 1000000;
+  // openai/gpt-oss-20b pricing: $0.03/1M input, $0.13/1M output
+  const cost = (usage.prompt_tokens * 0.03 + usage.completion_tokens * 0.13) / 1000000;
   console.log(`Cost: $${cost.toFixed(6)}\n`);
 
   console.log('========================================');

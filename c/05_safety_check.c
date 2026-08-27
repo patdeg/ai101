@@ -81,7 +81,7 @@ int check_safety(const char *api_key, const char *text_to_check, int *is_safe, c
     response.data[0] = '\0';
 
     /* Configure curl */
-    curl_easy_setopt(curl, CURLOPT_URL, "https://api.demeterics.com/groq/v1/chat/completions");
+    curl_easy_setopt(curl, CURLOPT_URL, "https://openrouter.ai/api/v1/chat/completions");
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, json_payload);
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
@@ -136,9 +136,9 @@ int check_safety(const char *api_key, const char *text_to_check, int *is_safe, c
 
 int main(void) {
     /* Step 1: Get API key */
-    const char *api_key = getenv("DEMETERICS_API_KEY");
+    const char *api_key = getenv("OPENROUTER_API_KEY");
     if (api_key == NULL) {
-        fprintf(stderr, "Error: DEMETERICS_API_KEY not set\n");
+        fprintf(stderr, "Error: OPENROUTER_API_KEY not set\n");
         return 1;
     }
 

@@ -19,7 +19,7 @@ Usage:
     go run 06_image_safety_check.go
 
 Environment:
-    DEMETERICS_API_KEY - Your Demeterics Managed LLM Key
+    OPENROUTER_API_KEY - Your OpenRouter API key (free at https://openrouter.ai/keys)
 */
 
 import (
@@ -92,9 +92,9 @@ type ChatResponse struct {
 // checkImageSafety checks if an image is safe using LlamaGuard Vision
 func checkImageSafety(imagePath string) (*ChatResponse, error) {
 	// Step 1: Check API key
-	apiKey := os.Getenv("DEMETERICS_API_KEY")
+	apiKey := os.Getenv("OPENROUTER_API_KEY")
 	if apiKey == "" {
-		return nil, fmt.Errorf("DEMETERICS_API_KEY environment variable not set")
+		return nil, fmt.Errorf("OPENROUTER_API_KEY environment variable not set (get a free key at https://openrouter.ai/keys)")
 	}
 
 	// Step 2: Load and encode the image
@@ -145,7 +145,7 @@ func checkImageSafety(imagePath string) (*ChatResponse, error) {
 	// Step 4: Make the API request
 	fmt.Println("\nChecking image safety with LlamaGuard...")
 
-	req, err := http.NewRequest("POST", "https://api.demeterics.com/groq/v1/chat/completions", bytes.NewBuffer(jsonData))
+	req, err := http.NewRequest("POST", "https://openrouter.ai/api/v1/chat/completions", bytes.NewBuffer(jsonData))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
@@ -314,9 +314,9 @@ func main() {
 		fmt.Printf("Completion tokens: %d\n", response.Usage.CompletionTokens)
 		fmt.Printf("Total tokens: %d\n", response.Usage.TotalTokens)
 
-		// Calculate approximate cost (LlamaGuard pricing)
-		// $0.20 per 1M tokens (both input and output)
-		cost := float64(response.Usage.TotalTokens) / 1_000_000 * 0.20
+		// Calculate approximate cost (LlamaGuard pricing via OpenRouter)
+		// $0.18 per 1M tokens (both input and output)
+		cost := float64(response.Usage.TotalTokens) / 1_000_000 * 0.18
 		fmt.Printf("Estimated cost: $%.6f\n", cost)
 	}
 

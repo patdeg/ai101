@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	defaultModel        = "meta-llama/llama-4-scout-17b-16e-instruct"
+	defaultModel        = "openai/gpt-oss-20b"
 	defaultLogPath      = "/usr/local/games/minecraft_server/MyServer/logs/latest.log"
 	defaultScreenTarget = "mc-MyServer"
 	defaultSpawnPoint   = "0 80 0"
@@ -234,8 +234,8 @@ func loadConfig() (Config, error) {
 	}
 	toolUse := envBoolOr("MCCHATBOT_ENABLE_TOOL_USE", true)
 	cfg := Config{
-		APIKey:                os.Getenv("DEMETERICS_API_KEY"),
-		Model:                 envOr("DEMETERICS_MODEL", defaultModel),
+		APIKey:                os.Getenv("OPENROUTER_API_KEY"),
+		Model:                 envOr("OPENROUTER_MODEL", defaultModel),
 		LogPath:               envOr("MCCHATBOT_LOG_PATH", defaultLogPath),
 		ScreenSession:         envOr("MCCHATBOT_SCREEN_NAME", defaultScreenTarget),
 		SpawnPoint:            spawnPoint,
@@ -256,7 +256,7 @@ func loadConfig() (Config, error) {
 		EnableEasterEggs:      envBoolOr("MCCHATBOT_ENABLE_EASTER_EGGS", true),
 	}
 	if cfg.APIKey == "" {
-		return Config{}, fmt.Errorf("DEMETERICS_API_KEY is required")
+		return Config{}, fmt.Errorf("OPENROUTER_API_KEY is required")
 	}
 	return cfg, nil
 }

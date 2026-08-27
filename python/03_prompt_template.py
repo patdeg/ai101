@@ -24,7 +24,7 @@ Examples:
     python 03_prompt_template.py "Technology" "Artificial Intelligence"
 
 Environment:
-    DEMETERICS_API_KEY - Your Demeterics Managed LLM Key (required)
+    OPENROUTER_API_KEY - Your OpenRouter API key (required)
 """
 
 import os
@@ -37,17 +37,17 @@ import http.client
 from typing import Dict, Any, Tuple, Optional
 
 # Configuration
-API_URL = "api.demeterics.com"
-API_PATH = "/groq/v1/chat/completions"
-MODEL = "meta-llama/llama-4-scout-17b-16e-instruct"
+API_URL = "openrouter.ai"
+API_PATH = "/api/v1/chat/completions"
+MODEL = "openai/gpt-oss-20b"
 
 # Template configuration
 TEMPLATE_DIR = Path("../templates")
 TEMPLATE_FILE = TEMPLATE_DIR / "essay_writer.txt"
 
-# Pricing (per million tokens)
-INPUT_PRICE = 0.11
-OUTPUT_PRICE = 0.34
+# Pricing (per million tokens) - openai/gpt-oss-20b, via OpenRouter
+INPUT_PRICE = 0.03
+OUTPUT_PRICE = 0.13
 
 def create_example_template() -> None:
     """Create an example template file if it doesn't exist."""
@@ -256,7 +256,7 @@ class TemplateProcessor:
         return text.strip()
 
 def make_api_request(system_prompt: str, user_prompt: str, api_key: str) -> Dict[str, Any]:
-    """Make request to Demeterics Groq proxy.
+    """Make request to OpenRouter.
 
     Args:
         system_prompt: System message content
@@ -366,10 +366,10 @@ def main():
     print(f"Topic: {topic}")
 
     # Check for API key
-    api_key = os.getenv('DEMETERICS_API_KEY')
+    api_key = os.getenv('OPENROUTER_API_KEY')
     if not api_key:
-        print("\n❌ Error: DEMETERICS_API_KEY environment variable not set")
-        print("Set it with: export DEMETERICS_API_KEY='your-api-key-here'")
+        print("\n❌ Error: OPENROUTER_API_KEY environment variable not set")
+        print("Set it with: export OPENROUTER_API_KEY='your-api-key-here'")
         sys.exit(1)
 
     # Create template if it doesn't exist

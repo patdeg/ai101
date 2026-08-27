@@ -252,7 +252,7 @@ EXTRACT_RESPONSE=$(curl -s -X POST "https://api.tavily.com/extract" \
 
 CONTENT=$(echo "$EXTRACT_RESPONSE" | jq -r '.results[0].raw_content')
 
-# Check content length (Groq has token limits)
+# Check content length (the model has token limits)
 CONTENT_LENGTH=$(echo "$CONTENT" | wc -c)
 
 if [ $CONTENT_LENGTH -gt 20000 ]; then
@@ -260,12 +260,12 @@ if [ $CONTENT_LENGTH -gt 20000 ]; then
   CONTENT=$(echo "$CONTENT" | head -c 20000)
 fi
 
-# 2. Send to Groq for summarization
-SUMMARY_RESPONSE=$(curl -s -X POST "https://api.demeterics.com/groq/v1/chat/completions" \
-  -H "Authorization: Bearer $DEMETERICS_API_KEY" \
+# 2. Send to OpenRouter for summarization
+SUMMARY_RESPONSE=$(curl -s -X POST "https://openrouter.ai/api/v1/chat/completions" \
+  -H "Authorization: Bearer $OPENROUTER_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "meta-llama/llama-4-scout-17b-16e-instruct",
+    "model": "openai/gpt-oss-20b",
     "messages": [
       {
         "role": "system",

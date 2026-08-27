@@ -28,12 +28,11 @@ Each example has its own exercise file with challenges ranging from basic parame
 | 8 | [Tavily Search](08_tavily_search.md) | Web search API | News, finance, images, depth |
 | 9 | [Tavily Extract](09_tavily_extract.md) | Content extraction | Summaries, cleaning, scoring |
 | 10 | [Tool Use](10_tool_use.md) | AI agents, function calling | Single tool, multi-tool, custom tools, research agent |
-| 11 | [Web Search (Groq)](11_web_search.md) | Built-in search via `groq/compound-mini` | Boolean logic, domains, country, model compare |
+| 11 | [Web Search (OpenRouter)](11_web_search.md) | Built-in search via the `:online` model suffix | Boolean logic, domains, country, model compare |
 | 12 | [Code Execution](12_code_execution.md) | Python execution via `openai/gpt-oss-20b` | Primes, exceptions, parsing, performance |
 | 13 | [Reasoning](13_reasoning.md) | Step-by-step thinking, prompt caching | Formats, effort levels, cache optimization |
-| 14 | [Text-to-Speech](14_text_to_speech.md) | Voice synthesis with OpenAI | 11 voices, instructions, speed, multi-language |
-| 16 | [Podcast](16_podcast.md) | Multi-speaker podcast generation | Voice casting, script writing, bilingual content |
-| 17 | [Council Voting](17_council_voting.md) | Multi-persona content selection | Persona perspectives, consensus metrics, iterative refinement |
+| 14 | [Text-to-Speech](14_text_to_speech.md) | Voice synthesis with Fish Audio (free, via OpenRouter) | Voice cloning IDs, multi-speaker dialogue |
+| 16 | [Podcast](16_podcast.md) | Two-speaker podcast generation | Voice casting, script writing, bilingual content |
 | 18 | [Pose Estimation](18_pose_estimation.md) | Computer vision, webcam pose detection | Blue ball → shapes → ArUco → face → skeleton → jump analyzer |
 
 ## How to Use These Exercises
@@ -55,7 +54,7 @@ Each example has its own exercise file with challenges ranging from basic parame
 ## Prerequisites
 
 - Complete the basic examples in your language of choice ([bash/](../bash/), [nodejs/](../nodejs/), [python/](../python/), [go/](../go/))
-- Have your `DEMETERICS_API_KEY` environment variable set
+- Have your `OPENROUTER_API_KEY` environment variable set (plus `GROQ_API_KEY` for the reasoning and code execution exercises)
 - Basic understanding of JSON and API requests
 
 ## Educational Philosophy

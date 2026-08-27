@@ -8,13 +8,37 @@ This guide helps you choose the right AI provider for your use case. Example 01 
 
 | Provider | Best For | Speed | Cost | Key Models | Context Window |
 |----------|----------|-------|------|------------|----------------|
+| **OpenRouter** | One key, many models | ⚡⚡⚡⚡ | 💲 (free tier available) | Hundreds of models, dozens of vendors | Varies by model |
 | **Groq** | Real-time apps | ⚡⚡⚡⚡⚡ | 💲 | Llama 4, Mixtral | 32K tokens |
 | **OpenAI** | Advanced features | ⚡⚡⚡ | 💲💲💲 | GPT-5-nano, GPT-4o | 128K tokens |
 | **Anthropic** | Careful analysis | ⚡⚡⚡ | 💲💲 | Claude Haiku/Sonnet/Opus | 200K tokens |
 | **SambaNova** | Enterprise/Privacy | ⚡⚡⚡⚡ | 💲💲 | Llama 3.1 (8B-405B) | 128K tokens |
-| **Demeterics** | Observability | (proxy) | + analytics | All Groq models | Via Groq |
 
 ## Detailed Provider Analysis
+
+### OpenRouter (Default in this repo)
+**Strengths:**
+- One API key routes to hundreds of models across dozens of providers
+- Genuinely free tier (`:free` model suffix) — no card required
+- OpenAI-compatible request/response shape, so switching models is a one-line change
+- Built-in extras beyond plain chat: `:online` web search, `/audio/speech`, `/audio/transcriptions`
+- No whitelist — anyone can sign up and get a key in minutes
+
+**Weaknesses:**
+- Free-tier models rotate over time — check https://openrouter.ai/models before relying on a specific slug
+- You don't control which backend actually serves a request (OpenRouter picks a provider for you unless pinned)
+- Not every model exposes every feature (e.g., hosted code-interpreter needs a specific paid model)
+
+**Best Use Cases:**
+- Learning/experimenting without picking a vendor upfront
+- Free-tier prototyping
+- Anywhere you want one key instead of five
+
+**Example Files:**
+- `bash/01_basic_chat_minimal.sh`
+- `nodejs/01_basic_chat.js`
+- `python/01_basic_chat.py`
+- `go/01_basic_chat.go`
 
 ### Groq
 **Strengths:**
@@ -22,6 +46,7 @@ This guide helps you choose the right AI provider for your use case. Example 01 
 - Cost-effective for high-volume applications
 - Excellent for real-time use cases
 - Strong Llama model support
+- Native hosted code-interpreter tool + prompt caching (used directly by examples 13-14)
 
 **Weaknesses:**
 - Limited model variety compared to OpenAI
@@ -35,10 +60,10 @@ This guide helps you choose the right AI provider for your use case. Example 01 
 - Real-time AI features
 
 **Example Files:**
-- `bash/01_basic_chat_minimal.sh`
-- `nodejs/01_basic_chat.js`
-- `python/01_basic_chat.py`
-- `go/01_basic_chat.go`
+- `bash/13_code_execution_minimal.sh`, `bash/14_reasoning_minimal.sh`
+- `nodejs/13_code_execution.js`, `nodejs/14_reasoning.js`
+- `python/13_code_execution.py`, `python/14_reasoning.py`
+- `go/13_code_execution.go`, `go/14_reasoning.go`
 
 ### OpenAI
 **Strengths:**
@@ -115,35 +140,9 @@ This guide helps you choose the right AI provider for your use case. Example 01 
 - `nodejs/01_basic_chat_SAMBA.js`
 - `python/01_basic_chat_SAMBA.py`
 
-### Demeterics (Observability Proxy)
-**Strengths:**
-- Universal analytics across all providers
-- Zero code changes for instrumentation
-- Production monitoring and debugging
-- Cost tracking and optimization
-- Compliance audit trails
-- A/B testing capabilities
-
-**Weaknesses:**
-- Adds slight latency (proxy overhead)
-- Additional service dependency
-- Requires separate API key
-
-**Best Use Cases:**
-- Production applications needing monitoring
-- Multi-provider deployments
-- Cost optimization projects
-- Compliance and auditing requirements
-- Performance analysis
-
-**Example Files:**
-- `bash/01_basic_chat_DEMETERICS_minimal.sh`
-- `nodejs/01_basic_chat_DEMETERICS.js`
-- `python/01_basic_chat_DEMETERICS.py`
-
 ## API Authentication Patterns
 
-### Standard Bearer Token (Groq, OpenAI, SambaNova, Demeterics)
+### Standard Bearer Token (OpenRouter, Groq, OpenAI, SambaNova)
 ```
 Authorization: Bearer YOUR_API_KEY
 ```
@@ -154,16 +153,15 @@ x-api-key: YOUR_API_KEY
 anthropic-version: 2023-06-01
 ```
 
-### Combined Key Format (Demeterics Advanced)
-```
-Authorization: Bearer DEMETERICS_KEY;PROVIDER_KEY
-```
-
-## Cost Comparison (October 2025 Estimates)
+## Cost Comparison (verified live against OpenRouter, 2026-08-26)
 
 | Provider | Model | Input (per 1M tokens) | Output (per 1M tokens) |
 |----------|-------|----------------------|------------------------|
+| **OpenRouter** | Nemotron 3.5 Lightning (`:free`) | $0 | $0 |
+| **OpenRouter** | Gemma 4 31B (`:free`) | $0 | $0 |
+| **OpenRouter** | Llama Guard 4 12B | $0.18 | $0.18 |
 | **Groq** | Llama 4 Scout | $0.11 | $0.34 |
+| **Groq** | GPT-OSS-20B | $0.10 ($0.05 cached) | $0.50 |
 | **OpenAI** | GPT-5-nano | $0.50 | $1.50 |
 | **OpenAI** | GPT-4o | $2.50 | $10.00 |
 | **Anthropic** | Claude Haiku 4.5 | $0.25 | $1.25 |
@@ -171,7 +169,8 @@ Authorization: Bearer DEMETERICS_KEY;PROVIDER_KEY
 | **SambaNova** | Llama 3.1-8B | $0.10 | $0.10 |
 | **SambaNova** | Llama 3.1-70B | $0.60 | $0.60 |
 
-Note: Prices change frequently. Check provider websites for current pricing.
+Note: Prices change frequently. Check provider websites for current pricing. For
+OpenRouter, check https://openrouter.ai/models — free-tier models rotate.
 
 ## Decision Framework
 
@@ -199,19 +198,23 @@ Note: Prices change frequently. Check provider websites for current pricing.
 - ✅ Privacy guarantees
 - ✅ No vendor lock-in
 
-### Choose Demeterics when you need:
-- ✅ Production observability
-- ✅ Multi-provider analytics
-- ✅ Cost tracking
-- ✅ Compliance auditing
+### Choose OpenRouter when you need:
+- ✅ One key instead of five
+- ✅ To try many models without separate signups
+- ✅ A free tier to learn on
 
 ## Migration Guide
 
 ### From OpenAI to Others
 
+**To OpenRouter:**
+- Change endpoint to `openrouter.ai/api/v1/chat/completions`
+- Update model names (e.g., `openai/gpt-oss-20b`)
+- Same request format works — OpenAI-compatible
+
 **To Groq:**
-- Change endpoint to `api.demeterics.com/groq/v1/chat/completions`
-- Update model names (e.g., `meta-llama/llama-4-scout-17b-16e-instruct`)
+- Change endpoint to `api.groq.com/openai/v1/chat/completions`
+- Update model names (e.g., `openai/gpt-oss-20b`, used by this repo's examples 13-14)
 - Same request format works
 
 **To Anthropic:**
@@ -232,19 +235,18 @@ Use the provided examples to test all providers with the same question:
 
 ```bash
 # Set all API keys
-export DEMETERICS_API_KEY="..."
+export OPENROUTER_API_KEY="..."
 export OPENAI_API_KEY="..."
 export ANTHROPIC_API_KEY="..."
 export SAMBANOVA_API_KEY="..."
 
 # Run comparison
-for provider in "" "_OPENAI" "_ANTHROPIC" "_SAMBA" "_DEMETERICS"; do
+for provider in "" "_OPENAI" "_ANTHROPIC" "_SAMBA"; do
     case "$provider" in
-      "") label="Demeterics Groq";;
+      "") label="OpenRouter";;
       "_OPENAI") label="OpenAI";;
       "_ANTHROPIC") label="Anthropic";;
       "_SAMBA") label="SambaNova";;
-      "_DEMETERICS") label="Demeterics (demo file)";;
     esac
     echo "Testing $label..."
     time ./bash/01_basic_chat${provider}_minimal.sh
@@ -255,10 +257,10 @@ done
 ## Conclusion
 
 There's no single "best" provider - the right choice depends on your specific needs:
+- **One key, many models, free tier?** → OpenRouter (this repo's default)
 - **Speed critical?** → Groq
 - **Advanced features?** → OpenAI
 - **Large context?** → Anthropic
 - **Open models?** → SambaNova
-- **Need observability?** → Add Demeterics proxy to any provider
 
 The multi-vendor examples in this repository make it easy to experiment and find the best fit for your use case.

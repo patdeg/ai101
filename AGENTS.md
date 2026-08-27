@@ -38,10 +38,10 @@ ai101/
 8. **08_tavily_search** - Web search with AI-powered answers (Tavily API)
 9. **09_tavily_extract** - Extract clean content from web pages (Tavily API)
 10. **10_tool_use** - AI agents with function calling (Groq + Tavily)
-11. **11_web_search** - Built-in web search with groq/compound-mini
+11. **11_web_search** - Built-in web search with OpenRouter's `:online` model suffix
 12. **12_code_execution** - Python code execution with openai/gpt-oss-20b
 13. **13_reasoning** - Step-by-step thinking with openai/gpt-oss-20b + prompt caching
-14. **14_text_to_speech** - Voice synthesis with OpenAI gpt-4o-mini-tts (11 voices)
+14. **14_text_to_speech** - Voice synthesis with Fish Audio S2.1 Pro Free (free)
 
 **Note**: Examples 08-14 are implemented in bash, nodejs, python, and go (not Arduino). All bash examples have dual versions (minimal + full).
 
@@ -84,12 +84,12 @@ Expected output:
 ```javascript
 // Step 1: Get API key from environment variable
 // The API key is sensitive, so we use environment variables
-const apiKey = process.env.DEMETERICS_API_KEY;
+const apiKey = process.env.OPENROUTER_API_KEY;
 
 // Step 2: Create the request payload
 // This defines what we're sending to the API
 const data = JSON.stringify({
-  model: "meta-llama/llama-4-scout-17b-16e-instruct",
+  model: "openai/gpt-oss-20b",
   messages: [...]
 });
 ```
@@ -104,7 +104,7 @@ const data = JSON.stringify({
   ```bash
   curl -d @- <<EOF
   {
-    "model": "meta-llama/llama-4-scout-17b-16e-instruct",
+    "model": "openai/gpt-oss-20b",
     "messages": [{"role": "user", "content": "Hello"}]
   }
   EOF
@@ -142,40 +142,57 @@ const data = JSON.stringify({
 
 ### 5. API Usage
 
-**Groq Models:**
-- Chat/Vision: `meta-llama/llama-4-scout-17b-16e-instruct`
-- Safety (Text + Vision): `meta-llama/llama-guard-4-12b`
-- Prompt Guard: `meta-llama/llama-prompt-guard-2-86m`
-- Whisper Audio: `whisper-large-v3-turbo`
-- Tool Use: `meta-llama/llama-4-scout-17b-16e-instruct` (supports function calling)
-- Web Search: `groq/compound-mini` (built-in search capability)
-- Reasoning + Code: `openai/gpt-oss-20b` (step-by-step thinking, Python execution)
+> **No Demeterics.** Every example connects directly to its provider — no proxy, no
+> observability layer, no whitelist key. Most examples default to **OpenRouter**
+> (one key, many models); two (reasoning, code execution) call **Groq** directly to
+> use its native code-interpreter tool + prompt caching; Tavily examples are
+> unchanged (always direct).
 
-**OpenAI Models:**
-- Text-to-Speech: `gpt-4o-mini-tts` (11 voices, multi-language)
+**OpenRouter Models (default for nearly everything):**
+- Chat/System Prompt/Templates: `openai/gpt-oss-20b`
+- Vision: `google/gemma-4-31b-it`
+- Safety (Text + Vision): `meta-llama/llama-guard-4-12b` (same model as before, just called directly on OpenRouter instead of via Demeterics-proxied Groq)
+- Prompt Guard: `openai/gpt-oss-safeguard-20b` (purpose-built safety/guardrail classifier; no free dedicated prompt-injection model exists on OpenRouter)
+- Whisper Audio: `openai/whisper-1` via `/audio/transcriptions`
+- Tool Use: `openai/gpt-oss-20b` (supports function calling)
+- Web Search: append `:online` to any model slug, e.g. `openai/gpt-oss-20b:online` (built-in search-augmented generation)
+- Text-to-Speech: `fish-audio/s2.1-pro-free:free` via `/audio/speech` (single voice for TTS, two-speaker dialogue for podcast)
 
-**Pricing (October 2025):**
-- Llama 4 Scout 17B: Input $0.11/1M, Output $0.34/1M
-- LlamaGuard 4 12B: Input $0.20/1M, Output $0.20/1M
-- Prompt Guard 2 86M: Input $0.04/1M, Output $0.04/1M
-- Whisper Turbo: **$0.04 per hour of audio**
-- GPT-OSS-20B: Input $0.10/1M ($0.05/1M cached), Output $0.50/1M
-- gpt-4o-mini-tts: Input $0.60/1M, Output $12/1M (duration-based)
+**Groq Models (direct, examples 12/13 reasoning + code execution only):**
+- Reasoning + Code: `openai/gpt-oss-20b` (step-by-step thinking, Python execution, prompt caching)
+
+**Pricing:**
+- GPT-OSS-20B (OpenRouter, chat/tool-use): Input $0.03/1M, Output $0.13/1M
+- Gemma 4 31B (OpenRouter, vision): Input $0.09/1M, Output $0.34/1M
+- LlamaGuard 4 12B: Input $0.18/1M, Output $0.18/1M
+- GPT-OSS Safeguard 20B: Input $0.075/1M, Output $0.30/1M
+- Whisper-1: **$0.006 per minute of audio**
+- Fish Audio S2.1 Pro Free: $0
+- Web search plugin (`:online`): ~$0.005/request (first 10 results)
+- GPT-OSS-20B (Groq): Input $0.10/1M ($0.05/1M cached), Output $0.50/1M
+
+> The `:free` variants of gpt-oss-20b's chat family and gemma-4-31b-it were
+> tried first and dropped after live testing: the free reasoning-style chat
+> models reliably burned their whole `max_tokens` budget on chain-of-thought
+> and returned empty/truncated answers, and `gemma-4-31b-it:free` hit
+> persistent upstream rate-limiting. The small-paid versions above cost a
+> fraction of a cent per call and answer reliably.
 
 **Endpoints:**
 ```
-POST https://api.demeterics.com/groq/v1/chat/completions (chat, vision, safety, prompt guard, tool use, reasoning, code execution)
-POST https://api.demeterics.com/groq/v1/audio/transcriptions (whisper)
+POST https://openrouter.ai/api/v1/chat/completions (chat, vision, safety, prompt guard, tool use, web search)
+POST https://openrouter.ai/api/v1/audio/transcriptions (whisper)
+POST https://openrouter.ai/api/v1/audio/speech (text-to-speech, podcast)
+POST https://api.groq.com/openai/v1/chat/completions (reasoning, code execution — direct, not via OpenRouter)
 POST https://api.tavily.com/search (web search - examples 08, 11)
 POST https://api.tavily.com/extract (content extraction - example 09)
-POST https://api.openai.com/v1/audio/speech (text-to-speech - example 14)
 ```
 
 **Authentication:**
 ```
-Demeterics Groq proxy:   Authorization: Bearer $DEMETERICS_API_KEY
-Tavily API: Authorization: Bearer $TAVILY_API_KEY
-OpenAI API: Authorization: Bearer $OPENAI_API_KEY
+OpenRouter API: Authorization: Bearer $OPENROUTER_API_KEY
+Groq API:       Authorization: Bearer $GROQ_API_KEY
+Tavily API:     Authorization: Bearer $TAVILY_API_KEY
 ```
 
 **Common Parameters:**
@@ -275,7 +292,7 @@ S14: Code Interpreter Abuse
 8. **Example 8:** Web search APIs, Tavily integration, filtering
 9. **Example 9:** Content extraction from web pages, markdown processing
 10. **Example 10:** AI agents with function calling, tool definitions, multi-step workflows
-11. **Example 11:** Built-in web search with groq/compound-mini model
+11. **Example 11:** Built-in web search with OpenRouter's `:online` model suffix
 12. **Example 12:** Python code execution, sandboxed environment, error handling
 13. **Example 13:** Reasoning models, step-by-step thinking, prompt caching optimization
 14. **Example 14:** Text-to-speech synthesis, voice selection, instructions parameter, multi-language
@@ -335,15 +352,23 @@ Before committing changes to examples:
 
 ## Environment Variables
 
-All examples expect:
+Most examples expect:
 ```bash
-export DEMETERICS_API_KEY="dmt_your_api_key_here"
+export OPENROUTER_API_KEY="sk-or-v1-your_api_key_here"
 ```
-This is your **Demeterics Managed LLM Key**. One key authenticates through the Demeterics proxy and routes calls to Groq, Gemini, OpenAI, and Anthropic with full observability.
+Sign up free at https://openrouter.ai — one key covers chat, vision, safety,
+prompt guard, tool use, web search, transcription, and text-to-speech across every
+model on the platform.
 
-Arduino examples use constants instead:
+Two examples (reasoning, code execution) call Groq directly for its native
+code-interpreter tool + prompt caching:
+```bash
+export GROQ_API_KEY="gsk_your_api_key_here"
+```
+
+Arduino examples use a constant instead:
 ```cpp
-const char* DEMETERICS_API_KEY = "your_key_here";
+const char* OPENROUTER_API_KEY = "your_key_here";
 ```
 
 ## Response Format Examples
@@ -415,11 +440,9 @@ or
 
 ## Resources
 
-- **Demeterics Docs:** https://demeterics.com/docs
-- **Demeterics Prompt Guide:** https://demeterics.com/docs/prompt
-- **Demeterics AI 101 mirror:** https://demeterics.com/docs/ai101
+- **OpenRouter Docs:** https://openrouter.ai/docs
+- **OpenRouter Model Catalog:** https://openrouter.ai/models
 - **Groq Model Catalog:** https://console.groq.com/docs/models
-- **Groq Vision Guide:** https://console.groq.com/docs/vision
 - **Groq Tool Use Guide:** https://console.groq.com/docs/tool-use
 - **Tavily API:** https://tavily.com
 - **Tavily Documentation:** https://docs.tavily.com

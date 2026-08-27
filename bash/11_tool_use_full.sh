@@ -1,6 +1,6 @@
 #!/bin/bash
 ################################################################################
-# Example 10: Tool Use (Function Calling) - AI Agents with Groq + Tavily
+# Example 10: Tool Use (Function Calling) - AI Agents with OpenRouter + Tavily
 # Full version with explanations and multiple tool support
 ################################################################################
 #
@@ -29,7 +29,7 @@
 # This example demonstrates:
 # -------------------------
 # - Defining tools as bash functions
-# - Groq function calling with llama-4-scout
+# - OpenRouter function calling with openai/gpt-oss-20b
 # - Tavily Search and Extract as tools
 # - Multi-step agent workflow
 #
@@ -50,8 +50,8 @@ if ! command -v jq > /dev/null 2>&1; then
 fi
 
 # Check for API keys
-if [ -z "$DEMETERICS_API_KEY" ]; then
-  echo -e "${RED}Error: DEMETERICS_API_KEY not set${NC}"
+if [ -z "$OPENROUTER_API_KEY" ]; then
+  echo -e "${RED}Error: OPENROUTER_API_KEY not set${NC}"
   exit 1
 fi
 
@@ -122,7 +122,7 @@ execute_tool() {
 ################################################################################
 
 echo -e "${BLUE}========================================${NC}"
-echo -e "${BLUE}Groq Tool Use - AI Agent Demo${NC}"
+echo -e "${BLUE}OpenRouter Tool Use - AI Agent Demo${NC}"
 echo -e "${BLUE}========================================${NC}"
 echo ""
 
@@ -135,12 +135,12 @@ echo -e "${CYAN}Step 1: Sending query to AI with tool definitions...${NC}"
 echo ""
 
 # Step 1: Initial request with tool definitions
-INITIAL_RESPONSE=$(curl -s -X POST "https://api.demeterics.com/groq/v1/chat/completions" \
-  -H "Authorization: Bearer $DEMETERICS_API_KEY" \
+INITIAL_RESPONSE=$(curl -s -X POST "https://openrouter.ai/api/v1/chat/completions" \
+  -H "Authorization: Bearer $OPENROUTER_API_KEY" \
   -H "Content-Type: application/json" \
   -d @- <<EOF
 {
-  "model": "meta-llama/llama-4-scout-17b-16e-instruct",
+  "model": "openai/gpt-oss-20b",
   "messages": [
     {
       "role": "user",
@@ -265,13 +265,20 @@ MESSAGES_JSON=$(jq -n \
     $tool_msgs[]
   ]')
 
-FINAL_RESPONSE=$(curl -s -X POST "https://api.demeterics.com/groq/v1/chat/completions" \
-  -H "Authorization: Bearer $DEMETERICS_API_KEY" \
+# tool_choice: "none" tells the model this is the final answer turn, not
+# another chance to call a tool - without it, small models occasionally
+# echo malformed tool-call syntax instead of a plain-text summary. Even
+# with this, budget models can still occasionally return an empty/odd
+# response on a multi-turn tool continuation - if that happens, just
+# re-run; a production system would retry automatically.
+FINAL_RESPONSE=$(curl -s -X POST "https://openrouter.ai/api/v1/chat/completions" \
+  -H "Authorization: Bearer $OPENROUTER_API_KEY" \
   -H "Content-Type: application/json" \
   -d @- <<EOF
 {
-  "model": "meta-llama/llama-4-scout-17b-16e-instruct",
-  "messages": $MESSAGES_JSON
+  "model": "openai/gpt-oss-20b",
+  "messages": $MESSAGES_JSON,
+  "tool_choice": "none"
 }
 EOF
 )
@@ -301,12 +308,11 @@ echo -e "${YELLOW}Completion tokens:${NC} $COMPLETION_TOKENS"
 echo -e "${YELLOW}Total tokens:${NC} $TOTAL_TOKENS"
 echo ""
 
-# Calculate cost
-INPUT_COST=$(echo "scale=6; $PROMPT_TOKENS * 0.11 / 1000000" | bc)
-OUTPUT_COST=$(echo "scale=6; $COMPLETION_TOKENS * 0.34 / 1000000" | bc)
-TOTAL_COST=$(echo "scale=6; $INPUT_COST + $OUTPUT_COST" | bc)
-
-echo -e "${YELLOW}Cost:${NC} \$$TOTAL_COST"
+# Cost: openai/gpt-oss-20b pricing on OpenRouter is $0.03/1M input,
+# $0.13/1M output — this whole multi-step agent run (both API calls plus
+# the Tavily search) typically costs a small fraction of a cent.
+TOOL_USE_COST=$(echo "scale=8; ($PROMPT_TOKENS * 0.03 + $COMPLETION_TOKENS * 0.13) / 1000000" | bc)
+echo -e "${YELLOW}Cost:${NC} \$$TOOL_USE_COST"
 echo ""
 
 echo -e "${BLUE}========================================${NC}"

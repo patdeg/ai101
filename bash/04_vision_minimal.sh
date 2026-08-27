@@ -5,12 +5,12 @@
 # Base64 encode the test image from root directory
 IMAGE_BASE64=$(base64 -w 0 ../test_image.jpg 2>/dev/null || base64 ../test_image.jpg)
 
-curl -s https://api.demeterics.com/groq/v1/chat/completions \
+curl -s https://openrouter.ai/api/v1/chat/completions \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $DEMETERICS_API_KEY" \
+  -H "Authorization: Bearer $OPENROUTER_API_KEY" \
   -d @- <<EOF
 {
-  "model": "meta-llama/llama-4-scout-17b-16e-instruct",
+  "model": "google/gemma-4-31b-it",
   "messages": [{
     "role": "user",
     "content": [
@@ -23,6 +23,6 @@ curl -s https://api.demeterics.com/groq/v1/chat/completions \
 EOF
 
 # Parameters explained:
-# model - llama-4-scout-17b-16e-instruct (supports vision)
+# model - google/gemma-4-31b-it, a cheap vision-capable model on OpenRouter
 # content array - Mix of text and image_url types
 # image_url - Base64-encoded image data URI

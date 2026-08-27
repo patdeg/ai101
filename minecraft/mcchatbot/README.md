@@ -2,7 +2,7 @@
 
 > **Educational Project**: This is a teaching example of AI system prompts and tool use, built as part of the [AI 101 course](https://github.com/patdeg/ai101). Perfect for learning how LLMs can interact with real systems!
 
-Alfred is a small Go service that watches a Minecraft server log, detects when players ask for help, and routes those prompts to an LLM hosted on Demeterics. Approved replies are sent back into the running server via `screen`, so players see a friendly counselor-style response directly in chat.
+Alfred is a small Go service that watches a Minecraft server log, detects when players ask for help, and routes those prompts to an LLM via OpenRouter. Approved replies are sent back into the running server via `screen`, so players see a friendly counselor-style response directly in chat.
 
 ## 🧠 What You'll Learn
 
@@ -33,8 +33,8 @@ Alfred: Let's keep the chat kind. Adventures are better when everyone feels welc
 ## Features
 - Tails the Minecraft log in real time and parses async chat events.
 - Heuristics decide when to answer (name mentions, trigger word, alert keywords, or any question/engage terms).
-- Uses Groq Tool Use to drive `/tp`, `/time`, and `/weather` commands whenever the LLM decides it’s appropriate (teleport to players, coordinates, or spawn).
-- Sends prompts to the configured Demeterics chat-completions model and posts the answer in-game.
+- Uses OpenRouter tool calling to drive `/tp`, `/time`, and `/weather` commands whenever the LLM decides it’s appropriate (teleport to players, coordinates, or spawn).
+- Sends prompts to the configured OpenRouter chat-completions model and posts the answer in-game.
 - Fun Easter eggs for morale boosts, including a golem rescue when someone shouts “Alfred to the rescue” or “Alfred, help me!”.
 - Prevents spam with a configurable reply cooldown and trigger words.
 - Records every answered question in `chat_history.log` (or a custom file) for audits.
@@ -42,11 +42,11 @@ Alfred: Let's keep the chat kind. Adventures are better when everyone feels welc
 ## Requirements
 - Go 1.22+
 - Access to the Minecraft server log and `screen` session running the server.
-- Demeterics API key with access to the chosen model.
+- OpenRouter API key (free signup at https://openrouter.ai) with access to the chosen model.
 - `rsync` for the deployment step in the Makefile.
 
 ## Setup
-1. Copy `.env.example` to `.env` and fill in the secrets/paths. Only `DEMETERICS_API_KEY` is mandatory; everything else falls back to sane defaults.
+1. Copy `.env.example` to `.env` and fill in the secrets/paths. Only `OPENROUTER_API_KEY` is mandatory; everything else falls back to sane defaults.
 2. Build locally with `make build` or `go build ./...`.
 3. Run locally with `go run .` or deploy with `make install` (see below).
 
@@ -55,8 +55,8 @@ Environment variables allow the agent to be customized without code edits:
 
 | Variable | Default | Description |
 | --- | --- | --- |
-| `DEMETERICS_API_KEY` | – | Required API token for Demeterics. |
-| `DEMETERICS_MODEL` | `meta-llama/llama-4-scout-17b-16e-instruct` | Override the LLM model ID. |
+| `OPENROUTER_API_KEY` | – | Required API token for OpenRouter. |
+| `OPENROUTER_MODEL` | `openai/gpt-oss-20b` | Override the LLM model ID. |
 | `MCCHATBOT_LOG_PATH` | `/usr/local/games/minecraft_server/MyServer/logs/latest.log` | Path to the Minecraft chat log to watch. |
 | `MCCHATBOT_SCREEN_NAME` | `mc-MyServer` | Name of the `screen` session controlling the server. |
 | `MCCHATBOT_SPAWN_POINT` | `0 80 0` | Coordinates Alfred uses for spawn teleports (`x y z` or comma-delimited). |
@@ -71,7 +71,7 @@ Environment variables allow the agent to be customized without code edits:
 | `MCCHATBOT_ENABLE_PREFIX_TRIGGER` | `true` | Respond to the configured trigger prefix (e.g., `!bot`). |
 | `MCCHATBOT_ENABLE_QUESTION_TRIGGER` | `true` | Respond to questions (`?`) or configured engage words. |
 | `MCCHATBOT_ENABLE_ALERT_TRIGGER` | `true` | Send kindness reminders when alert words show up. |
-| `MCCHATBOT_ENABLE_TOOL_USE` | `true` | Allow Groq Tool Use across teleport/time/weather helpers. |
+| `MCCHATBOT_ENABLE_TOOL_USE` | `true` | Allow tool calling across teleport/time/weather helpers. |
 | `MCCHATBOT_ENABLE_WORLD_TOOL` | `true` | Permit Alfred to call the `/time` and `/weather` helpers (via Tool Use) when campers politely ask for daytime, rain, etc. |
 | `MCCHATBOT_ENABLE_EASTER_EGGS` | `true` | Toggle the fun Easter-egg commands (floating cat, firework, heart particles, etc.). |
 | `MCCHATBOT_RESPONSE_LOG` | `chat_history.log` | File (relative or absolute) where JSONL interaction logs are written. Set empty to disable logging. |
@@ -122,7 +122,7 @@ Press `Ctrl+C` to exit; the service will continue tailing the log and posting re
 ## 🎮 How It Works (The Fun Part!)
 
 ```
-Player in Minecraft                     Alfred (Go Service)                    Demeterics LLM
+Player in Minecraft                     Alfred (Go Service)                    OpenRouter LLM
 ─────────────────                      ───────────────────                    ───────────────
 
 "Alfred how do I                       Watches log file

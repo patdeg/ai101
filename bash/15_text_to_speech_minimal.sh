@@ -1,57 +1,51 @@
 #!/bin/sh
 ################################################################################
-# Example 14: Text-to-Speech with OpenAI (Minimal Version)
+# Example 15: Text-to-Speech with Fish Audio (via OpenRouter) (Minimal Version)
 ################################################################################
 #
-# This example demonstrates text-to-speech synthesis using OpenAI's TTS API.
+# This example demonstrates text-to-speech synthesis using OpenRouter's
+# /audio/speech endpoint and Fish Audio's S2.1 Pro Free model.
 #
 # What you'll learn:
-# - How to convert text to spoken audio with OpenAI
-# - Available voice options (11 voices)
+# - How to convert text to spoken audio through OpenRouter
+# - Optional voice selection via a Fish Audio reference ID
 # - Audio format handling
-# - Token usage and pricing for TTS
 #
 # Key concepts:
-# - gpt-4o-mini-tts: Affordable model ($0.60/1M input, $12/1M output)
-# - 11 voices: alloy, ash, ballad, coral, echo, fable, onyx, nova, sage, shimmer, verse
-# - Supports multiple languages automatically
-# - Speed control (0.25 to 4.0)
+# - fish-audio/s2.1-pro-free:free: genuinely free, no card required
+# - No referenceId supplied -> Fish Audio picks a default voice
+# - With a referenceId -> pick any voice from https://fish.audio
 #
 ################################################################################
 
 # Check for API key
-if [ -z "$OPENAI_API_KEY" ]; then
-  echo "Error: OPENAI_API_KEY not set" >&2
-  echo "Get your key from: https://platform.openai.com" >&2
+if [ -z "$OPENROUTER_API_KEY" ]; then
+  echo "Error: OPENROUTER_API_KEY not set" >&2
+  echo "Get your key from: https://openrouter.ai/keys" >&2
   exit 1
 fi
 
 # API endpoint
-API_URL="https://api.openai.com/v1/audio/speech"
+API_URL="https://openrouter.ai/api/v1/audio/speech"
 
 # Text to convert to speech
-TEXT="Hello! This is an example of text-to-speech synthesis using OpenAI's affordable TTS model."
-
-# Voice to use (try: alloy, echo, fable, onyx, nova, shimmer)
-VOICE="alloy"
+TEXT="Hello! This is an example of text-to-speech synthesis using Fish Audio's free TTS model."
 
 # Output file
 OUTPUT_FILE="output.mp3"
 
 echo "Converting text to speech..."
-echo "Voice: $VOICE"
 echo "Text: $TEXT"
 echo ""
 
 # Make API request and save audio to file
 curl -s -X POST "$API_URL" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $OPENAI_API_KEY" \
+  -H "Authorization: Bearer $OPENROUTER_API_KEY" \
   -d @- <<EOF > "$OUTPUT_FILE"
 {
-  "model": "gpt-4o-mini-tts",
+  "model": "fish-audio/s2.1-pro-free:free",
   "input": "$TEXT",
-  "voice": "$VOICE",
   "response_format": "mp3"
 }
 EOF
@@ -74,35 +68,24 @@ fi
 # Understanding Text-to-Speech Pricing
 ################################################################################
 #
-# Pricing (OpenAI TTS - October 2025):
-# - gpt-4o-mini-tts:
-#   - Input: $0.60 per 1M tokens
-#   - Output: $12.00 per 1M tokens
+# Pricing (Fish Audio S2.1 Pro Free, via OpenRouter):
+# - fish-audio/s2.1-pro-free:free: $0 (rate-limited, best-effort
+#   availability - meant for learning/prototyping, not production)
 #
-# Token calculation:
-# - Input: Approximately 1 token per character of input text
-# - Output: Audio duration-based (varies by length and complexity)
-# - This example (~100 chars) ≈ 100 input tokens ≈ $0.00006
+# Picking a voice:
+# - No "voice" field like OpenAI's TTS - instead, pass a Fish Audio
+#   "referenceId" via providerOptions.fishAudio.referenceId
+# - Get free voice IDs at https://fish.audio: sign up, browse the voice
+#   library, copy the ID of any voice you like
+# - Without a referenceId, Fish Audio picks a default voice
 #
-# Cost examples (input only):
-# - 100 characters:   $0.00006
-# - 1,000 characters: $0.0006
-# - 10,000 characters: $0.006
-#
-# Note: Much more affordable than playai-tts ($50/1M)!
-#
-# Available voices (11 total):
-# - alloy   - Neutral, balanced
-# - ash     - Clear, articulate
-# - ballad  - Smooth, expressive
-# - coral   - Warm, friendly
-# - echo    - Clear, professional
-# - fable   - Narrative, storytelling
-# - onyx    - Deep, authoritative
-# - nova    - Energetic, youthful
-# - sage    - Calm, measured
-# - shimmer - Bright, cheerful
-# - verse   - Poetic, expressive
+# Example with a chosen voice:
+#   {
+#     "model": "fish-audio/s2.1-pro-free:free",
+#     "input": "...",
+#     "providerOptions": { "fishAudio": { "referenceId": "your-voice-id" } },
+#     "response_format": "mp3"
+#   }
 #
 # Response formats:
 # - mp3 (default, compressed, good quality)
@@ -111,17 +94,5 @@ fi
 # - flac (lossless, larger files)
 # - wav (uncompressed, largest)
 # - pcm (raw audio data)
-#
-# Speed control:
-# - Range: 0.25 to 4.0
-# - Default: 1.0 (normal speed)
-# - 0.5 = half speed (slower)
-# - 2.0 = double speed (faster)
-#
-# Supported languages:
-# - Automatically detects language from input text
-# - Supports 50+ languages including:
-#   English, Spanish, French, German, Italian, Portuguese,
-#   Dutch, Russian, Arabic, Japanese, Korean, Chinese, and many more
 #
 ################################################################################

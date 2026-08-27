@@ -4,27 +4,27 @@
 ################################################################################
 #
 # This example demonstrates how to generate a podcast with multiple speakers
-# using Demeterics multi-speaker TTS API in a SINGLE API call.
+# using OpenRouter's audio/speech endpoint and Fish Audio's S2.1 Pro model,
+# in a SINGLE API call.
 #
 # What you'll learn:
 # - Multi-speaker audio generation with distinct voices
 # - NPR/NotebookLM "Deep Dive" podcast style
-# - Voice selection from 30 available options
-# - Script formatting with "Speaker: text" pattern
-# - Audio output handling (WAV format)
+# - Fish Audio's <|speaker:N|> tagging convention for turn-taking
+# - Script formatting with "Speaker: text" pattern, then converting it
+# - Audio output handling (MP3 format)
 #
 # Key Feature: Single API call generates all speakers - no audio stitching!
 #
 # Prerequisites:
-# - DEMETERICS_API_KEY environment variable
-# - jq for JSON parsing (optional, for pretty output)
+# - OPENROUTER_API_KEY environment variable
+# - FISH_VOICE_1 / FISH_VOICE_2 environment variables — two Fish Audio voice
+#   reference IDs, free at https://fish.audio (sign up, browse the voice
+#   library, copy each voice's reference ID)
+# - jq for JSON escaping
 #
-# Available Voices (30 total):
-#   Puck (upbeat), Kore (firm), Charon (informative), Zephyr (bright),
-#   Fenrir (excitable), Leda (youthful), Aoede (breezy), Sulafat (warm),
-#   Achird (friendly), and 21 others.
-#
-# API Limitation: Maximum 2 speakers per request
+# API Limitation: Fish Audio S2-Pro supports a maximum of 2 speakers per
+# request, matched by index against the referenceId array.
 #
 ################################################################################
 
@@ -36,14 +36,21 @@ CYAN='\033[0;36m'
 RED='\033[0;31m'
 NC='\033[0m'
 
-# Check for API key
-if [ -z "$DEMETERICS_API_KEY" ]; then
-  echo -e "${RED}Error: DEMETERICS_API_KEY not set${NC}"
-  echo "Get your key from: https://demeterics.com"
+# Check for required environment variables
+if [ -z "$OPENROUTER_API_KEY" ]; then
+  echo -e "${RED}Error: OPENROUTER_API_KEY not set${NC}"
+  echo "Get your key from: https://openrouter.ai/keys"
+  exit 1
+fi
+if [ -z "$FISH_VOICE_1" ] || [ -z "$FISH_VOICE_2" ]; then
+  echo -e "${RED}Error: FISH_VOICE_1 and FISH_VOICE_2 must both be set${NC}"
+  echo "Get two free voice reference IDs from https://fish.audio (sign up,"
+  echo "browse the voice library, copy each voice's reference ID)"
   exit 1
 fi
 
-API_URL="https://api.demeterics.com/tts/v1/generate"
+API_URL="https://openrouter.ai/api/v1/audio/speech"
+MODEL="fish-audio/s2.1-pro-free:free"
 
 echo -e "${BLUE}========================================${NC}"
 echo -e "${BLUE}Multi-Speaker Podcast Generation${NC}"
@@ -54,22 +61,22 @@ echo ""
 # Podcast Configuration
 ################################################################################
 
-# Voice selection - Deep Dive podcast style pairing
+# Speaker index 0 and index 1 are matched to referenceId[0] / referenceId[1]
+# below — Fish Audio identifies speakers by position, not by name.
 SPEAKER1_NAME="Alex"
-SPEAKER1_VOICE="Charon"   # Informative, clear - explains concepts
 SPEAKER2_NAME="Sam"
-SPEAKER2_VOICE="Puck"     # Upbeat - energetic, enthusiastic
 
 echo -e "${YELLOW}Podcast Configuration:${NC}"
-echo "  Host 1: $SPEAKER1_NAME (Voice: $SPEAKER1_VOICE)"
-echo "  Host 2: $SPEAKER2_NAME (Voice: $SPEAKER2_VOICE)"
+echo "  Host 1: $SPEAKER1_NAME  -> <|speaker:0|> -> voice \$FISH_VOICE_1"
+echo "  Host 2: $SPEAKER2_NAME  -> <|speaker:1|> -> voice \$FISH_VOICE_2"
 echo ""
 
 ################################################################################
 # The Podcast Script
 ################################################################################
 # Format: "SpeakerName: dialogue text"
-# - Speaker names must match exactly in speakers array
+# - Speaker names are just for readability here — they get converted to
+#   <|speaker:0|> / <|speaker:1|> tags below before the API call
 # - Avoid special characters that might break JSON (use "is" not "it's")
 # - Each line is a speaking turn
 ################################################################################
@@ -118,6 +125,23 @@ echo "  $SPEAKER2_NAME lines: $SAM_LINES"
 echo ""
 
 ################################################################################
+# Convert to Fish Audio's <|speaker:N|> tagging convention
+################################################################################
+
+echo -e "${CYAN}========================================${NC}"
+echo -e "${CYAN}Converting to Fish Audio speaker tags${NC}"
+echo -e "${CYAN}========================================${NC}"
+echo ""
+
+TAGGED_SCRIPT=$(echo "$SCRIPT" \
+  | sed -e "s/^${SPEAKER1_NAME}: /<|speaker:0|>/" -e "s/^${SPEAKER2_NAME}: /<|speaker:1|>/" \
+  | tr '\n' ' ')
+
+echo "  Alex: ...   -> <|speaker:0|>...    (voice: \$FISH_VOICE_1)"
+echo "  Sam: ...    -> <|speaker:1|>...    (voice: \$FISH_VOICE_2)"
+echo ""
+
+################################################################################
 # Generate Podcast Audio
 ################################################################################
 
@@ -126,29 +150,33 @@ echo -e "${CYAN}Generating Podcast Audio${NC}"
 echo -e "${CYAN}========================================${NC}"
 echo ""
 
-OUTPUT_FILE="columbus_podcast.wav"
+OUTPUT_FILE="columbus_podcast.mp3"
 
 echo -e "${YELLOW}Making API request...${NC}"
 echo "  Endpoint: $API_URL"
-echo "  Provider: gemini"
-echo "  Output: $OUTPUT_FILE (WAV format)"
+echo "  Model: $MODEL"
+echo "  Output: $OUTPUT_FILE (MP3 format)"
 echo ""
 
-# Escape the script for JSON (newlines become \n)
-SCRIPT_ESCAPED=$(echo "$SCRIPT" | jq -Rs . 2>/dev/null || echo "\"$SCRIPT\"" | sed 's/$/\\n/' | tr -d '\n')
+# Escape the tagged script for JSON (jq -Rs turns raw text into a quoted,
+# escaped JSON string literal)
+SCRIPT_ESCAPED=$(printf '%s' "$TAGGED_SCRIPT" | jq -Rs .)
 
-# Make the API request - Demeterics returns audio directly
+# Build the referenceId array as JSON
+REFERENCE_IDS=$(jq -n --arg v1 "$FISH_VOICE_1" --arg v2 "$FISH_VOICE_2" '[$v1, $v2]')
+
+# Make the API request - OpenRouter/Fish Audio returns audio bytes directly
 HTTP_CODE=$(curl -s -w "%{http_code}" -o "$OUTPUT_FILE" -X POST "$API_URL" \
-  -H "Authorization: Bearer $DEMETERICS_API_KEY" \
+  -H "Authorization: Bearer $OPENROUTER_API_KEY" \
   -H "Content-Type: application/json" \
   -d @- <<EOF
 {
-  "provider": "gemini",
+  "model": "$MODEL",
   "input": $SCRIPT_ESCAPED,
-  "speakers": [
-    {"name": "$SPEAKER1_NAME", "voice": "$SPEAKER1_VOICE"},
-    {"name": "$SPEAKER2_NAME", "voice": "$SPEAKER2_VOICE"}
-  ]
+  "providerOptions": {
+    "fishAudio": { "referenceId": $REFERENCE_IDS }
+  },
+  "response_format": "mp3"
 }
 EOF
 )
@@ -172,6 +200,7 @@ if [ -f "$OUTPUT_FILE" ] && [ -s "$OUTPUT_FILE" ]; then
   echo -e "${YELLOW}Output:${NC}"
   echo "  File: $OUTPUT_FILE"
   echo "  Size: $FILE_SIZE bytes ($FILE_SIZE_KB KB)"
+  echo "  Cost: \$0.00 (fish-audio/s2.1-pro-free:free tier)"
   echo ""
 else
   echo -e "${RED}Error: Failed to create audio file${NC}"
@@ -188,7 +217,7 @@ echo -e "${CYAN}========================================${NC}"
 echo ""
 echo -e "${YELLOW}To play the podcast:${NC}"
 echo "  mpv $OUTPUT_FILE"
-echo "  aplay $OUTPUT_FILE        # Linux"
+echo "  aplay $OUTPUT_FILE        # Linux (via ffmpeg/mpg123 plugin)"
 echo "  afplay $OUTPUT_FILE       # macOS"
 echo "  vlc $OUTPUT_FILE          # Cross-platform"
 echo ""
@@ -198,24 +227,19 @@ echo ""
 ################################################################################
 
 echo -e "${CYAN}========================================${NC}"
-echo -e "${CYAN}Available Voices (30 total)${NC}"
+echo -e "${CYAN}Finding Fish Audio Voices${NC}"
 echo -e "${CYAN}========================================${NC}"
 echo ""
-echo -e "${YELLOW}Popular voices:${NC}"
-echo "  Puck     - Upbeat, energetic"
-echo "  Kore     - Firm, confident"
-echo "  Charon   - Informative, clear"
-echo "  Zephyr   - Bright, cheerful"
-echo "  Fenrir   - Excitable, dynamic"
-echo "  Leda     - Youthful, fresh"
-echo "  Aoede    - Breezy, warm"
-echo "  Sulafat  - Warm, friendly"
-echo "  Achird   - Friendly, approachable"
+echo -e "${YELLOW}Fish Audio voices are identified by opaque reference IDs, not names:${NC}"
+echo "  1. Create a free account at https://fish.audio"
+echo "  2. Browse the voice library (many free community voices)"
+echo "  3. Copy a voice's reference ID from its page"
+echo "  4. Set FISH_VOICE_1 and FISH_VOICE_2 to two different IDs"
 echo ""
-echo -e "${YELLOW}Recommended pairings for podcasts:${NC}"
-echo "  Charon + Puck    (informative + upbeat - Deep Dive style)"
-echo "  Aoede + Charon   (warm female + informative male)"
-echo "  Kore + Puck      (firm female + upbeat male)"
+echo -e "${YELLOW}Tips for picking a pairing:${NC}"
+echo "  - Pick voices with different pitch/energy so listeners can tell"
+echo "    speakers apart without needing names announced"
+echo "  - Preview voices in Fish Audio's playground before committing"
 echo ""
 
 ################################################################################

@@ -38,10 +38,22 @@ sudo apt-get install nlohmann-json3-dev
 brew install nlohmann-json
 ```
 
-### 3. Set your API key
+### 3. Set your API keys
 
+Most examples use OpenRouter (free tier for chat/vision/safety/TTS models):
 ```bash
-export DEMETERICS_API_KEY="your-api-key-here"
+export OPENROUTER_API_KEY="your-openrouter-key"   # https://openrouter.ai
+```
+
+Examples 13 (code execution) and 14 (reasoning) use Groq directly, for its
+native hosted code-interpreter tool and prompt caching:
+```bash
+export GROQ_API_KEY="your-groq-key"                # https://console.groq.com
+```
+
+Examples 09/10 (Tavily search/extract) need:
+```bash
+export TAVILY_API_KEY="your-tavily-key"            # https://tavily.com
 ```
 
 ## Quick Start
@@ -110,10 +122,11 @@ done
 | 09 | `09_tavily_search.cpp` | Web search with Tavily API |
 | 10 | `10_tavily_extract.cpp` | Extract content from web pages |
 | 11 | `11_tool_use.cpp` | AI agents with function calling |
-| 12 | `12_web_search.cpp` | Built-in web search with groq/compound-mini |
-| 13 | `13_code_execution.cpp` | Python code execution |
-| 14 | `14_reasoning.cpp` | Step-by-step thinking with prompt caching |
-| 15 | `15_text_to_speech.cpp` | Voice synthesis with OpenAI TTS |
+| 12 | `12_web_search.cpp` | Built-in search-augmented generation via OpenRouter's `:online` models |
+| 13 | `13_code_execution.cpp` | Python code execution (direct on Groq) |
+| 14 | `14_reasoning.cpp` | Step-by-step thinking with prompt caching (direct on Groq) |
+| 15 | `15_text_to_speech.cpp` | Voice synthesis with Fish Audio (via OpenRouter) |
+| 16 | `16_podcast.cpp` | Two-speaker podcast generation with Fish Audio (via OpenRouter) |
 
 ## C++ Concepts You'll Learn
 
@@ -132,7 +145,7 @@ This library makes JSON feel natural in C++:
 ```cpp
 // Creating JSON (feels like Python/JavaScript!)
 json j;
-j["model"] = "meta-llama/llama-4-scout-17b-16e-instruct";
+j["model"] = "openai/gpt-oss-20b";
 j["messages"] = {{{"role", "user"}, {"content", "Hello!"}}};
 j["temperature"] = 0.7;
 
@@ -167,10 +180,10 @@ nlohmann/json header not found. Either:
 1. Download it to lib/ folder (see above)
 2. Or install via package manager
 
-### "DEMETERICS_API_KEY not set"
-Set your environment variable:
+### "OPENROUTER_API_KEY not set" / "GROQ_API_KEY not set"
+Set the relevant environment variable (see "Set your API keys" above):
 ```bash
-export DEMETERICS_API_KEY="your-key-here"
+export OPENROUTER_API_KEY="your-key-here"
 ```
 
 ### Compiler version issues

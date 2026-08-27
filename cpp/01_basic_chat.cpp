@@ -18,7 +18,7 @@
  * PREREQUISITES:
  *   - libcurl installed (see README.md)
  *   - nlohmann/json.hpp in lib/ folder or installed system-wide
- *   - DEMETERICS_API_KEY environment variable set
+ *   - OPENROUTER_API_KEY environment variable set (free at https://openrouter.ai)
  *
  * COMPILE:
  *   g++ -std=c++17 -o 01_basic_chat 01_basic_chat.cpp -lcurl -I lib/
@@ -59,10 +59,10 @@ static size_t write_callback(void *contents, size_t size, size_t nmemb, void *us
  */
 int main() {
     /* Step 2: Get API key from environment variable */
-    const char *api_key_cstr = std::getenv("DEMETERICS_API_KEY");
+    const char *api_key_cstr = std::getenv("OPENROUTER_API_KEY");
     if (api_key_cstr == nullptr) {
-        std::cerr << "Error: DEMETERICS_API_KEY environment variable not set\n";
-        std::cerr << "Run: export DEMETERICS_API_KEY='your_key_here'\n";
+        std::cerr << "Error: OPENROUTER_API_KEY environment variable not set\n";
+        std::cerr << "Run: export OPENROUTER_API_KEY='your_key_here'\n";
         return 1;
     }
     std::string api_key(api_key_cstr);
@@ -80,7 +80,7 @@ int main() {
     /* Step 4: Build the JSON request body using nlohmann/json */
     /* This syntax is incredibly intuitive - almost like Python! */
     json request_body = {
-        {"model", "meta-llama/llama-4-scout-17b-16e-instruct"},
+        {"model", "openai/gpt-oss-20b"},
         {"messages", {
             {{"role", "user"}, {"content", "What is the capital of Switzerland?"}}
         }},
@@ -102,7 +102,7 @@ int main() {
     std::string response_data;
 
     /* Step 7: Configure curl options */
-    curl_easy_setopt(curl, CURLOPT_URL, "https://api.demeterics.com/groq/v1/chat/completions");
+    curl_easy_setopt(curl, CURLOPT_URL, "https://openrouter.ai/api/v1/chat/completions");
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, json_payload.c_str());
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);

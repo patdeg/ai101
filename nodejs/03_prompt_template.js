@@ -24,7 +24,7 @@
  *     node 03_prompt_template.js "Technology" "Artificial Intelligence"
  *
  * Environment:
- *     DEMETERICS_API_KEY - Your Demeterics Managed LLM Key (required)
+ *     OPENROUTER_API_KEY - Your OpenRouter API Key (required)
  */
 
 const https = require('https');
@@ -32,17 +32,17 @@ const fs = require('fs');
 const path = require('path');
 
 // Configuration
-const API_HOST = 'api.demeterics.com';
-const API_PATH = '/groq/v1/chat/completions';
-const MODEL = 'meta-llama/llama-4-scout-17b-16e-instruct';
+const API_HOST = 'openrouter.ai';
+const API_PATH = '/api/v1/chat/completions';
+const MODEL = 'openai/gpt-oss-20b';
 
 // Template configuration
 const TEMPLATE_DIR = path.join(__dirname, '..', 'templates');
 const TEMPLATE_FILE = path.join(TEMPLATE_DIR, 'essay_writer.txt');
 
-// Pricing (per million tokens)
-const INPUT_PRICE = 0.11;
-const OUTPUT_PRICE = 0.34;
+// Pricing (per million tokens) - openai/gpt-oss-20b, via OpenRouter
+const INPUT_PRICE = 0.03;
+const OUTPUT_PRICE = 0.13;
 
 /**
  * Create an example template file if it doesn't exist
@@ -359,10 +359,10 @@ async function main() {
     console.log(`Topic: ${topic}`);
 
     // Check for API key
-    const apiKey = process.env.DEMETERICS_API_KEY;
+    const apiKey = process.env.OPENROUTER_API_KEY;
     if (!apiKey) {
-        console.log('\n❌ Error: DEMETERICS_API_KEY environment variable not set');
-        console.log("Set it with: export DEMETERICS_API_KEY='your-api-key-here'");
+        console.log('\n❌ Error: OPENROUTER_API_KEY environment variable not set');
+        console.log("Set it with: export OPENROUTER_API_KEY='your-api-key-here'");
         process.exit(1);
     }
 

@@ -12,7 +12,13 @@ What you'll learn:
   - Retrieving executed code and outputs (when provided)
 
 Prerequisites:
-  - DEMETERICS_API_KEY set
+  - GROQ_API_KEY set (free at https://console.groq.com)
+
+Note: this example calls Groq directly rather than OpenRouter. Groq's
+hosted code_interpreter tool + prompt caching on gpt-oss-20b isn't
+available as a free/cheap OpenRouter offering, so examples 12 (code
+execution) and 13 (reasoning) stay on direct Groq while the rest of
+this repo defaults to OpenRouter.
 
 Expected output:
   - Final answer content
@@ -61,10 +67,11 @@ type Resp struct {
 }
 
 func main() {
-    apiKey := os.Getenv("DEMETERICS_API_KEY")
+    apiKey := os.Getenv("GROQ_API_KEY")
     if apiKey == "" {
-        fmt.Fprintln(os.Stderr, "Error: DEMETERICS_API_KEY not set")
-        fmt.Fprintln(os.Stderr, "Run: export DEMETERICS_API_KEY=\"dmt_your_api_key_here\"")
+        fmt.Fprintln(os.Stderr, "Error: GROQ_API_KEY not set")
+        fmt.Fprintln(os.Stderr, "Get a free key at https://console.groq.com, then:")
+        fmt.Fprintln(os.Stderr, "Run: export GROQ_API_KEY=\"your_api_key_here\"")
         os.Exit(1)
     }
 
@@ -88,7 +95,7 @@ func main() {
         os.Exit(1)
     }
 
-    req, err := http.NewRequest("POST", "https://api.demeterics.com/groq/v1/chat/completions", bytes.NewBuffer(b))
+    req, err := http.NewRequest("POST", "https://api.groq.com/openai/v1/chat/completions", bytes.NewBuffer(b))
     if err != nil {
         fmt.Fprintf(os.Stderr, "request error: %v\n", err)
         os.Exit(1)

@@ -1,6 +1,6 @@
 # Arduino C++ Examples (ESP32/ESP8266)
 
-**Arduino C++ for IoT devices - connecting the physical world to AI!** These examples use ESP32 or ESP8266 boards to call the Demeterics Groq proxy over WiFi.
+**Arduino C++ for IoT devices - connecting the physical world to AI!** These examples use ESP32 or ESP8266 boards to call OpenRouter over WiFi.
 
 ## Why Arduino/ESP32 for AI?
 
@@ -157,8 +157,8 @@ In each `.ino` file, you'll find these lines at the top:
 const char* ssid = "YOUR_WIFI_SSID";
 const char* password = "YOUR_WIFI_PASSWORD";
 
-// Demeterics Groq proxy Configuration
-const char* apiKey = "YOUR_DEMETERICS_API_KEY";
+// OpenRouter Configuration
+const char* apiKey = "YOUR_OPENROUTER_API_KEY";
 ```
 
 **Replace with your actual values:**
@@ -167,7 +167,7 @@ const char* apiKey = "YOUR_DEMETERICS_API_KEY";
 // Example:
 const char* ssid = "MyHomeWiFi";
 const char* password = "mypassword123";
-const char* apiKey = "dmt_abc123xyz...";
+const char* apiKey = "sk-or-v1-abc123xyz...";
 ```
 
 **Security note:**
@@ -188,7 +188,7 @@ const char* apiKey = "dmt_abc123xyz...";
 2. **Configure WiFi and API key**
    - Edit the top of the file
    - Add your WiFi SSID and password
-   - Add your Demeterics Managed LLM Key
+   - Add your OpenRouter API key
 
 3. **Verify (compile) the code**
    - Click the checkmark button (✓) or press Ctrl+R
@@ -262,7 +262,7 @@ void setup() {
 Connecting to WiFi...
 WiFi connected!
 IP address: 192.168.1.123
-Calling Demeterics Groq proxy...
+Calling OpenRouter...
 Response received:
 {
   "choices": [{
@@ -332,7 +332,7 @@ Connecting to WiFi...
 WiFi connected!
 IP Address: 192.168.1.100
 
-Calling Demeterics Groq proxy...
+Calling OpenRouter...
 Question: What is the capital of Switzerland?
 
 Response received!
@@ -365,7 +365,7 @@ client.setInsecure();  // Skip certificate verification
 
 // HTTP request
 HTTPClient https;
-https.begin(client, "https://api.demeterics.com/groq/v1/chat/completions");
+https.begin(client, "https://openrouter.ai/api/v1/chat/completions");
 https.addHeader("Content-Type", "application/json");
 https.addHeader("Authorization", "Bearer " + String(apiKey));
 
@@ -490,7 +490,7 @@ Image size: 15234 bytes
 Encoding to base64...
 Base64 size: 20312 bytes (33% increase)
 
-Sending to Demeterics Groq proxy...
+Sending to OpenRouter...
 This may take 10-15 seconds...
 
 AI Vision Analysis:
@@ -852,7 +852,7 @@ void makeRequest_Insecure() {
   client.setInsecure();  // Don't verify SSL certificate
 
   HTTPClient https;
-  https.begin(client, "https://api.demeterics.com/...");
+  https.begin(client, "https://openrouter.ai/api/v1/...");
   // ... make request
 }
 
@@ -869,7 +869,7 @@ void makeRequest_Secure() {
   client.setCACert(rootCACertificate);
 
   HTTPClient https;
-  https.begin(client, "https://api.demeterics.com/...");
+  https.begin(client, "https://openrouter.ai/api/v1/...");
   // ... make request
 }
 ```
@@ -881,7 +881,7 @@ HTTPClient https;
 WiFiClientSecure client;
 client.setInsecure();
 
-https.begin(client, "https://api.demeterics.com/groq/v1/chat/completions");
+https.begin(client, "https://openrouter.ai/api/v1/chat/completions");
 https.addHeader("Content-Type", "application/json");
 https.addHeader("Authorization", "Bearer " + String(apiKey));
 
@@ -1002,7 +1002,7 @@ String str2 = String(arr);  // char array → String
 
 ```cpp
 // For constants, use char arrays
-const char* apiEndpoint = "https://api.demeterics.com/...";
+const char* apiEndpoint = "https://openrouter.ai/api/v1/...";
 
 // For dynamic strings that change, use String
 String jsonPayload = "{\"model\":\"";
@@ -1383,9 +1383,9 @@ String callGroqAPI(const char* model, const char* userMessage,
   client.setInsecure();
 
   HTTPClient https;
-  https.begin(client, "https://api.demeterics.com/groq/v1/chat/completions");
+  https.begin(client, "https://openrouter.ai/api/v1/chat/completions");
   https.addHeader("Content-Type", "application/json");
-  https.addHeader("Authorization", String("Bearer ") + DEMETERICS_API_KEY);
+  https.addHeader("Authorization", String("Bearer ") + OPENROUTER_API_KEY);
 
   // Build JSON payload
   DynamicJsonDocument doc(2048);
@@ -1474,10 +1474,10 @@ void setup() {
 - **ESP32 Forum:** https://www.esp32.com/
 - **Arduino Forum:** https://forum.arduino.cc/
 
-### Demeterics + Groq Resources
+### OpenRouter Resources
 
-- **Demeterics Docs:** https://demeterics.com/docs
-- **Demeterics Prompt Guide:** https://demeterics.com/docs/prompt
+- **OpenRouter Docs:** https://openrouter.ai/docs
+- **OpenRouter Model Catalog:** https://openrouter.ai/models
 - **Groq Model Catalog:** https://console.groq.com/docs/models
 - **Groq Vision API Guide:** https://console.groq.com/docs/vision
 

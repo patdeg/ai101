@@ -86,9 +86,9 @@ char *get_weather(const char *location) {
 
 int main(void) {
     /* Step 1: Get API key */
-    const char *api_key = getenv("DEMETERICS_API_KEY");
+    const char *api_key = getenv("OPENROUTER_API_KEY");
     if (api_key == NULL) {
-        fprintf(stderr, "Error: DEMETERICS_API_KEY not set\n");
+        fprintf(stderr, "Error: OPENROUTER_API_KEY not set\n");
         return 1;
     }
 
@@ -101,55 +101,59 @@ int main(void) {
     printf("  - calculate: Perform math operations\n");
     printf("  - get_weather: Get weather for a location\n\n");
 
-    /* Step 3: Define the tools (functions) the AI can use */
-    const char *tools_json = R"([
-        {
-            "type": "function",
-            "function": {
-                "name": "get_current_time",
-                "description": "Get the current date and time",
-                "parameters": {
-                    "type": "object",
-                    "properties": {},
-                    "required": []
-                }
-            }
-        },
-        {
-            "type": "function",
-            "function": {
-                "name": "calculate",
-                "description": "Perform a mathematical calculation",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "a": {"type": "number", "description": "First number"},
-                        "b": {"type": "number", "description": "Second number"},
-                        "operation": {
-                            "type": "string",
-                            "enum": ["add", "subtract", "multiply", "divide"],
-                            "description": "The operation to perform"
-                        }
-                    },
-                    "required": ["a", "b", "operation"]
-                }
-            }
-        },
-        {
-            "type": "function",
-            "function": {
-                "name": "get_weather",
-                "description": "Get current weather for a location",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "location": {"type": "string", "description": "City name"}
-                    },
-                    "required": ["location"]
-                }
-            }
-        }
-    ])";
+    /* Step 3: Define the tools (functions) the AI can use.
+     * NOTE: plain C has no raw-string-literal syntax (that's C++), so the
+     * JSON is written as adjacent escaped string literals -- C concatenates
+     * them into one string automatically. */
+    const char *tools_json =
+        "["
+        "  {"
+        "    \"type\": \"function\","
+        "    \"function\": {"
+        "      \"name\": \"get_current_time\","
+        "      \"description\": \"Get the current date and time\","
+        "      \"parameters\": {"
+        "        \"type\": \"object\","
+        "        \"properties\": {},"
+        "        \"required\": []"
+        "      }"
+        "    }"
+        "  },"
+        "  {"
+        "    \"type\": \"function\","
+        "    \"function\": {"
+        "      \"name\": \"calculate\","
+        "      \"description\": \"Perform a mathematical calculation\","
+        "      \"parameters\": {"
+        "        \"type\": \"object\","
+        "        \"properties\": {"
+        "          \"a\": {\"type\": \"number\", \"description\": \"First number\"},"
+        "          \"b\": {\"type\": \"number\", \"description\": \"Second number\"},"
+        "          \"operation\": {"
+        "            \"type\": \"string\","
+        "            \"enum\": [\"add\", \"subtract\", \"multiply\", \"divide\"],"
+        "            \"description\": \"The operation to perform\""
+        "          }"
+        "        },"
+        "        \"required\": [\"a\", \"b\", \"operation\"]"
+        "      }"
+        "    }"
+        "  },"
+        "  {"
+        "    \"type\": \"function\","
+        "    \"function\": {"
+        "      \"name\": \"get_weather\","
+        "      \"description\": \"Get current weather for a location\","
+        "      \"parameters\": {"
+        "        \"type\": \"object\","
+        "        \"properties\": {"
+        "          \"location\": {\"type\": \"string\", \"description\": \"City name\"}"
+        "        },"
+        "        \"required\": [\"location\"]"
+        "      }"
+        "    }"
+        "  }"
+        "]";
 
     cJSON *tools = cJSON_Parse(tools_json);
 
@@ -173,7 +177,7 @@ int main(void) {
     cJSON_AddStringToObject(user_msg, "content", user_query);
     cJSON_AddItemToArray(messages, user_msg);
 
-    cJSON_AddStringToObject(root, "model", "meta-llama/llama-4-scout-17b-16e-instruct");
+    cJSON_AddStringToObject(root, "model", "openai/gpt-oss-20b");
     cJSON_AddItemToObject(root, "messages", cJSON_Duplicate(messages, 1));
     cJSON_AddItemToObject(root, "tools", cJSON_Duplicate(tools, 1));
     cJSON_AddStringToObject(root, "tool_choice", "auto");
@@ -194,7 +198,7 @@ int main(void) {
     response.data[0] = '\0';
 
     /* Configure and send */
-    curl_easy_setopt(curl, CURLOPT_URL, "https://api.demeterics.com/groq/v1/chat/completions");
+    curl_easy_setopt(curl, CURLOPT_URL, "https://openrouter.ai/api/v1/chat/completions");
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, json_payload);
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);

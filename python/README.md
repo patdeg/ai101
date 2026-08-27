@@ -13,10 +13,14 @@
 
 | Provider | Example File | API Endpoint | Best For |
 |----------|-------------|--------------|----------|
-| **Demeterics (Default Groq proxy)** | `01_basic_chat.py` | `api.demeterics.com/groq` | Fast inference + observability |
+| **OpenRouter (default)** | `01_basic_chat.py` | `openrouter.ai/api/v1` | One key, hundreds of models incl. free ones |
 | **OpenAI** | `01_basic_chat_OPENAI.py` | `api.openai.com` | Advanced reasoning, GPT models |
 | **Anthropic** | `01_basic_chat_ANTHROPIC.py` | `api.anthropic.com` | Claude models, nuanced responses |
 | **SambaNova** | `01_basic_chat_SAMBA.py` | `api.sambanova.ai` | Open models, enterprise focus |
+| **Groq (direct)** | `13_code_execution.py`, `14_reasoning.py` | `api.groq.com` | Groq-hosted code interpreter + prompt caching |
+
+No Demeterics anywhere — this repo is public, so every example calls a provider a
+learner can self-serve a key from directly.
 
 ## Prerequisites
 
@@ -27,35 +31,42 @@ python3 --version  # Should be 3.6 or higher
 
 **2. Set API keys (based on provider):**
 ```bash
-# Demeterics (default Groq proxy)
-export DEMETERICS_API_KEY="dmt_..."
+# OpenRouter (default for almost everything)
+export OPENROUTER_API_KEY="sk-or-..."
 
-# OpenAI (TTS + optional examples)
+# Groq (only examples 13 and 14, which use Groq-hosted-only features)
+export GROQ_API_KEY="gsk_..."
+
+# Tavily (only examples 09-11, which do live web search)
+export TAVILY_API_KEY="tvly-..."
+
+# OpenAI (only the *_OPENAI.py variants)
 export OPENAI_API_KEY="sk-..."
 
-# Anthropic (Claude)
+# Anthropic (only the *_ANTHROPIC.py variants)
 export ANTHROPIC_API_KEY="sk-ant-..."
 
-# SambaNova
+# SambaNova (only the *_SAMBA.py variants)
 export SAMBANOVA_API_KEY="..."
 ```
 
 **3. Verify setup:**
 ```bash
-echo $DEMETERICS_API_KEY
+echo $OPENROUTER_API_KEY
 python3 -c "import http.client, json, os, base64; print('All modules OK')"
 ```
-> `DEMETERICS_API_KEY` is your Managed LLM Key from the Demeterics dashboard. It unlocks the proxy endpoints for Groq, Gemini, OpenAI, and Anthropic with built-in observability.
+> `OPENROUTER_API_KEY` comes from a free account at https://openrouter.ai/keys. It
+> unlocks hundreds of models — including several free ones this repo uses by
+> default — behind one OpenAI-compatible API, no whitelist required.
 
 ## Running the Examples
 
 ```bash
 # Basic chat with different providers
-python3 01_basic_chat.py              # Demeterics Groq proxy (default)
+python3 01_basic_chat.py              # OpenRouter (default)
 python3 01_basic_chat_OPENAI.py       # OpenAI
 python3 01_basic_chat_ANTHROPIC.py    # Anthropic (Claude)
 python3 01_basic_chat_SAMBA.py        # SambaNova
-python3 01_basic_chat_DEMETERICS.py   # Via Demeterics proxy
 
 # Other examples (currently Groq only)
 python3 02_system_prompt.py
@@ -71,10 +82,10 @@ python3 07_whisper.py
 python3 08_tavily_search.py    # Web search with AI-powered answers
 python3 09_tavily_extract.py   # Extract clean content from web pages
 python3 10_tool_use.py         # AI agents with function calling
-python3 11_web_search.py       # groq/compound-mini with built-in web search
-python3 12_code_execution.py   # openai/gpt-oss-20b Python execution
-python3 13_reasoning.py        # Step-by-step thinking with prompt caching
-python3 14_text_to_speech.py   # OpenAI TTS with 11 voices
+python3 11_web_search.py       # OpenRouter's :online suffix for built-in web search
+python3 12_code_execution.py   # openai/gpt-oss-20b Python execution (direct Groq)
+python3 13_reasoning.py        # Step-by-step thinking with prompt caching (direct Groq)
+python3 15_text_to_speech.py   # Fish Audio TTS via OpenRouter (free tier)
 
 # Computer Vision (requires pip install ultralytics opencv-python numpy)
 python3 18_pose_estimation.py      # Real-time pose estimation with webcam
@@ -606,9 +617,9 @@ if os.path.exists('file.txt'):
 ### Create a reusable function
 
 ```python
-def call_groq_api(model, messages, **kwargs):
+def call_openrouter(model, messages, **kwargs):
     """
-    Call Demeterics Groq proxy with any model and messages.
+    Call OpenRouter with any model and messages.
 
     Args:
         model (str): Model ID
@@ -628,13 +639,13 @@ def call_groq_api(model, messages, **kwargs):
         **kwargs
     }
 
-    conn = http.client.HTTPSConnection("api.demeterics.com")
+    conn = http.client.HTTPSConnection("openrouter.ai")
     headers = {
         'Content-Type': 'application/json',
-        'Authorization': f'Bearer {os.environ["DEMETERICS_API_KEY"]}'
+        'Authorization': f'Bearer {os.environ["OPENROUTER_API_KEY"]}'
     }
 
-    conn.request("POST", "/groq/v1/chat/completions",
+    conn.request("POST", "/api/v1/chat/completions",
                  json.dumps(payload), headers)
     response = conn.getresponse()
     data = json.loads(response.read().decode('utf-8'))
@@ -643,8 +654,8 @@ def call_groq_api(model, messages, **kwargs):
     return data
 
 # Usage
-response = call_groq_api(
-    model="meta-llama/llama-4-scout-17b-16e-instruct",
+response = call_openrouter(
+    model="openai/gpt-oss-20b",
     messages=[{"role": "user", "content": "Hello!"}],
     temperature=0.7,
     max_tokens=100
@@ -666,18 +677,18 @@ import os
 def chat(messages):
     """Send messages to AI and get response"""
     payload = json.dumps({
-        "model": "meta-llama/llama-4-scout-17b-16e-instruct",
+        "model": "openai/gpt-oss-20b",
         "messages": messages,
         "temperature": 0.7
     })
 
-    conn = http.client.HTTPSConnection("api.demeterics.com")
+    conn = http.client.HTTPSConnection("openrouter.ai")
     headers = {
         'Content-Type': 'application/json',
-        'Authorization': f'Bearer {os.environ["DEMETERICS_API_KEY"]}'
+        'Authorization': f'Bearer {os.environ["OPENROUTER_API_KEY"]}'
     }
 
-    conn.request("POST", "/groq/v1/chat/completions", payload, headers)
+    conn.request("POST", "/api/v1/chat/completions", payload, headers)
     response = json.loads(conn.getresponse().read().decode('utf-8'))
     conn.close()
 

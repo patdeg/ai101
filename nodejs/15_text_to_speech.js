@@ -1,19 +1,15 @@
 #!/usr/bin/env node
 /*
-Example 14: Text-to-Speech with OpenAI
+Example 15: Text-to-Speech with Fish Audio (via OpenRouter)
 
 Demonstrates:
-- Converting text to spoken audio with OpenAI's TTS
-- 11 different English voice options
-- Instructions parameter for voice customization
-- Speed control (0.25x to 4.0x)
-- Multiple audio formats
-- Multi-language support
+- Converting text to spoken audio using OpenRouter's /audio/speech endpoint
+- Fish Audio S2.1 Pro Free - a genuinely free TTS model, no card required
+- Picking a voice by reference ID from Fish Audio's voice library
 
 What you'll learn:
-- How to use OpenAI's affordable TTS model
-- When to use different voices and instructions
-- Cost implications of TTS ($0.60/1M input tokens!)
+- How to call a TTS model through OpenRouter's unified API
+- Optional voice selection via a Fish Audio reference ID
 - How to save audio files from API responses
 
 Note: Uses Node.js built-in modules only (https, fs, process)
@@ -23,31 +19,36 @@ const https = require('https');
 const fs = require('fs');
 
 // Check for API key
-if (!process.env.OPENAI_API_KEY) {
-  console.error('Error: OPENAI_API_KEY environment variable not set');
-  console.error('Get your key from: https://platform.openai.com');
+if (!process.env.OPENROUTER_API_KEY) {
+  console.error('Error: OPENROUTER_API_KEY environment variable not set');
+  console.error('Get your key from: https://openrouter.ai/keys');
   process.exit(1);
 }
 
-// Function to call OpenAI TTS API
-function textToSpeech(text, voice, options = {}) {
+// Function to call OpenRouter's /audio/speech endpoint (Fish Audio S2.1 Pro Free)
+function textToSpeech(text, referenceId) {
   const requestData = {
-    model: 'gpt-4o-mini-tts',
+    model: 'fish-audio/s2.1-pro-free:free',
     input: text,
-    voice: voice,
-    ...options
+    response_format: 'mp3'
   };
+  // Without a referenceId, Fish Audio picks a default voice - good enough for
+  // a first TTS demo. Pass one to pick a specific voice (see Example 16 for
+  // the multi-speaker version of this).
+  if (referenceId) {
+    requestData.providerOptions = { fishAudio: { referenceId } };
+  }
 
   const data = JSON.stringify(requestData);
 
   const requestOptions = {
-    hostname: 'api.openai.com',
+    hostname: 'openrouter.ai',
     port: 443,
-    path: '/v1/audio/speech',
+    path: '/api/v1/audio/speech',
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+      'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
       'Content-Length': Buffer.byteLength(data)
     }
   };
@@ -62,6 +63,10 @@ function textToSpeech(text, voice, options = {}) {
 
       res.on('end', () => {
         const audioBuffer = Buffer.concat(chunks);
+        if (res.statusCode !== 200) {
+          reject(new Error(`API Error: HTTP ${res.statusCode} - ${audioBuffer.toString()}`));
+          return;
+        }
         resolve(audioBuffer);
       });
     });
@@ -77,134 +82,41 @@ function textToSpeech(text, voice, options = {}) {
 
 async function main() {
   console.log('========================================');
-  console.log('Text-to-Speech with OpenAI');
+  console.log('Text-to-Speech with Fish Audio (OpenRouter)');
   console.log('========================================\n');
 
-  // Demo 1: Basic TTS
+  // Demo 1: Basic TTS with the default voice
   console.log('========================================');
   console.log('Demo 1: Basic Text-to-Speech');
   console.log('========================================\n');
 
-  const text = "Hello! This is an example of text-to-speech synthesis using OpenAI's affordable TTS model.";
-  const voice = "alloy";
-  const outputFile = "demo1_alloy.mp3";
+  const text = "Hello! This is an example of text-to-speech synthesis using Fish Audio's free TTS model.";
+  const outputFile = 'demo1_default_voice.mp3';
 
-  console.log(`Text: ${text}`);
-  console.log(`Voice: ${voice}\n`);
+  console.log(`Text: ${text}\n`);
 
-  const audioBuffer = await textToSpeech(text, voice);
+  const audioBuffer = await textToSpeech(text);
   fs.writeFileSync(outputFile, audioBuffer);
 
   console.log(`✓ Audio created: ${outputFile} (${audioBuffer.length} bytes)\n`);
 
-  // Demo 2: Voice Comparison
+  // Demo 2: A specific voice, if the learner has picked one
   console.log('========================================');
-  console.log('Demo 2: Comparing All 11 Voices');
+  console.log('Demo 2: A Voice Picked From Fish Audio');
   console.log('========================================\n');
 
-  const comparisonText = "Welcome to OpenAI's text-to-speech demonstration.";
-  const voices = {
-    'alloy': 'Neutral, balanced',
-    'ash': 'Clear, articulate',
-    'ballad': 'Smooth, expressive',
-    'coral': 'Warm, friendly',
-    'echo': 'Clear, professional',
-    'fable': 'Narrative, storytelling',
-    'onyx': 'Deep, authoritative',
-    'nova': 'Energetic, youthful',
-    'sage': 'Calm, measured',
-    'shimmer': 'Bright, cheerful',
-    'verse': 'Poetic, expressive'
-  };
+  const referenceId = process.env.FISH_VOICE_1;
+  if (referenceId) {
+    const comparisonText = "This is the same text, spoken with a voice picked from Fish Audio's library.";
+    const voiceFile = 'demo2_chosen_voice.mp3';
 
-  console.log('Generating samples with all 11 voices...\n');
+    const voiceBuffer = await textToSpeech(comparisonText, referenceId);
+    fs.writeFileSync(voiceFile, voiceBuffer);
 
-  for (const [voiceName, description] of Object.entries(voices)) {
-    const voiceOutputFile = `voice_${voiceName}.mp3`;
-    console.log(`Voice: ${voiceName} (${description})`);
-
-    const voiceBuffer = await textToSpeech(comparisonText, voiceName);
-    fs.writeFileSync(voiceOutputFile, voiceBuffer);
-
-    console.log(`  ✓ Created: ${voiceOutputFile} (${voiceBuffer.length} bytes)\n`);
-  }
-
-  // Demo 3: Instructions Parameter
-  console.log('========================================');
-  console.log('Demo 3: Voice Customization with Instructions');
-  console.log('========================================\n');
-
-  const examples = [
-    {
-      name: 'enthusiastic',
-      text: 'The quarterly results exceeded expectations.',
-      voice: 'nova',
-      instructions: 'Speak with enthusiasm and excitement, emphasizing positive words.'
-    },
-    {
-      name: 'professional',
-      text: 'The quarterly results exceeded expectations.',
-      voice: 'onyx',
-      instructions: 'Speak in a serious, professional tone suitable for a boardroom presentation.'
-    },
-    {
-      name: 'storytelling',
-      text: 'Once upon a time, in a land far away, there lived a curious explorer.',
-      voice: 'fable',
-      instructions: 'Speak as if narrating a fairy tale, with dramatic pauses and expressive intonation.'
-    }
-  ];
-
-  for (const example of examples) {
-    const instructionFile = `instruction_${example.name}.mp3`;
-    console.log(`${example.name.charAt(0).toUpperCase() + example.name.slice(1)} delivery:`);
-    console.log(`  Instructions: "${example.instructions}"`);
-
-    const instructionBuffer = await textToSpeech(example.text, example.voice, {
-      instructions: example.instructions
-    });
-
-    fs.writeFileSync(instructionFile, instructionBuffer);
-    console.log(`  ✓ Created: ${instructionFile}\n`);
-  }
-
-  // Demo 4: Speed Control
-  console.log('========================================');
-  console.log('Demo 4: Speed Variations');
-  console.log('========================================\n');
-
-  const speedText = "This sentence demonstrates different playback speeds.";
-  const speeds = [0.5, 1.0, 1.5, 2.0];
-
-  for (const speed of speeds) {
-    const speedFile = `speed_${speed}x.mp3`;
-    console.log(`Speed: ${speed}x`);
-
-    const speedBuffer = await textToSpeech(speedText, 'alloy', { speed });
-    fs.writeFileSync(speedFile, speedBuffer);
-
-    console.log(`  ✓ Created: ${speedFile}\n`);
-  }
-
-  // Demo 5: Multi-Language
-  console.log('========================================');
-  console.log('Demo 5: Multi-Language Support');
-  console.log('========================================\n');
-
-  const languages = [
-    { lang: 'Spanish', text: 'Hola, bienvenido a la demostración de síntesis de voz.', voice: 'coral' },
-    { lang: 'French', text: 'Bonjour, bienvenue à la démonstration de synthèse vocale.', voice: 'ballad' },
-    { lang: 'German', text: 'Hallo, willkommen zur Sprachsynthese-Demonstration.', voice: 'echo' }
-  ];
-
-  for (const { lang, text: langText, voice: langVoice } of languages) {
-    const langFile = `lang_${lang.toLowerCase()}.mp3`;
-    console.log(`${lang}:`);
-
-    const langBuffer = await textToSpeech(langText, langVoice);
-    fs.writeFileSync(langFile, langBuffer);
-
-    console.log(`  ✓ Created: ${langFile}\n`);
+    console.log(`✓ Chosen voice: ${voiceFile} (${voiceBuffer.length} bytes)\n`);
+  } else {
+    console.log('Tip: set FISH_VOICE_1 to a voice ID from https://fish.audio to');
+    console.log('hear a specific voice instead of the default.\n');
   }
 
   // Cost Analysis
@@ -212,44 +124,19 @@ async function main() {
   console.log('Cost Analysis');
   console.log('========================================\n');
 
-  const inputCostPer1M = 0.60;
-  const outputCostPer1M = 12.00;
-  const textLength = text.length;
-  const estimatedInputTokens = textLength;
-  const inputCost = (estimatedInputTokens * inputCostPer1M) / 1000000;
-
-  console.log('Pricing (gpt-4o-mini-tts):');
-  console.log('  Input:  $0.60 per 1M tokens');
-  console.log('  Output: $12.00 per 1M tokens (audio duration-based)\n');
-
-  console.log('This demo:');
-  console.log(`  Text length: ${textLength} characters`);
-  console.log(`  Estimated input tokens: ${estimatedInputTokens}`);
-  console.log(`  Input cost: $${inputCost.toFixed(8)}`);
-  console.log('  Note: Output cost varies by audio duration\n');
-
-  console.log('Cost examples:');
-  console.log('  100 chars:   ~$0.00006 input');
-  console.log('  1,000 chars: ~$0.0006 input');
-  console.log('  10,000 chars: ~$0.006 input\n');
-
-  console.log('Much more affordable than alternatives!\n');
+  console.log('Pricing (fish-audio/s2.1-pro-free:free):');
+  console.log('  $0 - free tier, rate-limited, best-effort availability');
+  console.log('  (meant for learning/prototyping, not production)\n');
 
   // Summary
   console.log('========================================');
   console.log('Summary');
   console.log('========================================\n');
-  console.log('✓ Generated audio with all 11 voices');
-  console.log('✓ Demonstrated instructions parameter');
-  console.log('✓ Showed speed control (0.5x to 2.0x)');
-  console.log('✓ Tested multi-language support');
-  console.log('✓ Affordable pricing: $0.60/1M input tokens\n');
-
-  console.log('Voice selection guide:');
-  console.log('  Professional: echo, onyx, sage');
-  console.log('  Friendly: coral, nova, shimmer');
-  console.log('  Storytelling: fable, ballad, verse');
-  console.log('  Neutral: alloy, ash\n');
+  console.log('✓ Generated audio with the default voice');
+  console.log('✓ Showed how to pick a specific voice by reference ID');
+  console.log('✓ Zero cost on the free tier\n');
+  console.log('Next: Example 16 (podcast) uses this same model for a');
+  console.log('two-speaker conversation in a single API call.\n');
 }
 
 main().catch(error => {

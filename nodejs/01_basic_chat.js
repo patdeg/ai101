@@ -18,8 +18,8 @@
  *
  * PREREQUISITES:
  * - Node.js installed (v14 or higher)
- * - DEMETERICS_API_KEY environment variable set
- *   Run: export DEMETERICS_API_KEY="your-key-here"
+ * - OPENROUTER_API_KEY environment variable set
+ *   Run: export OPENROUTER_API_KEY="your-key-here"
  *
  * EXPECTED OUTPUT:
  * - Full JSON response from the API
@@ -37,7 +37,7 @@ const https = require('https');
 // Step 2: Prepare the request payload (the data we'll send to the AI)
 // JSON.stringify() converts JavaScript object to JSON string format
 const data = JSON.stringify({
-  model: "meta-llama/llama-4-scout-17b-16e-instruct",  // Which AI model to use
+  model: "openai/gpt-oss-20b",  // Which AI model to use ($0.03/1M input, $0.13/1M output)
   messages: [
     {
       role: "user",                                      // Who is speaking (user, system, or assistant)
@@ -51,13 +51,13 @@ const data = JSON.stringify({
 // Step 3: Configure the HTTP request options
 // This tells Node.js WHERE and HOW to send the request
 const options = {
-  hostname: 'api.demeterics.com',                    // The API server
+  hostname: 'openrouter.ai',                    // The API server
   port: 443,                                    // HTTPS port (443 = secure, 80 = unsecure)
-  path: '/groq/v1/chat/completions',         // The specific API endpoint
+  path: '/api/v1/chat/completions',         // The specific API endpoint
   method: 'POST',                               // HTTP method (POST = sending data)
   headers: {
     'Content-Type': 'application/json',                        // We're sending JSON
-    'Authorization': `Bearer ${process.env.DEMETERICS_API_KEY}`,    // Your API key from environment
+    'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,    // Your API key from environment
     'Content-Length': Buffer.byteLength(data)                  // Size of data in bytes (required for POST)
   }
 };
@@ -131,8 +131,8 @@ req.end();
 //   Converts JavaScript object to JSON string
 //   Second parameter (null, 2) = pretty print with 2 spaces
 //
-// process.env.DEMETERICS_API_KEY
-//   Reads environment variable (same as $DEMETERICS_API_KEY in bash)
+// process.env.OPENROUTER_API_KEY
+//   Reads environment variable (same as $OPENROUTER_API_KEY in bash)
 //
 // Buffer.byteLength(data)
 //   Calculates exact size of data in bytes

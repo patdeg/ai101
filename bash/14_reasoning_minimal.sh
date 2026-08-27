@@ -19,21 +19,25 @@
 # - Cached input tokens cost 50% less ($0.05/1M vs $0.10/1M)
 # - Messages earlier in the array are more likely to be cached
 #
+# Prerequisites:
+# - GROQ_API_KEY environment variable (direct Groq, not a proxy — this
+#   example relies on Groq-native prompt caching)
+#
 ################################################################################
 
 # Check for API key
-if [ -z "$DEMETERICS_API_KEY" ]; then
-  echo "Error: DEMETERICS_API_KEY not set" >&2
+if [ -z "$GROQ_API_KEY" ]; then
+  echo "Error: GROQ_API_KEY not set" >&2
   exit 1
 fi
 
 # API endpoint
-API_URL="https://api.demeterics.com/groq/v1/chat/completions"
+API_URL="https://api.groq.com/openai/v1/chat/completions"
 
 # Example query requiring reasoning
 curl -s -X POST "$API_URL" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $DEMETERICS_API_KEY" \
+  -H "Authorization: Bearer $GROQ_API_KEY" \
   -d @- <<'EOF'
 {
   "model": "openai/gpt-oss-20b",

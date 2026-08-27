@@ -23,7 +23,7 @@
  *
  * HOW TO USE:
  * 1. Update WIFI_SSID and WIFI_PASSWORD with your WiFi credentials
- * 2. Update DEMETERICS_API_KEY with your Demeterics Managed LLM Key from https://demeterics.com
+ * 2. Update OPENROUTER_API_KEY with your API key from https://openrouter.ai (free signup)
  * 3. Upload to your ESP32/ESP8266 board
  * 4. Open Serial Monitor at 115200 baud to see output
  *
@@ -50,11 +50,11 @@
 // ============================================================================
 const char* WIFI_SSID = "YOUR_WIFI_SSID";
 const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";
-const char* DEMETERICS_API_KEY = "YOUR_DEMETERICS_API_KEY";
+const char* OPENROUTER_API_KEY = "YOUR_OPENROUTER_API_KEY";
 
-const char* DEMETERICS_HOST = "api.demeterics.com";
+const char* OPENROUTER_HOST = "openrouter.ai";
 const int HTTPS_PORT = 443;
-const char* API_PATH = "/groq/v1/chat/completions";
+const char* API_PATH = "/api/v1/chat/completions";
 
 // ============================================================================
 // ARDUINO SETUP FUNCTION - Runs once when board starts
@@ -67,7 +67,7 @@ void setup() {
   // Brief delay to allow serial connection to stabilize
   delay(1000);
 
-  Serial.println("\n\n=== Demeterics Groq proxy System Prompt Example ===");
+  Serial.println("\n\n=== OpenRouter System Prompt Example ===");
   Serial.println("Demonstrating how to use system prompts to control AI behavior\n");
 
   // ------------------------------------------------------------------------
@@ -98,7 +98,7 @@ void setup() {
   Serial.println(WiFi.localIP());
 
   // ------------------------------------------------------------------------
-  // STEP 2: Create HTTPS client and connect to Demeterics Groq proxy
+  // STEP 2: Create HTTPS client and connect to OpenRouter
   // ------------------------------------------------------------------------
   // WiFiClientSecure handles encrypted HTTPS connections
   WiFiClientSecure client;
@@ -111,15 +111,15 @@ void setup() {
     client.setInsecure();
   #endif
 
-  Serial.println("\nConnecting to Demeterics Groq proxy...");
+  Serial.println("\nConnecting to OpenRouter...");
 
   // Establish TCP connection to the API server
-  if (!client.connect(DEMETERICS_HOST, HTTPS_PORT)) {
-    Serial.println("ERROR: Connection to Demeterics Groq proxy failed!");
+  if (!client.connect(OPENROUTER_HOST, HTTPS_PORT)) {
+    Serial.println("ERROR: Connection to OpenRouter failed!");
     return;
   }
 
-  Serial.println("Connected to Demeterics Groq proxy!");
+  Serial.println("Connected to OpenRouter!");
 
   // ------------------------------------------------------------------------
   // STEP 3: Build JSON request with SYSTEM and USER messages
@@ -140,7 +140,7 @@ void setup() {
   StaticJsonDocument<1024> requestDoc;
 
   // Select the AI model to use
-  requestDoc["model"] = "llama-3.1-8b-instant";
+  requestDoc["model"] = "openai/gpt-oss-20b";
 
   // Create the messages array - this will hold our system and user messages
   JsonArray messages = requestDoc.createNestedArray("messages");
@@ -186,9 +186,9 @@ void setup() {
   // STEP 4: Send HTTP POST request
   // ------------------------------------------------------------------------
   String request = String("POST ") + API_PATH + " HTTP/1.1\r\n";
-  request += String("Host: ") + DEMETERICS_HOST + "\r\n";
+  request += String("Host: ") + OPENROUTER_HOST + "\r\n";
   request += "Content-Type: application/json\r\n";
-  request += String("Authorization: Bearer ") + DEMETERICS_API_KEY + "\r\n";
+  request += String("Authorization: Bearer ") + OPENROUTER_API_KEY + "\r\n";
   request += String("Content-Length: ") + requestBody.length() + "\r\n";
   request += "Connection: close\r\n";
   request += "\r\n";
