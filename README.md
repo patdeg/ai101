@@ -465,3 +465,12 @@ After completing these examples and exercises, you can:
 **Ready for a full project?** Check out **[minecraft/mcchatbot](minecraft/mcchatbot/)** - an AI-powered Minecraft assistant that demonstrates system prompts, tool calling, and AI safety with dramatic lightning strikes for moderation! It's the most fun way to see everything you've learned come together.
 
 **Pick a language folder and start coding!**
+
+## License
+
+- **Code** (everything under the language folders) is under the [MIT License](LICENSE).
+- **Lessons, text and diagrams** are under
+  [Creative Commons Attribution 4.0](LICENSE-CONTENT) (CC BY 4.0). Use and
+  adapt them freely, including for teaching, and credit "Patrick Deglon" with
+  a link to this repository.
+- Third-party media files (sample audio and images) keep their original terms.
