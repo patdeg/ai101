@@ -144,7 +144,7 @@ int main() {
     std::string data_url = "data:image/jpeg;base64," + image_base64;
 
     json request_body = {
-        {"model", "google/gemma-4-31b-it"},
+        {"model", "google/gemini-3.8-flash"},
         {"messages", {
             {
                 {"role", "user"},

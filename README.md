@@ -69,6 +69,7 @@ Each provider has its own example file (e.g., `01_basic_chat_OPENAI.py`) showing
 6. **Safety Check (Image)** - Image content moderation with LlamaGuard Vision
 7. **Prompt Guard** - Detecting jailbreak attempts
 8. **Whisper Audio** - Transcribing audio to text with Whisper
+8b. **Whisper Local** - Speech-to-text on your own computer with faster-whisper, $0 and private (Python only, optional pip install)
 9. **Tavily Search** - Web search with AI-powered answers
 10. **Tavily Extract** - Extract clean content from web pages
 11. **Tool Use** - AI agents with function calling (OpenRouter + Tavily)
@@ -78,6 +79,10 @@ Each provider has its own example file (e.g., `01_basic_chat_OPENAI.py`) showing
 15. **Text-to-Speech** - Voice synthesis with Fish Audio S2.1 Pro (via OpenRouter)
 16. **Podcast** - Two-speaker podcast generation with Fish Audio S2.1 Pro (via OpenRouter)
 18. **Pose Estimation** - Real-time computer vision with webcam skeleton overlay (Python, Go)
+19. **Audiobook Voices** - Narrator + two-character dialogue with Gemini multi-speaker TTS (Python only)
+20. **Audiobook SFX** - Sound effects from text prompts with ElevenLabs (Python only)
+21. **Audiobook Music** - An AI composes, we write MIDI and render it with a tiny synthesizer (Python only)
+22. **Audiobook Mix** - Music, narration, SFX, dialogue, SFX, music on one timeline (Python only)
 
 ## 🎮 Featured Project: Alfred the Minecraft AI Counselor
 
@@ -242,16 +247,15 @@ availability at https://openrouter.ai/models (free-tier models rotate over time)
 
 | Model | Purpose | Pricing (per 1M tokens) |
 |-------|---------|------------------------|
-| [`openai/gpt-oss-20b`](https://openrouter.ai/openai/gpt-oss-20b) | Chat, System Prompt, Templates, Tool Use | Input: $0.03/1M<br>Output: $0.13/1M |
-| [`google/gemma-4-31b-it`](https://openrouter.ai/google/gemma-4-31b-it) | Vision | Input: $0.09/1M<br>Output: $0.34/1M |
+| [`qwen/qwen3.8-flash`](https://openrouter.ai/qwen/qwen3.8-flash) | Chat, System Prompt, Templates, Tool Use, AI composer (lesson 21) | Input: $0.15/1M<br>Output: $0.47/1M |
+| [`google/gemini-3.8-flash`](https://openrouter.ai/google/gemini-3.8-flash) | Vision, Web Search (`:online`) | Input: $0.83/1M<br>Output: $4.13/1M (`:online` search adds about $0.03 per request) |
 | [`meta-llama/llama-guard-4-12b`](https://openrouter.ai/meta-llama/llama-guard-4-12b) | Content Safety (Text + Vision) | Input: $0.18/1M<br>Output: $0.18/1M |
 | [`openai/gpt-oss-safeguard-20b`](https://openrouter.ai/openai/gpt-oss-safeguard-20b) | Prompt Injection Detection | Input: $0.075/1M<br>Output: $0.30/1M |
 | [`openai/whisper-1`](https://openrouter.ai/openai/whisper-1) | Audio Transcription (`/audio/transcriptions`) | **$0.006 per minute of audio** |
 | [`fish-audio/s2.1-pro-free:free`](https://openrouter.ai/fish-audio/s2.1-pro-free:free) | Text-to-Speech, 2-speaker Podcast (`/audio/speech`) | Free |
-| any model + `:online` suffix | Web Search (search-augmented generation) | Model's own cost + ~$0.005/request (search) |
+| `:online` suffix on a supporting model (verified: `google/gemini-3.8-flash:online`) | Web Search (search-augmented generation) | About $0.03/request measured; did NOT work on `qwen/qwen3.8-flash` |
 
-Both `openai/gpt-oss-20b` and `google/gemma-4-31b-it` have genuinely free
-`:free` variants on OpenRouter, but this repo uses the small-paid versions
+Free `:free` variants exist for some models on OpenRouter, but they were unreliable in testing (empty answers, 429s), so this repo uses the small-paid versions
 instead — the free tiers proved unreliable during testing (verbose
 chain-of-thought reasoning that burns through `max_tokens` before reaching an
 answer, occasional upstream rate-limiting, and flaky multi-turn tool-call
@@ -274,7 +278,7 @@ answer reliably.
 
 ```json
 {
-  "model": "openai/gpt-oss-20b",
+  "model": "qwen/qwen3.8-flash",
   "messages": [
     {
       "role": "system",
@@ -312,7 +316,7 @@ answer reliably.
 
 ```json
 {
-  "model": "google/gemma-4-31b-it",
+  "model": "google/gemini-3.8-flash",
   "messages": [
     {
       "role": "user",
@@ -348,7 +352,7 @@ answer reliably.
   "id": "chatcmpl-123",
   "object": "chat.completion",
   "created": 1234567890,
-  "model": "openai/gpt-oss-20b",
+  "model": "qwen/qwen3.8-flash",
   "choices": [
     {
       "index": 0,
@@ -431,6 +435,7 @@ Ready to experiment and build? Check out the [**exercises/**](exercises/) direct
 - **[Exercise 14: Text-to-Speech](exercises/14_text_to_speech.md)** - Voice synthesis with Fish Audio (free)
 - **[Exercise 15: Podcast](exercises/16_podcast.md)** - Multi-speaker podcast generation with Fish Audio
 - **[Exercise 18: Pose Estimation](exercises/18_pose_estimation.md)** - Computer vision, blue ball → shapes → ArUco → skeleton
+- **[Exercises 19-22: Audiobook series](exercises/19_audiobook_voices.md)** - Build a full audio drama: Gemini voices, ElevenLabs SFX, AI-composed MIDI music, and the final mix
 
 Each exercise file includes:
 - Progressive difficulty levels

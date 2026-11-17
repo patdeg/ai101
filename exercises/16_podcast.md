@@ -1,6 +1,6 @@
 # Exercise 16: Multi-Speaker Podcast Generation
 
-[Previous: Text-to-Speech](15_text_to_speech.md) | [Index](README.md)
+[Previous: Text-to-Speech](15_text_to_speech.md) | [Index](README.md) | [Next: Pose Estimation](18_pose_estimation.md)
 
 ---
 
@@ -182,6 +182,41 @@ Design a podcast series for Victor (14, learning AI).
 
 ---
 
+## Exercise 8: Same Script, Different Engine (Analyze)
+
+The podcast example uses Fish Audio. Lesson 19 ([`python/19_audiobook_voices.py`](../python/19_audiobook_voices.py)) does the same job with **Gemini multi-speaker TTS**.
+
+**Task**:
+1. Put your Exercise 2 script into `python/audiobook/episode.json` (exactly two speakers) and run lesson 19
+2. Listen to both versions side by side
+
+**Questions**:
+1. How does each engine pick a voice (an opaque ID you copy, or a named voice)?
+2. Which one follows a style direction like "whisper this part"? How do you know?
+3. Which has the better free tier for a student? What does each cost per minute of audio?
+
+## Exercise 9: From Podcast to Audio Drama (Create)
+
+A podcast is voices only. Drama adds **music and sound effects**. Take your best script and build the full chain with the audiobook series:
+
+`music -> narration -> SFX -> dialogue -> SFX -> music`
+
+1. Lesson 19 for the voices
+2. Lesson 20 for two sound effects (do the napkin math on credits first)
+3. Lesson 21 for a theme (try the `--offline` score first, then let the AI compose)
+4. Lesson 22 to mix
+
+**Requirement**: Write one paragraph on which of the five sounds improved the story most, and which one you would cut.
+
+## Exercise 10: Sound Hygiene (Analyze)
+
+Listen to your finished drama on phone speakers and on headphones.
+
+1. Can you understand every word on the phone?
+2. Where does the music fight the voices? Fix it with a lower `gain` or a longer `fade_out` in lesson 22.
+
+---
+
 ## Real-World Applications
 
 After completing these exercises, you can build:
@@ -240,9 +275,10 @@ Congratulations! You've completed the AI101 exercise series. You now know how to
 - Apply reasoning with prompt caching
 - Generate speech with TTS
 - **Create multi-speaker podcasts**
+- **Turn a podcast into an audio drama** with Gemini voices, ElevenLabs effects, AI-composed music and your own mixer (exercises 19-22)
 
 You're ready to build real AI applications!
 
 ---
 
-[Previous: Text-to-Speech](15_text_to_speech.md) | [Index](README.md)
+[Previous: Text-to-Speech](15_text_to_speech.md) | [Index](README.md) | [Next: Pose Estimation](18_pose_estimation.md)

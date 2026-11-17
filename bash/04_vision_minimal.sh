@@ -10,7 +10,7 @@ curl -s https://openrouter.ai/api/v1/chat/completions \
   -H "Authorization: Bearer $OPENROUTER_API_KEY" \
   -d @- <<EOF
 {
-  "model": "google/gemma-4-31b-it",
+  "model": "google/gemini-3.8-flash",
   "messages": [{
     "role": "user",
     "content": [
@@ -23,6 +23,6 @@ curl -s https://openrouter.ai/api/v1/chat/completions \
 EOF
 
 # Parameters explained:
-# model - google/gemma-4-31b-it, a cheap vision-capable model on OpenRouter
+# model - google/gemini-3.8-flash, a cheap vision-capable model on OpenRouter
 # content array - Mix of text and image_url types
 # image_url - Base64-encoded image data URI

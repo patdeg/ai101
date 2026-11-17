@@ -32,6 +32,14 @@ type ChatRequest struct {
 	// 1 token ≈ 0.75 words. Typical values: 100-2000
 	// Optional field
 	MaxTokens int `json:"max_tokens,omitempty"`
+
+	// Reasoning controls hidden "thinking". Reasoning models think first, and that hidden thinking counts against max_tokens. For short answers we switch it off.
+	Reasoning *Reasoning `json:"reasoning,omitempty"`
+}
+
+// Reasoning is the OpenRouter "reasoning" setting. Enabled=false turns thinking off.
+type Reasoning struct {
+	Enabled bool `json:"enabled"`
 }
 
 type Message struct {
@@ -130,7 +138,7 @@ func main() {
 	// We build a ChatRequest struct that will be converted to JSON
 	// This struct contains all the information the API needs
 	request := ChatRequest{
-		Model: "openai/gpt-oss-20b", // Free model on OpenRouter
+		Model: "qwen/qwen3.8-flash", // Fast, cheap model on OpenRouter
 		Messages: []Message{
 			{
 				Role:    "user",                               // "user" means this is our question
@@ -139,6 +147,7 @@ func main() {
 		},
 		Temperature: 0.7, // Controls randomness (0.0 = deterministic, 2.0 = very random)
 		MaxTokens:   100, // Maximum length of response
+		Reasoning:   &Reasoning{Enabled: false}, // thinking off for a short answer
 	}
 
 	// Step 3: Convert struct to JSON

@@ -64,7 +64,7 @@ RESPONSE=$(curl -s "$API_URL" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $OPENROUTER_API_KEY" \
   -d '{
-    "model": "google/gemma-4-31b-it",
+    "model": "google/gemini-3.8-flash",
     "messages": [
       {
         "role": "user",
@@ -118,11 +118,11 @@ echo "     - Your text question (~10-20 tokens)"
 echo "     - The image itself (500-2000 tokens depending on size)"
 
 # STEP 8: Calculate the cost of this API call
-# Pricing for google/gemma-4-31b-it on OpenRouter: $0.09/1M input,
-# $0.34/1M output. Not the ":free" tier - that variant was too congested
+# Pricing for google/gemini-3.8-flash on OpenRouter: $0.83/1M input,
+# $4.13/1M output. Not the ":free" tier - that variant was too congested
 # upstream to be reliable, so this example uses the small-but-paid version.
-VISION_INPUT_COST=$(echo "scale=8; $PROMPT_TOKENS * 0.09 / 1000000" | bc)
-VISION_OUTPUT_COST=$(echo "scale=8; $COMPLETION_TOKENS * 0.34 / 1000000" | bc)
+VISION_INPUT_COST=$(echo "scale=8; $PROMPT_TOKENS * 0.83 / 1000000" | bc)
+VISION_OUTPUT_COST=$(echo "scale=8; $COMPLETION_TOKENS * 4.13 / 1000000" | bc)
 VISION_TOTAL_COST=$(echo "scale=8; $VISION_INPUT_COST + $VISION_OUTPUT_COST" | bc)
 echo ""
 echo "========================================"
@@ -140,7 +140,7 @@ echo "  burns 500-2000+ prompt tokens."
 #
 # Here's the request body with detailed explanations:
 # {
-#   "model": "google/gemma-4-31b-it",
+#   "model": "google/gemini-3.8-flash",
 #     ↑ A different model than example 1 - this one supports vision!
 #     Not all models can analyze images - check a model's "modalities"
 #     on https://openrouter.ai/models before assuming it can see

@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	defaultModel        = "openai/gpt-oss-20b"
+	defaultModel        = "qwen/qwen3.8-flash"
 	defaultLogPath      = "/usr/local/games/minecraft_server/MyServer/logs/latest.log"
 	defaultScreenTarget = "mc-MyServer"
 	defaultSpawnPoint   = "0 80 0"

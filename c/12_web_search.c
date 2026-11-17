@@ -81,7 +81,7 @@ int main(void) {
     /* Appending ":online" to any model slug turns on OpenRouter's built-in
      * web-search plugin (default engine Exa, ~$0.005/request for the first
      * 10 results) -- the model searches automatically when it needs to. */
-    cJSON_AddStringToObject(root, "model", "openai/gpt-oss-20b:online");
+    cJSON_AddStringToObject(root, "model", "google/gemini-3.8-flash:online");
     cJSON_AddItemToObject(root, "messages", messages);
     cJSON_AddNumberToObject(root, "max_tokens", 1200);
 
@@ -178,7 +178,7 @@ int main(void) {
 /*
  * ":online" PLUGIN NOTES:
  *
- * <model>:online (e.g. openai/gpt-oss-20b:online):
+ * <model>:online (e.g. google/gemini-3.8-flash:online):
  *   - Adds built-in web search capability to any model
  *   - Automatically decides when to search
  *   - Returns web-grounded responses

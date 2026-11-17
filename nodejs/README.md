@@ -581,7 +581,7 @@ function callOpenRouter(model, messages, options = {}) {
 
 // Usage
 callOpenRouter(
-  'openai/gpt-oss-20b',
+  'qwen/qwen3.8-flash',
   [{ role: 'user', content: 'Hi!' }],
   { temperature: 0.7 }
 )
@@ -619,7 +619,7 @@ function chat() {
     messages.push({ role: 'user', content: input });
 
     const response = await callOpenRouter(
-      'openai/gpt-oss-20b',
+      'qwen/qwen3.8-flash',
       messages
     );
 

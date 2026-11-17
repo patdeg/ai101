@@ -87,7 +87,7 @@ def call_groq(messages, tools=None, tool_choice=None):
     }
 
     request_data = {
-        'model': 'openai/gpt-oss-20b',
+        'model': 'qwen/qwen3.8-flash',
         'messages': messages
     }
 
@@ -221,7 +221,7 @@ def main():
     print(f'Completion tokens: {usage["completion_tokens"]}')
     print(f'Total tokens: {usage["total_tokens"]}')
 
-    cost = (usage['prompt_tokens'] * 0.11 + usage['completion_tokens'] * 0.34) / 1000000
+    cost = (usage['prompt_tokens'] * 0.15 + usage['completion_tokens'] * 0.47) / 1000000
     print(f'Cost: ${cost:.6f}\n')
 
     print('========================================')

@@ -86,7 +86,7 @@ const imageUrl = `data:${mimeType};base64,${imageBase64}`;
 // Step 6: Create the request payload with both text and image
 // Notice the content is now an ARRAY of objects (not a string)
 const data = JSON.stringify({
-  model: "google/gemma-4-31b-it",
+  model: "google/gemini-3.8-flash",
   messages: [
     {
       role: "user",

@@ -215,7 +215,7 @@ func main() {
 	// The Content field is now an ARRAY of ContentItem structs
 	// This allows us to mix text and images in a single message
 	request := VisionRequest{
-		Model: "google/gemma-4-31b-it", // Free vision-capable model on OpenRouter
+		Model: "google/gemini-3.8-flash", // Fast vision-capable model on OpenRouter
 		Messages: []VisionMessage{
 			{
 				Role: "user", // This is still a user message

@@ -39,7 +39,7 @@ fi
 API_URL="https://openrouter.ai/api/v1/chat/completions"
 
 echo "========================================"
-echo "Web Search with openai/gpt-oss-20b:online"
+echo "Web Search with google/gemini-3.8-flash:online"
 echo "========================================"
 echo "Question: Top AI model releases last week with links"
 echo
@@ -58,7 +58,7 @@ echo
 
 PAYLOAD=$(cat <<'JSON'
 {
-  "model": "openai/gpt-oss-20b:online",
+  "model": "google/gemini-3.8-flash:online",
   "messages": [
     {"role": "system", "content": "You are a helpful research assistant. Provide concise answers with source links. If search is needed, use it."},
     {"role": "user",   "content": "What were the top 3 AI model releases last week? Include links and 1-sentence summaries."}
@@ -118,8 +118,8 @@ fi
 # EXERCISES (Try these by editing payload and re-running)
 ################################################################################
 # 1) Model size:
-#    Change "model" to e.g. "openai/gpt-oss-120b:online" for potentially
-#    stronger results (no longer a ":free" model, so check pricing first).
+#    Try another model with ":online" (not every model supports it: check
+#    that the search actually ran, e.g. the request cost is more than a tiny fraction of a cent).
 #
 # 2) Query logic:
 #    Ask a boolean-style query, e.g.: "(OpenAI OR Meta) AND release notes last 7 days".

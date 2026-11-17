@@ -85,7 +85,14 @@ python3 10_tool_use.py         # AI agents with function calling
 python3 11_web_search.py       # OpenRouter's :online suffix for built-in web search
 python3 12_code_execution.py   # openai/gpt-oss-20b Python execution (direct Groq)
 python3 13_reasoning.py        # Step-by-step thinking with prompt caching (direct Groq)
+python3 08b_whisper_local.py     # Optional: Whisper on your own computer (pip install faster-whisper)
 python3 15_text_to_speech.py   # Fish Audio TTS via OpenRouter (free tier)
+
+# Audiobook series (needs GEMINI_API_KEY, ELEVENLABS_API_KEY; OPENROUTER_API_KEY optional)
+python3 19_audiobook_voices.py # Gemini TTS: narrator + two-person dialogue
+python3 20_audiobook_sfx.py    # ElevenLabs sound effects from text
+python3 21_audiobook_music.py  # AI writes the score; we render MIDI + WAV (--offline works without a key)
+python3 22_audiobook_mix.py    # Mix music, narration, SFX, dialogue, SFX, music (no API calls)
 
 # Computer Vision (requires pip install ultralytics opencv-python numpy)
 python3 18_pose_estimation.py      # Real-time pose estimation with webcam
@@ -655,7 +662,7 @@ def call_openrouter(model, messages, **kwargs):
 
 # Usage
 response = call_openrouter(
-    model="openai/gpt-oss-20b",
+    model="qwen/qwen3.8-flash",
     messages=[{"role": "user", "content": "Hello!"}],
     temperature=0.7,
     max_tokens=100
@@ -677,7 +684,7 @@ import os
 def chat(messages):
     """Send messages to AI and get response"""
     payload = json.dumps({
-        "model": "openai/gpt-oss-20b",
+        "model": "qwen/qwen3.8-flash",
         "messages": messages,
         "temperature": 0.7
     })

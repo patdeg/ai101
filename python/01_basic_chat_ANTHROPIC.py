@@ -51,7 +51,7 @@ if not api_key:
 
 # Note: Anthropic REQUIRES max_tokens (unlike OpenAI where it's optional)
 payload = {
-    "model": "claude-haiku-4-5",  # Claude's fast, efficient model
+    "model": "claude-haiku-5-5",  # Claude's fast, efficient model
     "max_tokens": 100,             # REQUIRED for Anthropic
     "temperature": 0.7,            # Creativity level
     "messages": [
@@ -155,7 +155,7 @@ finally:
 #   - Token usage fields: input_tokens/output_tokens instead of prompt/completion
 #
 # Models available:
-#   - claude-haiku-4-5: Fast and efficient
+#   - claude-haiku-5-5: Fast and efficient
 #   - claude-sonnet: Balanced performance
 #   - claude-opus: Most capable, highest quality
 #

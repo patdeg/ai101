@@ -266,7 +266,7 @@ public class GroqListener implements Listener {
         // 1. Build the full JSON payload
         JsonObject payload = new JsonObject();
         payload.add("messages", messages);
-        payload.addProperty("model", "openai/gpt-oss-20b");
+        payload.addProperty("model", "qwen/qwen3.8-flash");
         String requestBody = gson.toJson(payload);
 
         // 2. Create the HTTP request

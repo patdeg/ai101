@@ -29,7 +29,7 @@
 # This example demonstrates:
 # -------------------------
 # - Defining tools as bash functions
-# - OpenRouter function calling with openai/gpt-oss-20b
+# - OpenRouter function calling with qwen/qwen3.8-flash
 # - Tavily Search and Extract as tools
 # - Multi-step agent workflow
 #
@@ -140,7 +140,7 @@ INITIAL_RESPONSE=$(curl -s -X POST "https://openrouter.ai/api/v1/chat/completion
   -H "Content-Type: application/json" \
   -d @- <<EOF
 {
-  "model": "openai/gpt-oss-20b",
+  "model": "qwen/qwen3.8-flash",
   "messages": [
     {
       "role": "user",
@@ -276,7 +276,7 @@ FINAL_RESPONSE=$(curl -s -X POST "https://openrouter.ai/api/v1/chat/completions"
   -H "Content-Type: application/json" \
   -d @- <<EOF
 {
-  "model": "openai/gpt-oss-20b",
+  "model": "qwen/qwen3.8-flash",
   "messages": $MESSAGES_JSON,
   "tool_choice": "none"
 }
@@ -308,10 +308,10 @@ echo -e "${YELLOW}Completion tokens:${NC} $COMPLETION_TOKENS"
 echo -e "${YELLOW}Total tokens:${NC} $TOTAL_TOKENS"
 echo ""
 
-# Cost: openai/gpt-oss-20b pricing on OpenRouter is $0.03/1M input,
-# $0.13/1M output — this whole multi-step agent run (both API calls plus
+# Cost: qwen/qwen3.8-flash pricing on OpenRouter is $0.15/1M input,
+# $0.47/1M output — this whole multi-step agent run (both API calls plus
 # the Tavily search) typically costs a small fraction of a cent.
-TOOL_USE_COST=$(echo "scale=8; ($PROMPT_TOKENS * 0.03 + $COMPLETION_TOKENS * 0.13) / 1000000" | bc)
+TOOL_USE_COST=$(echo "scale=8; ($PROMPT_TOKENS * 0.15 + $COMPLETION_TOKENS * 0.47) / 1000000" | bc)
 echo -e "${YELLOW}Cost:${NC} \$$TOOL_USE_COST"
 echo ""
 

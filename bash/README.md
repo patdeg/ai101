@@ -96,7 +96,7 @@ export GEMINI_API_KEY="..."
 | **08 Tavily Search** | `08_tavily_search_minimal.sh` | `08_tavily_search_full.sh` | Web search with AI-powered answers |
 | **09 Tavily Extract** | `09_tavily_extract_minimal.sh` | `09_tavily_extract_full.sh` | Extract clean content from web pages |
 | **10 Tool Use** | `10_tool_use_minimal.sh` | `10_tool_use_full.sh` | AI agents with function calling |
-| **11 Web Search** | `11_web_search_minimal.sh` | `11_web_search_full.sh` | openai/gpt-oss-20b:online with built-in web search |
+| **11 Web Search** | `11_web_search_minimal.sh` | `11_web_search_full.sh` | google/gemini-3.8-flash:online with built-in web search |
 | **12 Code Execution** | `12_code_execution_minimal.sh` | `12_code_execution_full.sh` | openai/gpt-oss-20b Python execution |
 | **13 Reasoning** | `13_reasoning_minimal.sh` | `13_reasoning_full.sh` | Step-by-step thinking with prompt caching |
 | **15 Text-to-Speech** | `15_text_to_speech_minimal.sh` | `15_text_to_speech_full.sh` | Fish Audio TTS via OpenRouter (free tier) |
@@ -147,7 +147,7 @@ which OpenRouter doesn't expose the same way.
 
 ### Minimal Version Output:
 ```json
-{"id":"chatcmpl-123","object":"chat.completion","created":1234567890,"model":"openai/gpt-oss-20b","choices":[{"index":0,"message":{"role":"assistant","content":"The capital of Switzerland is Bern."},"finish_reason":"stop"}],"usage":{"prompt_tokens":15,"completion_tokens":8,"total_tokens":23}}
+{"id":"chatcmpl-123","object":"chat.completion","created":1234567890,"model":"qwen/qwen3.8-flash","choices":[{"index":0,"message":{"role":"assistant","content":"The capital of Switzerland is Bern."},"finish_reason":"stop"}],"usage":{"prompt_tokens":15,"completion_tokens":8,"total_tokens":23}}
 ```
 
 ### Full Version Output:
@@ -161,7 +161,7 @@ Raw API Response (pretty-printed):
   "id": "chatcmpl-123",
   "object": "chat.completion",
   "created": 1234567890,
-  "model": "openai/gpt-oss-20b",
+  "model": "qwen/qwen3.8-flash",
   "choices": [
     {
       "index": 0,
@@ -194,8 +194,8 @@ Token Usage:
 ========================================
 Cost Breakdown:
 ========================================
-  This is openai/gpt-oss-20b — a fraction of a cent per call, and reliably answers within the token budget below.
-  (Paid rate for reference: $0.08/1M input, $0.20/1M output tokens.)
+  This is qwen/qwen3.8-flash — a fraction of a cent per call, and reliably answers within the token budget below.
+  (Paid rate for reference: $0.15/1M input, $0.47/1M output tokens.)
 ```
 
 ## 🛠️ Prerequisites
@@ -262,8 +262,8 @@ get a free key at [console.groq.com](https://console.groq.com) and export
 
 | Model | Input | Output | Use Case |
 |-------|-------|--------|----------|
-| `openai/gpt-oss-20b` | $0.03/1M | $0.13/1M | General chat, tool use |
-| `google/gemma-4-31b-it` | $0.09/1M | $0.34/1M | Vision |
+| `qwen/qwen3.8-flash` | $0.15/1M | $0.47/1M | General chat, tool use |
+| `google/gemini-3.8-flash` | $0.83/1M | $4.13/1M | Vision, web search (`:online`) |
 | `meta-llama/llama-guard-4-12b` | $0.18/1M | $0.18/1M | Content moderation (text + images) |
 | `openai/gpt-oss-safeguard-20b` | $0.075/1M | $0.30/1M | Prompt-injection / jailbreak detection |
 | `openai/whisper-1` | $0.006/minute of audio | - | Speech-to-text |
@@ -317,7 +317,7 @@ Ready to deepen your understanding? Check out the **[exercises/](../exercises/)*
 - **[Exercise 8: Tavily Search](../exercises/08_tavily_search.md)** - Web search, time filters, domain control
 - **[Exercise 9: Tavily Extract](../exercises/09_tavily_extract.md)** - Content extraction, article analysis
 - **[Exercise 10: Tool Use](../exercises/10_tool_use.md)** - AI agents, function calling, autonomous workflows
-- **[Exercise 11: Web Search](../exercises/11_web_search.md)** - Built-in search with openai/gpt-oss-20b:online
+- **[Exercise 11: Web Search](../exercises/11_web_search.md)** - Built-in search with google/gemini-3.8-flash:online
 - **[Exercise 12: Code Execution](../exercises/12_code_execution.md)** - Python execution with openai/gpt-oss-20b
 - **[Exercise 13: Reasoning](../exercises/13_reasoning.md)** - Step-by-step thinking with prompt caching
 - **[Exercise 14: Text-to-Speech](../exercises/14_text_to_speech.md)** - Voice synthesis with 11 voices

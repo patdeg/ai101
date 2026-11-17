@@ -65,7 +65,7 @@ func main() {
 
 	// Step 2: Prepare the request
 	request := AnthropicRequest{
-		Model: "claude-haiku-4-5",
+		Model: "claude-haiku-5-5",
 		Messages: []AnthropicMessage{
 			{
 				Role:    "user",
@@ -147,6 +147,6 @@ func main() {
 // Anthropic API Notes:
 // - Uses Messages API (not chat completions)
 // - Requires 3 headers: Content-Type, x-api-key, anthropic-version
-// - Models: claude-haiku-4-5 (fast), claude-sonnet-4-5 (balanced), claude-opus-4-5 (powerful)
+// - Models: claude-haiku-5-5 (fast), claude-sonnet-4-5 (balanced), claude-opus-4-5 (powerful)
 // - Response contains content blocks instead of message objects
 // - max_tokens is required (not optional like OpenAI)

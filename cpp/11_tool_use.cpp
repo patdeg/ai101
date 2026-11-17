@@ -147,7 +147,7 @@ int main() {
     }
 
     json request_body = {
-        {"model", "openai/gpt-oss-20b"},
+        {"model", "qwen/qwen3.8-flash"},
         {"messages", {
             {{"role", "user"}, {"content", user_query}}
         }},

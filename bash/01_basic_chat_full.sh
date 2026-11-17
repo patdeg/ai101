@@ -41,7 +41,7 @@ RESPONSE=$(curl -s "$API_URL" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $OPENROUTER_API_KEY" \
   -d '{
-    "model": "openai/gpt-oss-20b",
+    "model": "qwen/qwen3.8-flash",
     "messages": [
       {
         "role": "user",
@@ -49,7 +49,8 @@ RESPONSE=$(curl -s "$API_URL" \
       }
     ],
     "temperature": 0.7,
-    "max_tokens": 100
+    "max_tokens": 100,
+    "reasoning": {"enabled": false}
   }')
 
 # STEP 2: Display the raw API response (pretty-printed with jq)
@@ -84,13 +85,13 @@ echo "  Completion tokens: $COMPLETION_TOKENS"
 echo "  Total tokens:      $TOTAL_TOKENS"
 
 # STEP 4b: Calculate the cost of this API call
-# Pricing for openai/gpt-oss-20b on OpenRouter:
-#   Input:  $0.03 per 1M tokens
-#   Output: $0.13 per 1M tokens
+# Pricing for qwen/qwen3.8-flash on OpenRouter:
+#   Input:  $0.15 per 1M tokens
+#   Output: $0.47 per 1M tokens
 # Not a ":free" tier model, but cheap and reliable — a typical exchange
 # like this one costs a small fraction of a cent.
-INPUT_COST=$(echo "scale=8; $PROMPT_TOKENS * 0.03 / 1000000" | bc)
-OUTPUT_COST=$(echo "scale=8; $COMPLETION_TOKENS * 0.13 / 1000000" | bc)
+INPUT_COST=$(echo "scale=8; $PROMPT_TOKENS * 0.15 / 1000000" | bc)
+OUTPUT_COST=$(echo "scale=8; $COMPLETION_TOKENS * 0.47 / 1000000" | bc)
 TOTAL_COST=$(echo "scale=8; $INPUT_COST + $OUTPUT_COST" | bc)
 
 echo ""
@@ -123,7 +124,7 @@ echo ""
 #
 # Here's the request body with detailed explanations:
 # {
-#   "model": "openai/gpt-oss-20b",
+#   "model": "qwen/qwen3.8-flash",
 #     ↑ Which AI model to use
 #     OpenRouter model slugs are "vendor/model-name", and the ":free"
 #     suffix picks the no-cost, rate-limited tier of this model

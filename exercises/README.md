@@ -25,6 +25,7 @@ Each example has its own exercise file with challenges ranging from basic parame
 | 5 | [Safety Check (Image)](05_safety_image.md) | Vision moderation | Context, artistic content |
 | 6 | [Prompt Guard](06_prompt_guard.md) | Security, jailbreak detection | Attack patterns, validation |
 | 7 | [Whisper Audio](07_whisper.md) | Speech-to-text | Quality, languages, noise |
+| 7b | [Whisper Local](08b_whisper_local.md) | Local speech-to-text with `faster-whisper` (optional pip install) | Model sizes, RTF, subtitles, privacy vs cost |
 | 8 | [Tavily Search](08_tavily_search.md) | Web search API | News, finance, images, depth |
 | 9 | [Tavily Extract](09_tavily_extract.md) | Content extraction | Summaries, cleaning, scoring |
 | 10 | [Tool Use](10_tool_use.md) | AI agents, function calling | Single tool, multi-tool, custom tools, research agent |
@@ -34,6 +35,10 @@ Each example has its own exercise file with challenges ranging from basic parame
 | 14 | [Text-to-Speech](14_text_to_speech.md) | Voice synthesis with Fish Audio (free, via OpenRouter) | Voice cloning IDs, multi-speaker dialogue |
 | 16 | [Podcast](16_podcast.md) | Two-speaker podcast generation | Voice casting, script writing, bilingual content |
 | 18 | [Pose Estimation](18_pose_estimation.md) | Computer vision, webcam pose detection | Blue ball → shapes → ArUco → face → skeleton → jump analyzer |
+| 19 | [Audiobook Voices](19_audiobook_voices.md) | Gemini TTS: narrator + 2-speaker dialogue | Casting, style directions, caching |
+| 20 | [Audiobook SFX](20_audiobook_sfx.md) | ElevenLabs text-to-sound-effect | Prompt craft, credit napkin math, call budgets |
+| 21 | [Audiobook Music](21_audiobook_music.md) | AI writes a score, we write MIDI and render it | Validating AI output, synthesis, timbre |
+| 22 | [Audiobook Mix](22_audiobook_mix.md) | Timeline mixing: gain, fades, overlap | Ducking, stereo, your own episode |
 
 ## How to Use These Exercises
 

@@ -89,7 +89,7 @@ const apiKey = process.env.OPENROUTER_API_KEY;
 // Step 2: Create the request payload
 // This defines what we're sending to the API
 const data = JSON.stringify({
-  model: "openai/gpt-oss-20b",
+  model: "qwen/qwen3.8-flash",
   messages: [...]
 });
 ```
@@ -104,7 +104,7 @@ const data = JSON.stringify({
   ```bash
   curl -d @- <<EOF
   {
-    "model": "openai/gpt-oss-20b",
+    "model": "qwen/qwen3.8-flash",
     "messages": [{"role": "user", "content": "Hello"}]
   }
   EOF
@@ -149,29 +149,29 @@ const data = JSON.stringify({
 > unchanged (always direct).
 
 **OpenRouter Models (default for nearly everything):**
-- Chat/System Prompt/Templates: `openai/gpt-oss-20b`
-- Vision: `google/gemma-4-31b-it`
+- Chat/System Prompt/Templates: `qwen/qwen3.8-flash`
+- Vision: `google/gemini-3.8-flash`
 - Safety (Text + Vision): `meta-llama/llama-guard-4-12b` (same model as before, just called directly on OpenRouter instead of via Demeterics-proxied Groq)
 - Prompt Guard: `openai/gpt-oss-safeguard-20b` (purpose-built safety/guardrail classifier; no free dedicated prompt-injection model exists on OpenRouter)
 - Whisper Audio: `openai/whisper-1` via `/audio/transcriptions`
-- Tool Use: `openai/gpt-oss-20b` (supports function calling)
-- Web Search: append `:online` to any model slug, e.g. `openai/gpt-oss-20b:online` (built-in search-augmented generation)
+- Tool Use: `qwen/qwen3.8-flash` (supports function calling)
+- Web Search: append `:online` to any model slug, e.g. `google/gemini-3.8-flash:online` (built-in search-augmented generation)
 - Text-to-Speech: `fish-audio/s2.1-pro-free:free` via `/audio/speech` (single voice for TTS, two-speaker dialogue for podcast)
 
 **Groq Models (direct, examples 12/13 reasoning + code execution only):**
 - Reasoning + Code: `openai/gpt-oss-20b` (step-by-step thinking, Python execution, prompt caching)
 
 **Pricing:**
-- GPT-OSS-20B (OpenRouter, chat/tool-use): Input $0.03/1M, Output $0.13/1M
-- Gemma 4 31B (OpenRouter, vision): Input $0.09/1M, Output $0.34/1M
+- Qwen3.8 Flash (OpenRouter, chat/tool-use): Input $0.15/1M, Output $0.47/1M
+- Gemini 3.8 Flash (OpenRouter, vision + web search): Input $0.83/1M, Output $4.13/1M
 - LlamaGuard 4 12B: Input $0.18/1M, Output $0.18/1M
 - GPT-OSS Safeguard 20B: Input $0.075/1M, Output $0.30/1M
 - Whisper-1: **$0.006 per minute of audio**
 - Fish Audio S2.1 Pro Free: $0
-- Web search plugin (`:online`): ~$0.005/request (first 10 results)
+- Web search (`:online` on Gemini 3.8 Flash): about $0.03/request all-in (measured). `:online` did not work on Qwen3.8 Flash.
 - GPT-OSS-20B (Groq): Input $0.10/1M ($0.05/1M cached), Output $0.50/1M
 
-> The `:free` variants of gpt-oss-20b's chat family and gemma-4-31b-it were
+> The `:free` variants of the earlier chat models (gpt-oss-20b family, gemma-4-31b-it) were
 > tried first and dropped after live testing: the free reasoning-style chat
 > models reliably burned their whole `max_tokens` budget on chain-of-thought
 > and returned empty/truncated answers, and `gemma-4-31b-it:free` hit

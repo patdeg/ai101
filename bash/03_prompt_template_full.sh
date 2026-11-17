@@ -40,15 +40,15 @@ set -euo pipefail  # Exit on error, undefined variables, pipe failures
 
 # API configuration
 readonly API_URL="https://openrouter.ai/api/v1/chat/completions"
-readonly MODEL="openai/gpt-oss-20b"
+readonly MODEL="qwen/qwen3.8-flash"
 
 # Template configuration
 readonly TEMPLATE_DIR="../templates"
 readonly TEMPLATE_FILE="$TEMPLATE_DIR/essay_writer_simple.txt"
 
-# Pricing (per million tokens) - openai/gpt-oss-20b, via OpenRouter
-readonly INPUT_PRICE=0.03
-readonly OUTPUT_PRICE=0.13
+# Pricing (per million tokens) - qwen/qwen3.8-flash, via OpenRouter
+readonly INPUT_PRICE=0.15
+readonly OUTPUT_PRICE=0.47
 
 # Colors for output
 readonly RED='\033[0;31m'

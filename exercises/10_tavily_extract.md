@@ -265,7 +265,7 @@ SUMMARY_RESPONSE=$(curl -s -X POST "https://openrouter.ai/api/v1/chat/completion
   -H "Authorization: Bearer $OPENROUTER_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "openai/gpt-oss-20b",
+    "model": "qwen/qwen3.8-flash",
     "messages": [
       {
         "role": "system",

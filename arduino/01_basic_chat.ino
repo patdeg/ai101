@@ -193,9 +193,9 @@ String openRouterRequest(const char* prompt) {
   StaticJsonDocument<512> doc;
 
   // Set the AI model
-  // openai/gpt-oss-20b is the latest Llama model (Oct 2025)
+  // qwen/qwen3.8-flash is a fast, cheap chat model on OpenRouter
   // It's fast, accurate, and cost-effective for general chat
-  doc["model"] = "openai/gpt-oss-20b";
+  doc["model"] = "qwen/qwen3.8-flash";
 
   // Create the messages array
   // Chat APIs expect an array of message objects with "role" and "content"
@@ -209,6 +209,7 @@ String openRouterRequest(const char* prompt) {
   // Optional parameters to control AI behavior
   doc["temperature"] = 0.7;   // Randomness: 0.0 (focused) to 2.0 (creative)
   doc["max_tokens"] = 150;    // Maximum length of response (prevents very long answers)
+  doc["reasoning"]["enabled"] = false;  // thinking off: hidden thinking tokens would eat max_tokens
 
   // Convert JSON document to a String for sending
   String requestBody;

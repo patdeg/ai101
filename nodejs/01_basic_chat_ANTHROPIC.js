@@ -36,7 +36,7 @@ const https = require('https');
 // Step 2: Prepare the Anthropic request payload
 // Note: Anthropic has a slightly different format than OpenAI
 const data = JSON.stringify({
-  model: "claude-haiku-4-5",                    // Claude's fast, efficient model
+  model: "claude-haiku-5-5",                    // Claude's fast, efficient model
   max_tokens: 100,                              // REQUIRED for Anthropic (not optional!)
   temperature: 0.7,                             // Creativity level
   messages: [
@@ -127,5 +127,5 @@ req.end();
 // - Uses x-api-key header instead of Authorization Bearer
 // - Requires anthropic-version header
 // - Response format differs: content array instead of choices
-// - Models: claude-haiku-4-5 (fast), claude-sonnet (balanced), claude-opus (powerful)
+// - Models: claude-haiku-5-5 (fast), claude-sonnet (balanced), claude-opus (powerful)
 // - Excellent for long context and nuanced responses

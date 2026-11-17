@@ -80,12 +80,13 @@ int main() {
     /* Step 4: Build the JSON request body using nlohmann/json */
     /* This syntax is incredibly intuitive - almost like Python! */
     json request_body = {
-        {"model", "openai/gpt-oss-20b"},
+        {"model", "qwen/qwen3.8-flash"},
         {"messages", {
             {{"role", "user"}, {"content", "What is the capital of Switzerland?"}}
         }},
         {"temperature", 0.7},
-        {"max_tokens", 100}
+        {"max_tokens", 100},
+        {"reasoning", {{"enabled", false}}}  // thinking off for a short answer
     };
 
     /* Convert JSON to string for HTTP request */

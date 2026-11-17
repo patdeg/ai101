@@ -145,7 +145,7 @@ This library makes JSON feel natural in C++:
 ```cpp
 // Creating JSON (feels like Python/JavaScript!)
 json j;
-j["model"] = "openai/gpt-oss-20b";
+j["model"] = "qwen/qwen3.8-flash";
 j["messages"] = {{{"role", "user"}, {"content", "Hello!"}}};
 j["temperature"] = 0.7;
 

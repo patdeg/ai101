@@ -34,15 +34,15 @@ const path = require('path');
 // Configuration
 const API_HOST = 'openrouter.ai';
 const API_PATH = '/api/v1/chat/completions';
-const MODEL = 'openai/gpt-oss-20b';
+const MODEL = 'qwen/qwen3.8-flash';
 
 // Template configuration
 const TEMPLATE_DIR = path.join(__dirname, '..', 'templates');
 const TEMPLATE_FILE = path.join(TEMPLATE_DIR, 'essay_writer.txt');
 
-// Pricing (per million tokens) - openai/gpt-oss-20b, via OpenRouter
-const INPUT_PRICE = 0.03;
-const OUTPUT_PRICE = 0.13;
+// Pricing (per million tokens) - qwen/qwen3.8-flash, via OpenRouter
+const INPUT_PRICE = 0.15;
+const OUTPUT_PRICE = 0.47;
 
 /**
  * Create an example template file if it doesn't exist

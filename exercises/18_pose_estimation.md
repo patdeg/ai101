@@ -1,6 +1,6 @@
 # Exercise 18: Computer Vision - Pose Estimation
 
-[← Previous: Council Voting](17_council_voting.md) | [Back to Exercises](README.md)
+[← Previous: Podcast](16_podcast.md) | [Back to Exercises](README.md) | [Next: Audiobook Voices](19_audiobook_voices.md)
 
 ## What You Learned
 
@@ -364,4 +364,4 @@ These exercises covered the fundamentals of computer vision and pose estimation.
 **Related Examples:**
 - [python/18_pose_estimation.py](../python/18_pose_estimation.py)
 
-[← Previous: Council Voting](17_council_voting.md) | [Back to Exercises](README.md)
+[← Previous: Podcast](16_podcast.md) | [Back to Exercises](README.md) | [Next: Audiobook Voices](19_audiobook_voices.md)

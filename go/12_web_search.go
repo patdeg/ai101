@@ -73,7 +73,7 @@ func main() {
     }
 
     reqBody := ChatRequest{
-        Model: "openai/gpt-oss-20b:online",
+        Model: "google/gemini-3.8-flash:online",
         Messages: []ChatMessage{
             {Role: "system", Content: "You are a helpful research assistant. Provide concise answers with links. Use search when needed."},
             {Role: "user", Content: "What were the top 3 AI model releases last week? Include links and 1-sentence summaries."},

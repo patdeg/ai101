@@ -31,6 +31,14 @@ type ChatRequest struct {
 	// MaxTokens limits the length of the AI's response
 	// System prompts consume tokens, so budget accordingly
 	MaxTokens int `json:"max_tokens,omitempty"`
+
+	// Reasoning controls hidden "thinking". Reasoning models think first, and that hidden thinking counts against max_tokens. For short answers we switch it off.
+	Reasoning *Reasoning `json:"reasoning,omitempty"`
+}
+
+// Reasoning is the OpenRouter "reasoning" setting. Enabled=false turns thinking off.
+type Reasoning struct {
+	Enabled bool `json:"enabled"`
 }
 
 type Message struct {
@@ -128,7 +136,7 @@ func main() {
 	//
 	// The order matters! System message should come first
 	request := ChatRequest{
-		Model: "openai/gpt-oss-20b", // Free model on OpenRouter
+		Model: "qwen/qwen3.8-flash", // Fast, cheap model on OpenRouter
 		Messages: []Message{
 			{
 				// First message: System prompt defines AI behavior and constraints
@@ -145,6 +153,7 @@ func main() {
 		},
 		Temperature: 0.5, // Lower than basic_chat (0.7) for more focused, factual responses
 		MaxTokens:   150, // Enough for a 2-sentence response
+		Reasoning:   &Reasoning{Enabled: false}, // thinking off for a short answer
 	}
 
 	// Step 3: Convert struct to JSON

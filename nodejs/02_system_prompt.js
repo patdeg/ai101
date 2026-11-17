@@ -36,7 +36,7 @@ const https = require('https');
 // Step 2: Create the request payload with BOTH system and user messages
 // Notice the messages array now has TWO objects, each with a different role
 const data = JSON.stringify({
-  model: "openai/gpt-oss-20b",
+  model: "qwen/qwen3.8-flash",
   messages: [
     {
       role: "system",  // SYSTEM message = instructions/rules for the AI
@@ -48,7 +48,9 @@ const data = JSON.stringify({
     }
   ],
   temperature: 0.5,   // Lower temperature = more consistent responses
-  max_tokens: 150
+  max_tokens: 150,
+  // Reasoning models think first, and that hidden thinking counts against max_tokens. For short answers we switch it off.
+  reasoning: { enabled: false }
 });
 
 // Step 3: Configure the HTTPS request options (same as example 1)

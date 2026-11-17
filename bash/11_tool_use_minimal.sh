@@ -41,7 +41,7 @@ INITIAL_RESPONSE=$(curl -s -X POST "https://openrouter.ai/api/v1/chat/completion
   -H "Content-Type: application/json" \
   -d @- <<'EOF'
 {
-  "model": "openai/gpt-oss-20b",
+  "model": "qwen/qwen3.8-flash",
   "messages": [
     {
       "role": "user",
@@ -125,7 +125,7 @@ FINAL_RESPONSE=$(curl -s -X POST "https://openrouter.ai/api/v1/chat/completions"
   -H "Content-Type: application/json" \
   -d @- <<EOF
 {
-  "model": "openai/gpt-oss-20b",
+  "model": "qwen/qwen3.8-flash",
   "messages": $MESSAGES,
   "tool_choice": "none"
 }

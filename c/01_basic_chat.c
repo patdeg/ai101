@@ -115,10 +115,14 @@ int main(void) {
     cJSON_AddItemToArray(messages, message);
 
     /* Add fields to root object */
-    cJSON_AddStringToObject(root, "model", "openai/gpt-oss-20b");
+    cJSON_AddStringToObject(root, "model", "qwen/qwen3.8-flash");
     cJSON_AddItemToObject(root, "messages", messages);
     cJSON_AddNumberToObject(root, "temperature", 0.7);
     cJSON_AddNumberToObject(root, "max_tokens", 100);
+    /* Reasoning models think first, and that hidden thinking counts against max_tokens. For short answers we switch it off. */
+    cJSON *reasoning = cJSON_CreateObject();
+    cJSON_AddBoolToObject(reasoning, "enabled", 0);
+    cJSON_AddItemToObject(root, "reasoning", reasoning);
 
     /* Convert cJSON object to string */
     char *json_payload = cJSON_PrintUnformatted(root);

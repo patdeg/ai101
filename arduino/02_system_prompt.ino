@@ -140,7 +140,7 @@ void setup() {
   StaticJsonDocument<1024> requestDoc;
 
   // Select the AI model to use
-  requestDoc["model"] = "openai/gpt-oss-20b";
+  requestDoc["model"] = "qwen/qwen3.8-flash";
 
   // Create the messages array - this will hold our system and user messages
   JsonArray messages = requestDoc.createNestedArray("messages");
@@ -174,6 +174,7 @@ void setup() {
 
   // Limit response length to 200 tokens
   requestDoc["max_tokens"] = 200;
+  requestDoc["reasoning"]["enabled"] = false;  // thinking off: hidden thinking tokens would eat max_tokens
 
   // Convert the JSON document to a string for transmission
   String requestBody;

@@ -55,7 +55,7 @@ if not api_key:
 
 # Create the request payload with TWO messages this time
 payload = {
-    "model": "openai/gpt-oss-20b",
+    "model": "qwen/qwen3.8-flash",
     "messages": [
         {
             # SYSTEM MESSAGE: Sets the rules and behavior for the AI
@@ -69,7 +69,11 @@ payload = {
         }
     ],
     "temperature": 0.5,  # Lower temperature for more focused, factual responses
-    "max_tokens": 150    # Allow enough tokens for 2 sentences
+    "max_tokens": 150,    # Allow enough tokens for 2 sentences
+    # Reasoning models "think" first, and those hidden thinking tokens count against
+    # max_tokens. For a short factual answer we switch thinking off so the whole
+    # budget goes to the answer. (Example 14 shows when thinking IS worth paying for.)
+    "reasoning": {"enabled": False}
 }
 
 # ==============================================================================

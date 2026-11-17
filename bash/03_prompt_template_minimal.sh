@@ -17,7 +17,7 @@ curl -s https://openrouter.ai/api/v1/chat/completions \
   -H "Authorization: Bearer $OPENROUTER_API_KEY" \
   -d @- <<EOF
 {
-  "model": "openai/gpt-oss-20b",
+  "model": "qwen/qwen3.8-flash",
   "messages": [
     {"role": "system", "content": "$PROMPT"},
     {"role": "user", "content": "Write the essay about $TOPIC"}

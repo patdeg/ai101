@@ -108,12 +108,12 @@ Focus on practical examples.)";
 
     /* Step 6: Build JSON request */
     json request_body = {
-        {"model", "openai/gpt-oss-20b"},
+        {"model", "qwen/qwen3.8-flash"},
         {"messages", {
             {{"role", "user"}, {"content", final_prompt}}
         }},
         {"temperature", 0.7},
-        {"max_tokens", 200}
+        {"max_tokens", 2000}
     };
 
     std::string json_payload = request_body.dump();

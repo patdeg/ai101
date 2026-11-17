@@ -146,10 +146,10 @@ int main(void) {
     cJSON_AddStringToObject(message, "content", final_prompt);
     cJSON_AddItemToArray(messages, message);
 
-    cJSON_AddStringToObject(root, "model", "openai/gpt-oss-20b");
+    cJSON_AddStringToObject(root, "model", "qwen/qwen3.8-flash");
     cJSON_AddItemToObject(root, "messages", messages);
     cJSON_AddNumberToObject(root, "temperature", 0.7);
-    cJSON_AddNumberToObject(root, "max_tokens", 200);
+    cJSON_AddNumberToObject(root, "max_tokens", 2000);
 
     char *json_payload = cJSON_PrintUnformatted(root);
 

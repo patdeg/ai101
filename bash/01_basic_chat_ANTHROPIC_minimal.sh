@@ -7,7 +7,7 @@ curl -s https://api.anthropic.com/v1/messages \
   -H "x-api-key: $ANTHROPIC_API_KEY" \
   -H "anthropic-version: 2023-06-01" \
   -d '{
-    "model": "claude-haiku-4-5",
+    "model": "claude-haiku-5-5",
     "max_tokens": 100,
     "temperature": 0.7,
     "messages": [

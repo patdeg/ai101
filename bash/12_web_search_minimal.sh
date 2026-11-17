@@ -1,6 +1,6 @@
 #!/bin/sh
 ###############################################################################
-# Example 11 (Minimal): Web Search with openai/gpt-oss-20b:online
+# Example 11 (Minimal): Web Search with google/gemini-3.8-flash:online
 #
 # What this demonstrates:
 #   - Calling OpenRouter's chat API with a web-search-augmented model
@@ -38,7 +38,7 @@ curl -sS \
   -H "Content-Type: application/json" \
   -d @- <<'EOF'
 {
-  "model": "openai/gpt-oss-20b:online",
+  "model": "google/gemini-3.8-flash:online",
   "messages": [
     {"role": "system", "content": "You are a helpful research assistant. Provide concise, cited answers."},
     {"role": "user",   "content": "What were the top 3 AI model releases last week? Include links and brief summaries."}
@@ -51,7 +51,7 @@ EOF
 # Exercises (edit this file and re-run):
 # 1) Change the question to something location-specific (e.g., in your country).
 # 2) Try a more complex query using AND/OR wording (e.g., "ANNOUNCEMENTS AND (OpenAI OR Meta)").
-# 3) Switch to a bigger model by changing model to e.g. "openai/gpt-oss-120b:online".
+# 3) Try a different model that supports ":online" and compare answer and cost.
 # 4) For advanced control (include/exclude domains, country), see the full version script.
 
 # Quick tip: see exercises for this example (printed to stderr to keep stdout JSON-only)

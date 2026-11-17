@@ -329,7 +329,7 @@ func main() {
 //            ↓ if BENIGN
 //   Layer 2: LlamaGuard (12B params, ~200ms)
 //            ↓ if safe
-//   Layer 3: Main AI (e.g. openai/gpt-oss-20b, from Example 1)
+//   Layer 3: Main AI (e.g. qwen/qwen3.8-flash, from Example 1)
 //
 // Production code example:
 //

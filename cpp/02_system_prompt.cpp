@@ -68,7 +68,7 @@ int main() {
 
     /* With nlohmann/json, building complex JSON is beautiful! */
     json request_body = {
-        {"model", "openai/gpt-oss-20b"},
+        {"model", "qwen/qwen3.8-flash"},
         {"messages", {
             /* SYSTEM MESSAGE: Sets AI behavior - this AI will act as a pirate! */
             {
@@ -84,7 +84,8 @@ int main() {
             }
         }},
         {"temperature", 0.8},  /* Higher = more creative */
-        {"max_tokens", 150}
+        {"max_tokens", 150},
+        {"reasoning", {{"enabled", false}}}  // thinking off for a short answer
     };
 
     std::string json_payload = request_body.dump();

@@ -45,7 +45,7 @@
  *
  * NOTE: not every OpenRouter model supports vision - pick one whose modalities
  * include "image" at https://openrouter.ai/models (this example uses
- * google/gemma-4-31b-it)
+ * google/gemini-3.8-flash)
  */
 
 // Include WiFi library
@@ -175,7 +175,7 @@ void setup() {
 
   // Use a vision-capable model (NOT all models support vision!)
   // Regular chat models will fail if you send them images
-  requestDoc["model"] = "google/gemma-4-31b-it";
+  requestDoc["model"] = "google/gemini-3.8-flash";
 
   // Create the messages array
   JsonArray messages = requestDoc.createNestedArray("messages");

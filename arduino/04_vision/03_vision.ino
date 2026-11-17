@@ -7,7 +7,7 @@
  * WHAT THIS PROJECT DOES:
  *   - Press the BOOT button to capture a photo
  *   - Built-in LED flashes during capture
- *   - Sends image to a vision-capable model on OpenRouter (google/gemma-4-31b-it)
+ *   - Sends image to a vision-capable model on OpenRouter (google/gemini-3.8-flash)
  *   - AI analyzes and describes what's in the image
  *   - Displays description in Serial Monitor
  *
@@ -48,13 +48,12 @@
  *   5. AI description appears in Serial Monitor
  *
  * COST ESTIMATE:
- *   - Each image analysis: ~$0.0001 (1/10th of a cent!)
- *   - 10,000 images for $1.00
+ *   - Each image analysis: roughly $0.001 (a tenth of a cent) at $0.83/1M input tokens
+ *   - Check the current price on openrouter.ai before planning a big batch
  *
  * MODEL INFO:
- *   - google/gemma-4-31b-it
+ *   - google/gemini-3.8-flash
  *   - Vision + chat model (sees images + understands text)
- *   - 17 billion parameters
  *   - Can describe objects, scenes, read text, count items
  *   - 131K token context (handles very detailed descriptions)
  *
@@ -116,7 +115,7 @@ void setup() {
   Serial.println("============================================================");
   Serial.println("XIAO ESP32-S3 Sense - AI Vision Camera");
   Serial.println("============================================================");
-  Serial.println("Model: google/gemma-4-31b-it");
+  Serial.println("Model: google/gemini-3.8-flash");
   Serial.println("Camera: OV2640 (1600x1200)");
   Serial.println("============================================================");
   Serial.println();
@@ -327,7 +326,7 @@ void sendToVisionAPI(String base64Image) {
 
   // Build JSON payload
   String payload = "{";
-  payload += "\"model\":\"google/gemma-4-31b-it\",";
+  payload += "\"model\":\"google/gemini-3.8-flash\",";
   payload += "\"messages\":[{";
   payload += "\"role\":\"user\",";
   payload += "\"content\":[";

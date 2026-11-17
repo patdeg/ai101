@@ -34,7 +34,7 @@ if (!process.env.OPENROUTER_API_KEY) {
 // The ":online" suffix turns on OpenRouter's web-search plugin (default
 // engine Exa, ~$0.005 per request for up to 10 results) for any model.
 const payload = JSON.stringify({
-  model: 'openai/gpt-oss-20b:online',
+  model: 'google/gemini-3.8-flash:online',
   messages: [
     { role: 'system', content: 'You are a helpful research assistant. Provide concise answers with source links. Use search when needed.' },
     { role: 'user', content: 'What were the top 3 AI model releases last week? Include links and 1-sentence summaries.' }
@@ -56,7 +56,7 @@ const options = {
 };
 
 console.log('========================================');
-console.log('Web Search: openai/gpt-oss-20b:online');
+console.log('Web Search: google/gemini-3.8-flash:online');
 console.log('========================================\n');
 
 // Step 3: Send request

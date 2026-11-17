@@ -89,7 +89,7 @@ Reflect:
 Goal: Evaluate trade-offs between model sizes when web search is layered on top.
 
 Run the same query with `:online` appended to two different base models, e.g.:
-- `openai/gpt-oss-20b:online` (small/fast, free base model)
+- `google/gemini-3.8-flash:online` (fast, cheap, search plugin verified working)
 - a larger model of your choice from `https://openrouter.ai/models` with `:online` appended
 
 Success criteria:

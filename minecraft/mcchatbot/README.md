@@ -56,7 +56,7 @@ Environment variables allow the agent to be customized without code edits:
 | Variable | Default | Description |
 | --- | --- | --- |
 | `OPENROUTER_API_KEY` | – | Required API token for OpenRouter. |
-| `OPENROUTER_MODEL` | `openai/gpt-oss-20b` | Override the LLM model ID. |
+| `OPENROUTER_MODEL` | `qwen/qwen3.8-flash` | Override the LLM model ID. |
 | `MCCHATBOT_LOG_PATH` | `/usr/local/games/minecraft_server/MyServer/logs/latest.log` | Path to the Minecraft chat log to watch. |
 | `MCCHATBOT_SCREEN_NAME` | `mc-MyServer` | Name of the `screen` session controlling the server. |
 | `MCCHATBOT_SPAWN_POINT` | `0 80 0` | Coordinates Alfred uses for spawn teleports (`x y z` or comma-delimited). |

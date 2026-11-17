@@ -795,7 +795,7 @@ func main() {
     client := NewOpenRouterClient(os.Getenv("OPENROUTER_API_KEY"))
 
     response, err := client.Chat(
-        "openai/gpt-oss-20b",
+        "qwen/qwen3.8-flash",
         []Message{
             {Role: "user", Content: "What is Go?"},
         },
@@ -846,7 +846,7 @@ func (bot *Chatbot) Chat(userMessage string) (string, error) {
 
     // Get AI response
     response, err := bot.client.Chat(
-        "openai/gpt-oss-20b",
+        "qwen/qwen3.8-flash",
         bot.messages,
         map[string]interface{}{"temperature": 0.7},
     )
@@ -987,7 +987,7 @@ func chatHandler(w http.ResponseWriter, r *http.Request) {
     // Call AI (simplified)
     client := NewOpenRouterClient(os.Getenv("OPENROUTER_API_KEY"))
     response, err := client.Chat(
-        "openai/gpt-oss-20b",
+        "qwen/qwen3.8-flash",
         []Message{{Role: "user", Content: req.Message}},
         nil,
     )
@@ -1039,7 +1039,7 @@ import (
 func main() {
     // Define flags
     message := flag.String("m", "", "Message to send")
-    model := flag.String("model", "openai/gpt-oss-20b", "Model to use")
+    model := flag.String("model", "qwen/qwen3.8-flash", "Model to use")
     temp := flag.Float64("temp", 0.7, "Temperature (0.0-2.0)")
 
     flag.Parse()

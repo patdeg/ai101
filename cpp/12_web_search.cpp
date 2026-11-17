@@ -64,7 +64,7 @@ int main() {
      * OpenRouter's web-search plugin (default engine: Exa) for this call -
      * no separate search API needed, same idea as groq/compound-mini before. */
     json request_body = {
-        {"model", "openai/gpt-oss-20b:online"},
+        {"model", "google/gemini-3.8-flash:online"},
         {"messages", {
             {{"role", "user"}, {"content", user_query}}
         }},

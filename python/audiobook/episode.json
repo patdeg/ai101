@@ -1,0 +1,24 @@
+{
+  "title": "The Lighthouse Radio",
+  "narration": "The storm had been rolling in for three days. At the top of Gull Point lighthouse, an old radio crackled to life, and Maya climbed the last stair to answer it.",
+  "dialogue": [
+    ["Maya", "Tomas, is that you? I thought the cables were down."],
+    ["Tomas", "They are. This is the old radio, Maya. The one grandpa hid behind the lamp."],
+    ["Maya", "Then somebody out there needs the light. Help me turn it on."],
+    ["Tomas", "Hold on tight. Here we go!"]
+  ],
+  "voices": {"narrator": "Charon", "Maya": "Kore", "Tomas": "Puck"},
+  "sfx": {
+    "storm_door": {"prompt": "heavy wooden door creaking open, howling wind and distant thunder", "seconds": 3},
+    "big_switch": {"prompt": "huge electric lever pulled, machinery humming up to speed, then a foghorn", "seconds": 3}
+  },
+  "music_brief": "A calm, mysterious theme for a seaside storm story. Slow, about 80 beats per minute, minor key, a soft pad, a gentle plucked melody and a low bass. Exactly 32 beats long (about 24 seconds).",
+  "fallback_score": {
+    "tempo": 80,
+    "tracks": [
+      {"name": "pad",    "timbre": "pad",   "notes": [[57,0,8,60],[53,8,8,60],[52,16,8,60],[57,24,8,60]]},
+      {"name": "melody", "timbre": "pluck", "notes": [[69,0,1,90],[72,1,1,80],[76,2,2,90],[74,4,1,80],[72,5,1,80],[69,6,2,90],[67,8,1,90],[69,9,1,80],[72,10,2,90],[71,12,1,80],[69,13,1,80],[64,14,2,90],[64,16,1,90],[67,17,1,80],[72,18,2,90],[71,20,1,80],[67,21,1,80],[64,22,2,90],[69,24,4,90],[57,28,4,70]]},
+      {"name": "bass",   "timbre": "bass",  "notes": [[45,0,4,90],[45,4,4,90],[41,8,4,90],[41,12,4,90],[40,16,4,90],[40,20,4,90],[45,24,4,90],[45,28,4,90]]}
+    ]
+  }
+}

@@ -127,7 +127,7 @@ image_url = f"data:{mime_type};base64,{image_base64}"
 
 # Create the request with BOTH text and image content
 payload = {
-    "model": "google/gemma-4-31b-it",
+    "model": "google/gemini-3.8-flash",
     "messages": [
         {
             "role": "user",

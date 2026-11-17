@@ -205,7 +205,7 @@ int main(void) {
     cJSON_AddItemToArray(messages, message);
 
     /* Assemble root */
-    cJSON_AddStringToObject(root, "model", "google/gemma-4-31b-it");
+    cJSON_AddStringToObject(root, "model", "google/gemini-3.8-flash");
     cJSON_AddItemToObject(root, "messages", messages);
     cJSON_AddNumberToObject(root, "max_tokens", 500);
 

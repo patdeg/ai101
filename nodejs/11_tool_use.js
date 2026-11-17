@@ -102,7 +102,7 @@ async function executeTool(functionName, args) {
 async function callGroq(messages, tools, toolChoice = 'auto') {
   return new Promise((resolve, reject) => {
     const data = JSON.stringify({
-      model: 'openai/gpt-oss-20b',
+      model: 'qwen/qwen3.8-flash',
       messages,
       tools,
       tool_choice: toolChoice
@@ -249,8 +249,8 @@ async function main() {
   console.log(`Completion tokens: ${usage.completion_tokens}`);
   console.log(`Total tokens: ${usage.total_tokens}`);
 
-  // openai/gpt-oss-20b pricing: $0.03/1M input, $0.13/1M output
-  const cost = (usage.prompt_tokens * 0.03 + usage.completion_tokens * 0.13) / 1000000;
+  // qwen/qwen3.8-flash pricing: $0.15/1M input, $0.47/1M output
+  const cost = (usage.prompt_tokens * 0.15 + usage.completion_tokens * 0.47) / 1000000;
   console.log(`Cost: $${cost.toFixed(6)}\n`);
 
   console.log('========================================');

@@ -177,7 +177,7 @@ int main(void) {
     cJSON_AddStringToObject(user_msg, "content", user_query);
     cJSON_AddItemToArray(messages, user_msg);
 
-    cJSON_AddStringToObject(root, "model", "openai/gpt-oss-20b");
+    cJSON_AddStringToObject(root, "model", "qwen/qwen3.8-flash");
     cJSON_AddItemToObject(root, "messages", cJSON_Duplicate(messages, 1));
     cJSON_AddItemToObject(root, "tools", cJSON_Duplicate(tools, 1));
     cJSON_AddStringToObject(root, "tool_choice", "auto");

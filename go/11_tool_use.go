@@ -96,7 +96,7 @@ func executeTool(functionName string, arguments map[string]interface{}) (map[str
 
 func callOpenRouter(messages []interface{}, tools []interface{}) (map[string]interface{}, error) {
 	requestData := map[string]interface{}{
-		"model":    "openai/gpt-oss-20b",
+		"model":    "qwen/qwen3.8-flash",
 		"messages": messages,
 	}
 
@@ -294,8 +294,8 @@ func main() {
 	fmt.Printf("Completion tokens: %.0f\n", completionTokens)
 	fmt.Printf("Total tokens: %.0f\n", totalTokens)
 
-	// openai/gpt-oss-20b pricing: $0.03/1M input, $0.13/1M output
-	cost := (promptTokens*0.03 + completionTokens*0.13) / 1000000
+	// qwen/qwen3.8-flash pricing: $0.15/1M input, $0.47/1M output
+	cost := (promptTokens*0.15 + completionTokens*0.47) / 1000000
 	fmt.Printf("Cost: $%.6f\n\n", cost)
 
 	fmt.Println("========================================")

@@ -36,9 +36,10 @@ if not api_key:
 
 # Step 2: Build payload
 # Appending ":online" to any model slug turns on OpenRouter's built-in
-# web-search plugin (default engine Exa, ~$0.005/request) for this call.
+# web-search plugin for this call. It does NOT work on every model: it did
+# nothing on qwen/qwen3.8-flash, but works on google/gemini-3.8-flash (about $0.03/request).
 payload = {
-    "model": "openai/gpt-oss-20b:online",
+    "model": "google/gemini-3.8-flash:online",
     "messages": [
         {"role": "system", "content": "You are a helpful research assistant. Provide concise answers with links. Use search when needed."},
         {"role": "user",   "content": "What were the top 3 AI model releases last week? Include links and 1-sentence summaries."}

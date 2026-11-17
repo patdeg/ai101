@@ -39,15 +39,15 @@ from typing import Dict, Any, Tuple, Optional
 # Configuration
 API_URL = "openrouter.ai"
 API_PATH = "/api/v1/chat/completions"
-MODEL = "openai/gpt-oss-20b"
+MODEL = "qwen/qwen3.8-flash"
 
 # Template configuration
 TEMPLATE_DIR = Path("../templates")
 TEMPLATE_FILE = TEMPLATE_DIR / "essay_writer.txt"
 
-# Pricing (per million tokens) - openai/gpt-oss-20b, via OpenRouter
-INPUT_PRICE = 0.03
-OUTPUT_PRICE = 0.13
+# Pricing (per million tokens) - qwen/qwen3.8-flash, via OpenRouter
+INPUT_PRICE = 0.15
+OUTPUT_PRICE = 0.47
 
 def create_example_template() -> None:
     """Create an example template file if it doesn't exist."""

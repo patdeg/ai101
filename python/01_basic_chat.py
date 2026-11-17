@@ -60,7 +60,7 @@ if not api_key:
 
 # Create the request payload (the data we're sending to the API)
 payload = {
-    "model": "openai/gpt-oss-20b",
+    "model": "qwen/qwen3.8-flash",
     "messages": [
         {
             "role": "user",  # This message is from the user
@@ -68,7 +68,11 @@ payload = {
         }
     ],
     "temperature": 0.7,  # Balanced creativity (good for factual questions)
-    "max_tokens": 100    # Limit response to ~100 tokens (~75 words)
+    "max_tokens": 100,    # Limit response to ~100 tokens (~75 words)
+    # Reasoning models "think" first, and those hidden thinking tokens count against
+    # max_tokens. For a short factual answer we switch thinking off so the whole
+    # budget goes to the answer. (Example 14 shows when thinking IS worth paying for.)
+    "reasoning": {"enabled": False}
 }
 
 # Before sending, we need to convert Python dictionary to JSON string

@@ -37,7 +37,7 @@ const https = require('https');
 // Step 2: Prepare the request payload (the data we'll send to the AI)
 // JSON.stringify() converts JavaScript object to JSON string format
 const data = JSON.stringify({
-  model: "openai/gpt-oss-20b",  // Which AI model to use ($0.03/1M input, $0.13/1M output)
+  model: "qwen/qwen3.8-flash",  // Which AI model to use ($0.15/1M input, $0.47/1M output)
   messages: [
     {
       role: "user",                                      // Who is speaking (user, system, or assistant)
@@ -45,7 +45,9 @@ const data = JSON.stringify({
     }
   ],
   temperature: 0.7,   // Creativity level (0.0 = focused, 2.0 = creative)
-  max_tokens: 100     // Maximum length of response
+  max_tokens: 100,    // Maximum length of response
+  // Reasoning models think first, and that hidden thinking counts against max_tokens. For short answers we switch it off.
+  reasoning: { enabled: false }
 });
 
 // Step 3: Configure the HTTP request options

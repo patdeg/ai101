@@ -75,6 +75,17 @@ Create a "Rosetta Stone" of AI API examples that teach programming fundamentals 
 15. **15_text_to_speech** - Voice synthesis with Fish Audio S2.1 Pro (via OpenRouter)
 16. **16_podcast** - Two-speaker podcast generation with Fish Audio S2.1 Pro (via OpenRouter)
 
+**Local Whisper (08b), Python only.** The one deliberate exception to "standard library only": needs `pip install faster-whisper` in a venv (arm64 and x86 wheels, no PyTorch). Tested on an arm64 Linux CPU (`tiny.en`, RTF 0.39 on `gettysburg.mp3`). Hosted example 08 stays the default.
+
+**Audiobook series (19-22), Python only, standard library only.** Four lessons that build one audio
+drama (music, narration, SFX, 2-person dialogue, SFX, music). Deliberately NOT in all 7 languages:
+audio mixing is the lesson, not the language. They share `python/audiobook/episode.json` and write
+to `python/audiobook/out/` (gitignored). Direct APIs, no proxy: Gemini TTS (`GEMINI_API_KEY`,
+`gemini-3.8-flash-tts`, override with `GEMINI_TTS_MODEL`), ElevenLabs sound-generation
+(`ELEVENLABS_API_KEY`), OpenRouter for the AI composer (optional, falls back to a built-in score).
+Lessons 19-20 cache by request hash and 20 has a hard `MAX_CALLS`. Lessons 21-22 were tested offline;
+19, 20 and the AI path of 21 had NOT been run against the live APIs when written.
+
 ## Bash Directory: Dual Version Strategy
 
 Each bash example has **two versions**:
@@ -116,7 +127,7 @@ Each bash example has **two versions**:
 ```bash
 curl -d @- <<EOF
 {
-  "model": "google/gemma-4-31b-it",
+  "model": "google/gemini-3.8-flash",
   "messages": [{
     "role": "user",
     "content": [
@@ -144,7 +155,7 @@ EOF
 
 **Examples**: 03_vision (camera), 07_whisper (microphone)
 
-### 5. API Models and Pricing (verified live against OpenRouter, 2026-08-26)
+### 5. API Models and Pricing (chat/vision/search re-verified live against OpenRouter, 2026-11-16)
 
 > **No Demeterics.** ai101 is a public training repo — every visitor is outside
 > Demeterics' whitelist by definition. Examples connect directly to **OpenRouter**
@@ -162,8 +173,8 @@ EOF
 > for simple chat, but its multi-turn tool-call continuation stayed flaky even
 > with that fix); `google/gemma-4-31b-it:free` hit persistent upstream 429s
 > from the shared free-tier pool. This repo now defaults to the small-paid
-> versions of both (`openai/gpt-oss-20b`, `google/gemma-4-31b-it` — a fraction
-> of a cent per call) for reliability. `openai/gpt-oss-safeguard-20b` (example
+> versions (originally `openai/gpt-oss-20b` and `google/gemma-4-31b-it`, switched on 2026-11-16 to
+> `qwen/qwen3.8-flash` and `google/gemini-3.8-flash`, still a fraction of a cent per call) for reliability. `openai/gpt-oss-safeguard-20b` (example
 > 07) has *mandatory* reasoning that can't be disabled — it needs a generous
 > `max_tokens` (400) and `"reasoning":{"effort":"low"}`, not a model swap.
 > Example 11 (tool_use)'s follow-up call also needs `tool_choice: "none"` to
@@ -171,18 +182,21 @@ EOF
 > budget models can occasionally return an empty response on that turn; a
 > production system would retry.
 
-**Chat / System Prompt / Templates / Tool Use**: `openai/gpt-oss-20b`
-- Input: $0.03/1M tokens, Output: $0.13/1M tokens (supports `tools`/`tool_choice`)
-- Deliberately NOT the `:free` variant (`openai/gpt-oss-20b:free` doesn't exist,
-  but the equivalent free-tier reasoning models tested, e.g.
-  `nvidia/nemotron-3.5-lightning:free`, reliably burned their entire `max_tokens`
-  budget on chain-of-thought and returned empty/truncated answers — see the
-  "Free-tier model reliability" note below)
+**Chat / System Prompt / Templates / Tool Use / AI composer (lesson 21)**: `qwen/qwen3.8-flash`
+- Input: $0.15/1M tokens, Output: $0.47/1M tokens (supports `tools`/`tool_choice`/`response_format`)
+- **Switched from `openai/gpt-oss-20b` on 2026-11-16** (checked live against OpenRouter's model list).
+  `gpt-oss-20b` still exists and is still used directly on Groq for examples 13-14.
+- It is a **reasoning model**: hidden thinking tokens count against `max_tokens`. In live
+  testing example 02 (`max_tokens` 150) returned `None` until the request carried
+  `"reasoning": {"enabled": false}`. Examples 01 and 02 (all languages) and lesson 21 send it.
+  Example 11 (tool use, large budget) works without it.
+- `:online` does NOT work with this model: the search plugin never ran (call cost $0.00005,
+  no citations). Example 12 uses `google/gemini-3.8-flash:online` instead.
 
-**Vision**: `google/gemma-4-31b-it`
-- Input: $0.09/1M tokens, Output: $0.34/1M tokens (image + text + video input)
-- Deliberately NOT `google/gemma-4-31b-it:free` — that variant hit persistent
-  upstream 429 rate-limiting during testing (`upstream_provider_shared_pool`)
+**Vision (and web search)**: `google/gemini-3.8-flash`
+- Input: $0.83/1M tokens, Output: $4.13/1M tokens (text, image, video, audio and file input)
+- Replaced `google/gemma-4-31b-it` on 2026-11-16 (that slug still exists but is now $0.20/$0.40,
+  not the $0.09/$0.34 recorded earlier, and its `:free` variant hit persistent 429s).
 
 **Safety (Text + Vision)**: `meta-llama/llama-guard-4-12b`
 - Same model this repo used before the migration — only the host changed (was
@@ -203,9 +217,10 @@ EOF
 - Body: `{"model": "openai/whisper-1", "input_audio": {"data": "<base64>", "format": "mp3"}}`
 - Response includes a `text` field with the transcript
 
-**Web Search**: append `:online` to any chat model, e.g. `openai/gpt-oss-20b:online`
-- OpenRouter's built-in search-augmented generation (default engine Exa)
-- ~$0.005/request for up to 10 results, on top of the underlying model's own cost
+**Web Search**: append `:online` to a model that supports it. Verified working: `google/gemini-3.8-flash:online`
+- OpenRouter's built-in search-augmented generation
+- Measured 2026-11-16: about $0.03 per request all-in with Gemini 3.8 Flash. Verify per model before
+  assuming `:online` works (it silently did nothing on `qwen/qwen3.8-flash`).
 - Replaces Groq's `groq/compound-mini`
 
 **Reasoning + Code Execution** (direct on Groq, NOT OpenRouter): `openai/gpt-oss-20b`

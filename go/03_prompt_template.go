@@ -45,13 +45,13 @@ import (
 // Configuration constants
 const (
 	API_URL       = "https://openrouter.ai/api/v1/chat/completions"
-	MODEL         = "openai/gpt-oss-20b"
+	MODEL         = "qwen/qwen3.8-flash"
 	TEMPLATE_DIR  = "../templates"
 	TEMPLATE_FILE = "essay_writer.txt"
 
-	// Pricing per million tokens (openai/gpt-oss-20b, via OpenRouter)
-	INPUT_PRICE  = 0.03
-	OUTPUT_PRICE = 0.13
+	// Pricing per million tokens (qwen/qwen3.8-flash, via OpenRouter)
+	INPUT_PRICE  = 0.15
+	OUTPUT_PRICE = 0.47
 )
 
 // ChatRequest represents the API request structure
